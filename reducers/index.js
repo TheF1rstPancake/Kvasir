@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 import wepay_user from './user'
 import wepay_account from './accounts'
-import checkouts from './checkouts'
+import wepay_checkout from './checkouts'
 import wepay_withdrawal from './withdrawals'
 import errors from './errors'
 
@@ -9,7 +9,7 @@ import errors from './errors'
 const todoApp = combineReducers({
   wepay_user,
   wepay_account,
-  checkouts,
+  wepay_checkout,
   wepay_withdrawal,
   errors
 })

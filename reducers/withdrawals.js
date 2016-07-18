@@ -44,7 +44,7 @@ function withdrawal_base(state = {
     }
 }
 
-function withdrawal(state = { }, action) {
+function withdrawal(state = {}, action) {
     switch (action.type) {
         case INVALIDATE:
         case RECEIVE:

@@ -29,7 +29,6 @@ var Checkouts = React.createClass({
         return array;
     },
     render: function() {
-        var this2 = this;
         if (this.props.checkoutInfo == null || $.isEmptyObject(this.props.checkoutInfo) || $.isEmptyObject(this.props.error) == false) {
             return (<div></div>);
         }
@@ -95,7 +94,7 @@ var Checkouts = React.createClass({
 
 const mapStateToProps = (state) => {
     return {
-        checkoutInfo:state.checkouts.checkoutInfo,
+        checkoutInfo:state.wepay_checkout.checkout.checkoutInfo,
         email: state.wepay_user.searchedUser,
         error: state.errors.info
     }

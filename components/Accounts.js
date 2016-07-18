@@ -14,6 +14,8 @@ import {addError} from "../actions/errors"
 import {BootstrapTable} from "react-bootstrap-table"
 
 import {fetchWithdrawalIfNeeded} from "../actions/withdrawals"
+import {fetchCheckoutIfNeeded} from "../actions/checkouts"
+
 import {searchAccount} from "../actions/accounts"
 
 import Base from "./Base"
@@ -26,22 +28,12 @@ var AccountBlock= React.createClass({
         }
     },
     handleClick: function(event) {
-        var this2 = this;
-        $.post("/checkout", {"email":this.props.email, "account_id": event.target.id})
-             .fail(function(data){
-                console.log("ERROR: ", data);
-                this2.setState({error:data.responseJSON});
-                this2.props.dispatch(addCheckouts({}));
-            })
-            .done(function(data){
-                this2.setState(
-                    {error:{}}
-                );
-                this2.props.dispatch(addCheckouts(data));
-            });
-
+        // set the account 
         this.props.dispatch(searchAccount(this.props.email, event.target.id));
-         this.props.dispatch(fetchWithdrawalIfNeeded(this.props.email, event.target.id));
+        
+        this.props.dispatch(fetchCheckoutIfNeeded(this.props.email, event.target.id));
+
+        this.props.dispatch(fetchWithdrawalIfNeeded(this.props.email, event.target.id));
     },
     formatAccountId: function(col, row) {
         return <a href='#' id={row.account_id} onClick={this.handleClick}>{col} - {row.account_id}</a>;
