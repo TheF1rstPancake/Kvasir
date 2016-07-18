@@ -96,7 +96,7 @@ var Checkouts = React.createClass({
 const mapStateToProps = (state) => {
     return {
         checkoutInfo:state.checkouts.checkoutInfo,
-        email: state.user.userInfo ? state.user.userInfo.email : undefined,
+        email: state.wepay_user.searchedUser,
         error: state.errors.info
     }
 }

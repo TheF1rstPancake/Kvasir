@@ -5,7 +5,10 @@ import UserInfo from "../components/User"
 import {addUser} from "../actions/user"
 import {addAccounts} from "../actions/accounts"
 import {addError} from "../actions/errors"
-import {searchUser, fetchUserIfNeeded} from "../actions/wepay_actions"
+import {searchUser, fetchUserIfNeeded} from "../actions/user"
+import {fetchAccountIfNeeded} from "../actions/accounts"
+
+
 
 var SearchBar = React.createClass({
 
@@ -26,45 +29,22 @@ var SearchBar = React.createClass({
         this.setState({value: event.target.value})
         console.log("scope updated!");
     },
-    handleSubmit: function(event) {
+    searchUser: function(event) {
         // grab value form input box and update our searchString
         // prevent form default behavior to prevent page reload on submit
         // after this is complete, the form will re-render and only contain results that match or string
         event.preventDefault();
         this.setState({searchString: this.state.value});
-        var this2 = this;
-        $.post("/user", {"email":this.state.value})
-            .fail(function(data){
-                console.log("ERROR: ", data);
-                
-                var error_data = JSON.parse(data.responseText);
-                this2.setState({error:error_data});
-                this2.props.dispatch(addError(error_data));
-            })
-            .done(function(data){
-                this2.setState(
-                    {error:{}}
-                );
-                this2.props.dispatch(addUser(data));
-                this2.props.dispatch(addError({}));
 
-            });
+        // change the state because now we've searched a user
+        this.props.dispatch(searchUser(this.state.value));
 
-            $.post("/account", {"email":this.state.value})
-            .fail(function(data){
-                this2.setState({error:JSON.parse(data.responseText)});
-                this2.props.dispatch(addAccounts({}));
-            })
-            .done(function(data){
-                this2.setState(
-                    {error:{}}
-                );
-                this2.props.dispatch(addAccounts(data));
-                this2.props.dispatch(addError({}));
+        // fetch the user info
+        this.props.dispatch(fetchUserIfNeeded(this.state.value));
 
-            });
-            //this.props.dispatch(searchUser(this.state.value));
-            //this.props.dispatch(fetchUserIfNeeded(this.state.value));
+        // we could also add fetch account info at this point to
+        // if the user search was successful then go get the account data
+        this.props.dispatch(fetchAccountIfNeeded(this.state.value));
     },
     render: function(dispatch) {
         var searchString = this.state.searchString.trim().toLowerCase();
@@ -76,7 +56,7 @@ var SearchBar = React.createClass({
         return (
             <div>
                 <h4>Search User by Email </h4>
-                <form onSubmit={this.handleSubmit}
+                <form onSubmit={this.searchUser}
                 >
                 <FormGroup controlId="userSearchForm">
                     <FormControl 

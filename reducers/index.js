@@ -1,19 +1,17 @@
 import { combineReducers } from 'redux'
-import user from './user'
-import accounts from './accounts'
+import wepay_user from './user'
+import wepay_account from './accounts'
 import checkouts from './checkouts'
-import withdrawals from './withdrawals'
+import wepay_withdrawal from './withdrawals'
 import errors from './errors'
-import wepay from "./wepay"
 
 /*Combine all the reducers to import into the main application*/
 const todoApp = combineReducers({
-  user,
-  accounts,
+  wepay_user,
+  wepay_account,
   checkouts,
-  withdrawals,
-  errors,
-  wepay
+  wepay_withdrawal,
+  errors
 })
 
 export default todoApp

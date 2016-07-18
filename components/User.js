@@ -39,7 +39,6 @@ var UserInfo = React.createClass({
     render: function() {
         // render user info
         var userInfoSection;
-        console.log("User: ", this.props);
         if(this.props.userInfo == null || $.isEmptyObject(this.props.error) == false){
             return <div></div>;
         }
@@ -89,7 +88,7 @@ var UserInfo = React.createClass({
 
 const mapStateToProps = (state) => {
     return {
-        userInfo:state.user.userInfo,
+        userInfo:state.wepay_user.user.userInfo,
         error: state.errors.info
     }
 }

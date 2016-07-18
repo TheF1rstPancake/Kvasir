@@ -13,6 +13,9 @@ import {addWithdrawals} from "../actions/withdrawals"
 import {addError} from "../actions/errors"
 import {BootstrapTable} from "react-bootstrap-table"
 
+import {fetchWithdrawalIfNeeded} from "../actions/withdrawals"
+import {searchAccount} from "../actions/accounts"
+
 import Base from "./Base"
 
 var AccountBlock= React.createClass({
@@ -37,17 +40,8 @@ var AccountBlock= React.createClass({
                 this2.props.dispatch(addCheckouts(data));
             });
 
-
-         $.post("/withdrawal", {"email":this.props.email, "account_id": event.target.id})
-             .fail(function(data){
-                console.log("ERROR: ", data);
-                this2.setState({error:data.responseJSON});
-                this2.props.dispatch(addWithdrawals({}));
-            })
-            .done(function(data){
-                this2.props.dispatch(addError({}));
-                this2.props.dispatch(addWithdrawals(data));
-            });
+        this.props.dispatch(searchAccount(this.props.email, event.target.id));
+         this.props.dispatch(fetchWithdrawalIfNeeded(this.props.email, event.target.id));
     },
     formatAccountId: function(col, row) {
         return <a href='#' id={row.account_id} onClick={this.handleClick}>{col} - {row.account_id}</a>;
@@ -61,13 +55,14 @@ var AccountBlock= React.createClass({
     },
     render: function() {
         var accounts = this.props.accountInfo;
+        console.log("ACCOUNT INFO: ", this.props.accountInfo);
         var this2 = this;
         if (accounts == null || $.isEmptyObject(accounts)  || $.isEmptyObject(this.props.error)==false) {
-            console.log("Rendering account error");
             return (<div></div>);
         }
         else {
             accounts = this.serialize(accounts); 
+            console.log("SERALIZED: ", accounts);
             return (
 
                 <div>
@@ -111,8 +106,8 @@ var AccountBlock= React.createClass({
 
 const mapStateToProps = (state) => {
     return {
-        accountInfo:state.accounts.accountInfo,
-        email: state.user.userInfo ? state.user.userInfo.email : undefined,
+        accountInfo:state.wepay_account.account.accountInfo,
+        email: state.wepay_user.searchedUser,
         error: state.errors.info
     }
 }

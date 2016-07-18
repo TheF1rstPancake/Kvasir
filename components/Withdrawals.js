@@ -28,6 +28,7 @@ var Withdrawals= React.createClass({
     },
     render: function() {
         var withdrawals = this.props.withdrawalInfo;
+        console.log("WITHDRAWALS: ", withdrawals);
         var this2 = this;
         if (withdrawals == null || $.isEmptyObject(this.props.error) == false){
             return (<div></div>);
@@ -77,8 +78,8 @@ var Withdrawals= React.createClass({
 
 const mapStateToProps = (state) => {
     return {
-        withdrawalInfo: state.withdrawals.withdrawalInfo,
-        email: state.user.userInfo ? state.user.userInfo.email : undefined,
+        withdrawalInfo: state.wepay_withdrawal.withdrawal.withdrawalInfo,
+        email: state.wepay_user.searchedUser,
         error: state.errors.info
     }
 }
