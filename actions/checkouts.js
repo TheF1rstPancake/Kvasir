@@ -2,6 +2,9 @@ export const REQUEST = 'REQUEST_CHECKOUTS'
 export const RECEIVE = 'RECEIVE_CHECKOUTS'
 export const SEARCH = 'SEARCH_CHECKOUTS'
 export const INVALIDATE = 'INVALIDATE_CHECKOUTS'
+export const REFUND = "REFUND_CHECKOUT"
+export const RECEIVE_REFUND = "RECEIVE_REFUND_CHECKOUT"
+export const CLEAR_REFUND = "CLEAR_REFUND_STATE"
 
 export function searchCheckout(email, account_id = null, checkout_id=null) {
     return {
@@ -40,6 +43,43 @@ function receiveCheckout(email, account_id = null, checkout_id = null, json) {
     }
 }
 
+function refundCheckout(email, checkout_id, amount = null, refund_reason) {
+    return {
+        type: REFUND,
+        email: email,
+        checkout_id: checkout_id,
+        amount:amount,
+        refund_reason:refund_reason
+    }
+}
+
+function receiveRefund(email, checkout_id, data) {
+    return {
+        type: RECEIVE_REFUND,
+        email: email,
+        checkout_id:checkout_id,
+        refund: data
+    }
+}
+
+function requestRefund(email, checkout_id, amount=null, refund_reason) {
+    return dispatch => {
+        dispatch(refundCheckout(email, checkout_id, amount, refund_reason))
+        return $.post("/refund", {"email":email, "checkout_id": checkout_id, "amount":amount, "refund_reason":refund_reason})
+        .fail(function(data){
+                console.log("ERROR: ", data);
+                var error_data = JSON.parse(data.responseText);
+            })
+            .done(function(data){
+                //dispatch receive refund action
+                dispatch(receiveRefund(email, checkout_id, data));
+                
+                // update the checkout data for this checkout
+                dispatch(fetchCheckoutIfNeeded(email, null, checkout_id))
+            })
+    }
+}
+
 function fetchCheckout(email, account_id = null, checkout_id = null) {
     return dispatch => {
         dispatch(requestCheckout(email, account_id, checkout_id))
@@ -50,7 +90,8 @@ function fetchCheckout(email, account_id = null, checkout_id = null) {
                 var error_data = JSON.parse(data.responseText);
             })
             .done(function(data){
-                dispatch(receiveCheckout(email, account_id, checkout_id, data))
+               //dispatch the receive reach
+                dispatch(receiveCheckout(email, account_id, checkout_id, data));
             })
     }
 }
@@ -65,10 +106,41 @@ function shouldFetchCheckout(state, account_id) {
     return false;
 }
 
-export function fetchCheckoutIfNeeded(email, account_id) {
+export function fetchCheckoutIfNeeded(email, account_id=null, checkout_id=null) {
     return (dispatch, getState) => {
         if (shouldFetchCheckout(getState())) {
-            return dispatch(fetchCheckout(email, account_id))
+            return dispatch(fetchCheckout(email, account_id, checkout_id))
         }
+    }
+}
+
+function shouldRefundCheckout(state, checkout_id, amount) {
+        var checkout = null;
+        console.log("Searching for checkout_id: ", checkout_id)
+        for (var i =0; i < state.wepay_checkout.checkout.checkoutInfo.length; i++) {
+            if (state.wepay_checkout.checkout.checkoutInfo[i].checkout_id == checkout_id) {
+                console.log("Found checkout to refund: ", checkout);
+                checkout = state.wepay_checkout.checkout.checkoutInfo[i];
+            }
+        }
+        if (checkout && checkout.amount - checkout.refund.amount_refunded > amount) {
+            console.log("Should refund");
+            return true;
+        }
+        console.log("Should NOT refund");
+        return false;
+}
+
+export function fetchRefundIfNeeded(email, checkout_id, amount, refund_reason) {
+    return(dispatch, getState) => {
+        if(shouldRefundCheckout(getState(), checkout_id, amount)) {
+            return dispatch(requestRefund(email, checkout_id, amount, refund_reason))
+        }
+    }
+}
+
+export function clearRefund() {
+    return {
+        type: CLEAR_REFUND
     }
 }

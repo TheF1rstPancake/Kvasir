@@ -5,7 +5,7 @@ import { combineReducers } from 'redux'
 
 import {
     SEARCH, INVALIDATE,
-    REQUEST, RECEIVE
+    REQUEST, RECEIVE, REFUND, RECEIVE_REFUND, CLEAR_REFUND
 } from '../actions/checkouts'
 
 function searchedCheckout(state = {}, action) {
@@ -17,28 +17,69 @@ function searchedCheckout(state = {}, action) {
     }
 }
 
+function updateSingleCheckout(checkout, action) {
+    return Object.assign({}, checkout, action.checkout);
+}
+
+function updateCheckout(state, action) {
+    console.log("Updating checkout: ", action)
+    for (var i = 0; i < state.checkoutInfo.length; i++) {
+        if(state.checkoutInfo[i].checkout_id == action.checkout_id) {
+            state.checkoutInfo =  [
+            ...state.checkoutInfo.slice(0, i),
+            updateSingleCheckout(state.checkoutInfo[i], action),
+            ...state.checkoutInfo.slice(i+1)
+            ];
+            break;
+        }
+    }
+    return state
+}
+
+
+
 function checkout_base(state = {
     isFetching: false,
     didInvalidate: false,
+    submitted_refund: false,
+    successful_refund:false,
     checkoutInfo: []
 }, action) {
     switch (action.type) {
         case INVALIDATE:
-        return Object.assign({}, state, {
-            didInvalidate: true
-        })
+            return Object.assign({}, state, {
+                didInvalidate: true
+            })
         case REQUEST:
-        return Object.assign({}, state, {
-            isFetching: true,
-            didInvalidate: false
-        })
+            return Object.assign({}, state, {
+                isFetching: true,
+                didInvalidate: false
+            })
         case RECEIVE:
-        return Object.assign({}, state, {
-            isFetching: false,
-            didInvalidate: false,
-            checkoutInfo: action.checkout,
-            lastUpdated: action.receivedAt
-        })
+            if (action.checkout_id) {
+                return Object.assign({}, state, updateCheckout(state, action));
+            }
+            return Object.assign({}, state, {
+                isFetching: false,
+                didInvalidate: false,
+                checkoutInfo: action.checkout,
+                lastUpdated: action.receivedAt
+            })
+        case REFUND:
+            return Object.assign({}, state, {
+                submitted_refund: true,
+                successful_refund:false,
+            })
+        case RECEIVE_REFUND:
+            return Object.assign({}, state, {
+                submitted_refund: false,
+                successful_refund:true,
+            })
+        case CLEAR_REFUND:
+            return Object.assign({}, state, {
+                submitted_refund: false,
+                successful_refund:false,
+            })
         default:
         return state
     }
@@ -49,6 +90,9 @@ function checkout(state = {}, action) {
         case INVALIDATE:
         case RECEIVE:
         case REQUEST:
+        case RECEIVE_REFUND:
+        case REFUND:
+        case CLEAR_REFUND:
             return Object.assign({}, state, checkout_base(state, action))
         default:
             return state

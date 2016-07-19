@@ -60,13 +60,42 @@ function getData(req, res, wepay_endpoint) {
     }
 }
 
+function getDataWithPackage(req, res, wepay_endpoint, package) {
+    email = req.body.email;
+
+    console.log("Getting info for: ", wepay_endpoint, email, package);
+    res.setHeader('Content-Type', 'application/json');
+
+    if (email && email == "giovannib+test05171604KYC@wepay.com") {
+        var wepay_settings = {
+            "access_token":     "STAGE_d452ad6379b3b60cdcc1e91e673906bac0922c3a143b53c12ef8f9c18c5f8228"
+        }
+        var wepay = new WePay(wepay_settings);
+        wepay.use_staging();
+        
+        try {
+            wepay.call(wepay_endpoint, package, function(response) {
+                wepay_response = JSON.parse(response.toString());
+                sendResponse(wepay_response, res);
+            });
+        }
+        catch(error) {
+            console.log(error);
+        }
+
+    }
+    else {
+        console.log("ERROR");
+
+        res.status(400).send(JSON.stringify({"error_code":400, "error_description":"database entry not found", "error_message":"No user exists with that email!  Please try again."}));
+    }
+}
+
 function getDataWithAccountId(req, res, wepay_endpoint) {
     email = req.body.email;
     account_id = req.body.account_id;
 
     console.log("Getting info for: ", wepay_endpoint, email, account_id);
-    res.setHeader('Content-Type', 'application/json');
-
     if (email && email == "giovannib+test05171604KYC@wepay.com") {
         var wepay_settings = {
             "access_token":     "STAGE_d452ad6379b3b60cdcc1e91e673906bac0922c3a143b53c12ef8f9c18c5f8228"
@@ -88,6 +117,7 @@ function getDataWithAccountId(req, res, wepay_endpoint) {
     }
     else {
         console.log("ERROR");
+        res.setHeader('Content-Type', 'application/json');
         res.status(400).send(JSON.stringify({"error_code":400, "error_description":"database entry not found", "error_message":"No user exists with that email!  Please try again."}));
     }
 }
@@ -113,7 +143,13 @@ app.post('/account', function(req, res){
  * By default this will load 50 of the most recent checkouts
  */
 app.post("/checkout", function(req, res) {
-    getDataWithAccountId(req, res, "/checkout/find");
+    if (req.body.checkout_id) {
+        var package = {"checkout_id":req.body.checkout_id}
+        getDataWithPackage(req, res, "/checkout", package);
+    }
+    else {
+        getDataWithAccountId(req, res, "/checkout/find");
+    }
 })
 
 app.post("/user/resend_confirmation", function(req, res){
@@ -122,6 +158,14 @@ app.post("/user/resend_confirmation", function(req, res){
 
 app.post("/withdrawal", function(req, res){
     getDataWithAccountId(req, res, "/withdrawal/find");
+})
+
+app.post("/refund", function(req, res) {
+    var package = {"checkout_id":req.body.checkout_id, "refund_reason":req.body.refund_reason};
+    if (req.body.amount) {
+        package['amount'] = req.body.amount;
+    }
+    getDataWithPackage(req, res, "/checkout/refund", package);
 })
 
 app.listen(port, function(error) {
