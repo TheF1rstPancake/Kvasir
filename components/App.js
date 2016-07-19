@@ -7,15 +7,16 @@ import Withdrawals from '../components/Withdrawals'
 import {Row, Col, Grid} from "react-bootstrap"
 
 const App = () => (
-  <Grid style={{"height":"100%"}}>
+  <Grid fluid={true}>
+  <h1>WePay Support Dashboard</h1>
     <Row>
-        <Col lg={5} sm={12} style={{"border-right":"solid black 1px"}}>
+        <Col lg={6} sm={12}>
             <SearchBar />
             <UserInfo />
             <AccountBlock />
             <Withdrawals />
         </Col>
-        <Col lg={6} sm={12} lgOffset={1}>
+        <Col lg={6} sm={12} style={{"border-left":"solid black 1px"}}>
             <Checkouts />
         </Col>
     </Row>  

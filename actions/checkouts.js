@@ -119,11 +119,11 @@ function shouldRefundCheckout(state, checkout_id, amount) {
         console.log("Searching for checkout_id: ", checkout_id)
         for (var i =0; i < state.wepay_checkout.checkout.checkoutInfo.length; i++) {
             if (state.wepay_checkout.checkout.checkoutInfo[i].checkout_id == checkout_id) {
-                console.log("Found checkout to refund: ", checkout);
                 checkout = state.wepay_checkout.checkout.checkoutInfo[i];
+                console.log("Found checkout to refund: ", checkout);
             }
         }
-        if (checkout && checkout.amount - checkout.refund.amount_refunded > amount) {
+        if (checkout && checkout.amount - checkout.refund.amount_refunded >= amount) {
             console.log("Should refund");
             return true;
         }
