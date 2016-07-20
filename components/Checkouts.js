@@ -1,3 +1,16 @@
+/**
+ * Object for displaying checkouts and handeling all actions that someone might want to perform on a checkout, including refunds.
+ * 
+ * The checkouts are displayed in a table, and every checkout can have a refund initiated on it (unless a full refund has already been given).
+ * Clicking the refund button will fire off a Bootstrap modal that will overlay the screen. Here the user has the opportunity to enter how much they want the refund to be for and initiate the refund.
+ * If the refund is successful, a message will appear at the bottom of the modal.  
+ * Exiting out of the modal will allow the user to continue perfomring other actions.
+ * Once the checkout is complete, the checkout object will be re-fetched from WePay and the table will reflect the changes to the object.
+ *
+ * NOTE: Exiting the modal after pressing submit does not kill the refund.  Once that process has started it will continue to the end 
+ *
+ */
+
 import React, { PropTypes } from 'react'
 import {Grid, Form, Label, FormGroup, FormControl, Row, Col, ControlLabel, Table, Button, Modal} from "react-bootstrap"
 import { connect } from 'react-redux'
@@ -279,9 +292,10 @@ const mapStateToProps = (state) => {
         checkoutInfo:state.wepay_checkout.checkout.checkoutInfo,
         email: state.wepay_user.searchedUser,
         account_id: state.wepay_account.searchedAccount.account_id,
-        error: state.errors.info,
         submitted_refund: state.wepay_checkout.checkout.submitted_refund,
         successful_refund: state.wepay_checkout.checkout.successful_refund,
+        error: state.errors.global ? state.errors.global.info : {}
+
     }
 }
 

@@ -89,7 +89,7 @@ var UserInfo = React.createClass({
 const mapStateToProps = (state) => {
     return {
         userInfo:state.wepay_user.user.userInfo,
-        error: state.errors.info
+        error: state.errors.global ? state.errors.global.info : {}
     }
 }
 

@@ -1,7 +1,11 @@
+import {addError, clearError} from "./errors"
+
 export const REQUEST = 'REQUEST_WITHDRAWALS'
 export const RECEIVE = 'RECEIVE_WITHDRAWALS'
 export const SEARCH = 'SEARCH_WITHDRAWALS'
 export const INVALIDATE = 'INVALIDATE_WITHDRAWALS'
+
+const ERROR_SCOPE = "withdrawals"
 
 export function searchWithdrawal(email, account_id = null, withdrawal_id = null) {
     return {
@@ -48,9 +52,11 @@ function fetchWithdrawal(email, account_id = null, withdrawal_id = null) {
             .fail(function(data){
                 console.log("ERROR: ", data);
                 var error_data = JSON.parse(data.responseText);
+                dispatch(addError(error_data));
             })
             .done(function(data){
-                dispatch(receiveWithdrawal(email, account_id, withdrawal_id, data))
+                dispatch(receiveWithdrawal(email, account_id, withdrawal_id, data));
+                dispatch(clearError())
             })
     }
 }

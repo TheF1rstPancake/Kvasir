@@ -1,3 +1,5 @@
+import {addError, clearError} from "./errors"
+
 export const REQUEST = 'REQUEST_CHECKOUTS'
 export const RECEIVE = 'RECEIVE_CHECKOUTS'
 export const SEARCH = 'SEARCH_CHECKOUTS'
@@ -69,13 +71,17 @@ function requestRefund(email, checkout_id, amount=null, refund_reason) {
         .fail(function(data){
                 console.log("ERROR: ", data);
                 var error_data = JSON.parse(data.responseText);
+                dispatch(addError(error_data));
             })
             .done(function(data){
                 //dispatch receive refund action
                 dispatch(receiveRefund(email, checkout_id, data));
                 
+                //clear the error field in the event that there even is one
+                dispatch(clearError());
+
                 // update the checkout data for this checkout
-                dispatch(fetchCheckoutIfNeeded(email, null, checkout_id))
+                dispatch(fetchCheckoutIfNeeded(email, null, checkout_id));
             })
     }
 }

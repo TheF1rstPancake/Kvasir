@@ -1,5 +1,8 @@
 /**
- * Reducer on users.  The initial state of a user is an empty string because we don't know anything about them.
+ * Reducer on users.  It is comprised of two objects:
+ *  
+ *
+ * Initial State - the intital state for a user is a {}
  */
 import { combineReducers } from 'redux'
 

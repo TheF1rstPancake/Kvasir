@@ -31,8 +31,10 @@ var AccountBlock= React.createClass({
         // set the account 
         this.props.dispatch(searchAccount(this.props.email, event.target.id));
         
+        // fetch the checkouts
         this.props.dispatch(fetchCheckoutIfNeeded(this.props.email, event.target.id));
 
+        // fetch the withdrawals
         this.props.dispatch(fetchWithdrawalIfNeeded(this.props.email, event.target.id));
     },
     formatAccountId: function(col, row) {
@@ -54,7 +56,6 @@ var AccountBlock= React.createClass({
         }
         else {
             accounts = this.serialize(accounts); 
-            console.log("SERALIZED: ", accounts);
             return (
 
                 <div>
@@ -100,7 +101,7 @@ const mapStateToProps = (state) => {
     return {
         accountInfo:state.wepay_account.account.accountInfo,
         email: state.wepay_user.searchedUser,
-        error: state.errors.info
+        error: state.errors.global ? state.errors.global.info : {}
     }
 }
 

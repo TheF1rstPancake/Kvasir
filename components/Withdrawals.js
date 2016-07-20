@@ -1,3 +1,10 @@
+/**
+ * Withdrawal object.  This is responsible for displaying and managing actions for withdrawals tied to a given account_id.
+ * The information contained in each withdrawal object is minimal.  The most important aspect is likely the "withdrawal_uri" which is a link the merchant can go to in order to see more information about a particular withdrawal.
+ * This link is WePay hosted so they will have to use their WePay login credentials to get to it, but that shouldn't be a problem.
+ * These links are not typically exposed to the merchants by partners, but giving their support people access to them should help them solve some issues with withdrawals.
+ *
+ */
 import React, { PropTypes } from 'react'
 import {FormGroup, FormControl, Row, Col, ControlLabel, Table} from "react-bootstrap"
 import { connect } from 'react-redux'
@@ -84,7 +91,8 @@ const mapStateToProps = (state) => {
     return {
         withdrawalInfo: state.wepay_withdrawal.withdrawal.withdrawalInfo,
         email: state.wepay_user.searchedUser,
-        error: state.errors.info
+        error: state.errors.global ? state.errors.global.info : {}
+
     }
 }
 

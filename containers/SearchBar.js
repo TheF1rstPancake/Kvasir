@@ -1,3 +1,11 @@
+/**
+ * Search Bar object.  This will be used primarily for gathering data from a partner's datastores.
+ * This search bar currently only has functionality for searching for users, but it could be extended to search for more.
+ *  
+ * The idea is that, we will require some level of user input in order to get the initial information in order to make calls to WePay.
+ * The data that a user needs to be able to provide will vary depending on how each partner has setup their database.  This object will likely grow beyond a simple text search bar into a full suite of dropdowns, text searches and radio buttons.
+ */
+
 import { connect } from 'react-redux'
 import React from 'react'
 import {FormGroup, FormControl} from "react-bootstrap"
@@ -7,8 +15,6 @@ import {addAccounts} from "../actions/accounts"
 import {addError} from "../actions/errors"
 import {searchUser, fetchUserIfNeeded} from "../actions/user"
 import {fetchAccountIfNeeded} from "../actions/accounts"
-
-
 
 var SearchBar = React.createClass({
 
@@ -74,11 +80,10 @@ var SearchBar = React.createClass({
 
 const mapStateToProps = (state) => {
     return {
-        error: state.errors.info
+        error: state.errors.global ? state.errors.global.info : {}
+
     }
 }
-
-
 
 
 SearchBar = connect(mapStateToProps)(SearchBar);

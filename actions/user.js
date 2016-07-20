@@ -1,3 +1,5 @@
+import {addError, clearError} from "./errors"
+
 export const REQUEST_USER = 'REQUEST_USERS'
 export const RECEIVE_USER = 'RECEIVE_USERS'
 export const SEARCH_USER = 'SEARCH_USERS'
@@ -17,11 +19,11 @@ export function invalidateUser(email) {
     }
 }
 
-function requestUser(email) {
-    return {
-        type: REQUEST_USER,
-        email:email
-    }
+function requestUser(email) { 
+        return {
+            type: REQUEST_USER,
+            email:email
+        }
 }
 
 function receiveUser(email, json) {
@@ -41,9 +43,11 @@ function fetchUser(email) {
             .fail(function(data){
                 console.log("ERROR: ", data);
                 var error_data = JSON.parse(data.responseText);
+                dispatch(addError(error_data));
             })
             .done(function(data){
-                dispatch(receiveUser(email, data))
+                dispatch(receiveUser(email, data));
+                dispatch(clearError());
             })
     }
 }

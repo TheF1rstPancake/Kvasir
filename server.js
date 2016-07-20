@@ -2,7 +2,7 @@ var webpack = require('webpack')
 var webpackDevMiddleware = require('webpack-dev-middleware')
 var webpackHotMiddleware = require('webpack-hot-middleware')
 var config = require('./webpack.config')
-var bodyParser = require('body-parser')     //parse requests
+var bodyParser = require('body-parser')
 var WePay = require("wepay").WEPAY;
 
 var express = require("express");
@@ -21,6 +21,14 @@ app.use(bodyParser.urlencoded({extended:true}));
 
 app.use('/static', express.static('static'));
 
+/**
+ * Send a response back to the client.
+ * This function also takes care of sending back errors when the WePay request fails.
+ * It will include the WePay error_description as well.
+ *
+ * @param package   - the data to send back to the user
+ * @param res       - ExpressJS response object
+ */
 function sendResponse(package, res) {
     res.setHeader('Content-Type', 'application/json');
     if ("error_code" in package) {
@@ -57,10 +65,22 @@ function getData(req, res, wepay_endpoint) {
         });
     }
     else {
-        res.status(400).send(JSON.stringify({"error_code":400, "error_description":"database entry not found", "error_message":"No user exists with that email!  Please try again."}));
+        var error_package = {"error_code":400, "error_description":"database entry not found", "error_message":"No user exists with that email!  Please try again."}
+        console.log("Error: ", error_package);
+        res.status(400).send(JSON.stringify(error_package));
     }
 }
 
+
+/**
+ * Make a request to the WePay API.  This will only work for endpoints that don't require the client_id or client_secret.
+ * This function will return a successful response with the data from WePay or an error response that can be used in the front end.
+ *
+ * @param req               - ExpressJS request object
+ * @param res               - ExpressJS response object
+ * @param wepay_endpoint    - the endpoint on WePay that we want to hit
+ * @param package           - the data you want to send to the WePay endpoint
+ */
 function getDataWithPackage(req, res, wepay_endpoint, package) {
     email = req.body.email;
 
@@ -139,9 +159,11 @@ app.post('/account', function(req, res){
     getData(req, res, "/account/find");
 })
 
-/*
- * send a request to /v2/checkout/find and return the response
- * By default this will load 50 of the most recent checkouts
+/**
+ * This endpoint has two seperate actions depending on the parameters passed
+ * If no checkout_id is given, then this will get the 50 most recent checkouts for the given account_id
+ * If a checkout_id is given, then this will fetch information for that checkout specifically.
+ * Passing the checkout_id is useful for updating a checkout's info after performing an action with the dashboard. 
  */
 app.post("/checkout", function(req, res) {
     if (req.body.checkout_id) {
@@ -157,14 +179,26 @@ app.post("/checkout", function(req, res) {
     }
 })
 
+/**
+ * Resend the confirmation email to a user
+ */
 app.post("/user/resend_confirmation", function(req, res){
-    getData(req, res, "/user/resend_confirmation");
+    getDataWithPackage(req, res, "/user/resend_confirmation", {});
 })
 
+/**
+ * Get a list of the 50 most recent withdrawals for the given account_id
+ */
 app.post("/withdrawal", function(req, res){
-    getDataWithAccountId(req, res, "/withdrawal/find");
+    getDataWithPackage(req, res, "/withdrawal/find", {"account_id":req.body.account_id});
 })
 
+/**
+ * Perform a refund for a given checkout_id.
+ * This endpoint requires the checkout_id and a refund_reason.
+ * The amount field should be used to perform a partial refund.  
+ * If no amount is passed, this will do a full refund
+ */
 app.post("/refund", function(req, res) {
     var package = {"checkout_id":req.body.checkout_id, "refund_reason":req.body.refund_reason};
     if (req.body.amount) {
@@ -173,6 +207,9 @@ app.post("/refund", function(req, res) {
     getDataWithPackage(req, res, "/checkout/refund", package);
 })
 
+/**
+ * Start the application
+ */
 app.listen(port, function(error) {
     if (error) {
         console.error(error)

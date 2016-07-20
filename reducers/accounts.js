@@ -9,6 +9,7 @@ import {
     REQUEST_ACCOUNT, RECEIVE_ACCOUNT
 } from '../actions/accounts'
 
+
 function searchedAccount(state = {}, action) {
     switch (action.type) {
         case SEARCH_ACCOUNT:
@@ -25,21 +26,21 @@ function account_base(state = {
 }, action) {
     switch (action.type) {
         case INVALIDATE_ACCOUNT:
-        return Object.assign({}, state, {
-            didInvalidate: true
-        })
+            return Object.assign({}, state, {
+                didInvalidate: true
+            })
         case REQUEST_ACCOUNT:
-        return Object.assign({}, state, {
-            isFetching: true,
-            didInvalidate: false
-        })
+            return Object.assign({}, state, {
+                isFetching: true,
+                didInvalidate: false
+            })
         case RECEIVE_ACCOUNT:
-        return Object.assign({}, state, {
-            isFetching: false,
-            didInvalidate: false,
-            accountInfo: action.accounts,
-            lastUpdated: action.receivedAt
-        })
+            return Object.assign({}, state, {
+                isFetching: false,
+                didInvalidate: false,
+                accountInfo: action.accounts,
+                lastUpdated: action.receivedAt
+            })
         default:
             return state
     }

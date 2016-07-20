@@ -37,13 +37,6 @@ function updateCheckout(state, action) {
     return state
 }
 
-function appendCheckouts(state, action){
-    if (state.checkoutInfo.length > 0) {
-
-    }
-}
-
-
 
 function checkout_base(state = {
     isFetching: false,

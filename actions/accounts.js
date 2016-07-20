@@ -1,3 +1,5 @@
+import {addError, clearError} from "./errors"
+
 export const REQUEST_ACCOUNT = 'REQUEST_ACCOUNT'
 export const RECEIVE_ACCOUNT = 'RECEIVE_ACCOUNT'
 export const SEARCH_ACCOUNT = 'SEARCH_ACCOUNT'
@@ -45,9 +47,11 @@ function fetchAccount(email, account_id = null) {
             .fail(function(data){
                 console.log("ERROR: ", data);
                 var error_data = JSON.parse(data.responseText);
+                dispatch(addError(error_data));
             })
             .done(function(data){
-                dispatch(receiveAccount(email, account_id, data))
+                dispatch(receiveAccount(email, account_id, data));
+                dispatch(clearError());
             })
     }
 }
