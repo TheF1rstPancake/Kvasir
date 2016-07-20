@@ -38,7 +38,6 @@ var Withdrawals= React.createClass({
     },
     render: function() {
         var withdrawals = this.props.withdrawalInfo;
-        console.log("WITHDRAWALS: ", withdrawals);
         var this2 = this;
         if (withdrawals == null || $.isEmptyObject(this.props.error) == false){
             return (<div></div>);

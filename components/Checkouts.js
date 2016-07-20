@@ -16,7 +16,7 @@ import {Grid, Form, Label, FormGroup, FormControl, Row, Col, ControlLabel, Table
 import { connect } from 'react-redux'
 import {BootstrapTable} from "react-bootstrap-table"
 
-import {fetchRefundIfNeeded, clearRefund, fetchCheckoutIfNeeded} from "../actions/checkouts"
+import {fetchRefundIfNeeded, clearRefund, fetchCheckoutIfNeeded, searchCheckout} from "../actions/checkouts"
 
 import Base from "./Base"
 
@@ -33,6 +33,7 @@ var Checkouts = React.createClass({
     },
     openModal: function(event) {
         this.setState({showModal:true, refund:{selectedCheckoutId: event.target.id}});
+        this.props.dispatch(searchCheckout(this.props.email, null, this.state.refund.selectedCheckoutId));
     },
     closeModal: function() {
         this.props.dispatch(clearRefund());

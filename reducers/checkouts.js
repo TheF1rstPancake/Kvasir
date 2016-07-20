@@ -59,12 +59,14 @@ function checkout_base(state = {
             if (action.checkout_id) {
                 return Object.assign({}, state, updateCheckout(state, action));
             }
-            return Object.assign({}, state, {
-                isFetching: false,
-                didInvalidate: false,
-                checkoutInfo: (state.checkoutInfo ? state.checkoutInfo.concat(action.checkout): action.checkout),
-                lastUpdated: action.receivedAt
-            })
+            else {
+                return Object.assign({}, state, {
+                    isFetching: false,
+                    didInvalidate: false,
+                    checkoutInfo: (state.checkoutInfo ? state.checkoutInfo.concat(action.checkout): action.checkout),
+                    lastUpdated: action.receivedAt
+                })
+            }
         case REFUND:
             return Object.assign({}, state, {
                 submitted_refund: true,
@@ -74,11 +76,13 @@ function checkout_base(state = {
             return Object.assign({}, state, {
                 submitted_refund: false,
                 successful_refund:true,
+                isFetching: false
             })
         case CLEAR_REFUND:
             return Object.assign({}, state, {
                 submitted_refund: false,
                 successful_refund:false,
+                isFetching: false
             })
         default:
         return state
