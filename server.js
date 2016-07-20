@@ -24,8 +24,9 @@ app.use('/static', express.static('static'));
 function sendResponse(package, res) {
     res.setHeader('Content-Type', 'application/json');
     if ("error_code" in package) {
-        console.log("Sending error!");
-        res.status(500).send(JSON.stringify({"error_code":500, "error_description":"wepay call died.  check server logs for more details.", "error_message":package.error_description}));
+        var error_package = {"error_code":500, "error_description":"wepay call died.  check server logs for more details.", "error_message":package.error_description}
+        console.log("Sending error!\t", error_package);
+        res.status(500).send(JSON.stringify(error_package));
     }
     else {
         res.send(JSON.stringify(package));
@@ -148,7 +149,11 @@ app.post("/checkout", function(req, res) {
         getDataWithPackage(req, res, "/checkout", package);
     }
     else {
-        getDataWithAccountId(req, res, "/checkout/find");
+        var package = {"account_id": req.body.account_id};
+        if (req.body.start && req.body.start != '') {
+            package.start = req.body.start;
+        }
+        getDataWithPackage(req, res, "/checkout/find", package);
     }
 })
 

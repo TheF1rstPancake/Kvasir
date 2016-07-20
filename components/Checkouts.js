@@ -1,9 +1,9 @@
 import React, { PropTypes } from 'react'
-import {Grid, Label, FormGroup, FormControl, Row, Col, ControlLabel, Table, Button, Modal} from "react-bootstrap"
+import {Grid, Form, Label, FormGroup, FormControl, Row, Col, ControlLabel, Table, Button, Modal} from "react-bootstrap"
 import { connect } from 'react-redux'
 import {BootstrapTable} from "react-bootstrap-table"
 
-import {fetchRefundIfNeeded, clearRefund} from "../actions/checkouts"
+import {fetchRefundIfNeeded, clearRefund, fetchCheckoutIfNeeded} from "../actions/checkouts"
 
 import Base from "./Base"
 
@@ -19,7 +19,6 @@ var Checkouts = React.createClass({
         }
     },
     openModal: function(event) {
-        console.log("OPENING MODAL", event.target.id);
         this.setState({showModal:true, refund:{selectedCheckoutId: event.target.id}});
     },
     closeModal: function() {
@@ -46,7 +45,6 @@ var Checkouts = React.createClass({
         if (this.props.successful_refund) {
             successful_refund = (<h3><Label bsStyle="success">Refund completed!</Label></h3>);
         }
-        console.log(successful_refund);
         return (
             <div>
             <Modal show = {this.state.showModal} onHide = {this.closeModal}>
@@ -55,48 +53,101 @@ var Checkouts = React.createClass({
                 </Modal.Header>
                 <Modal.Body>
                 <p><strong>Max Refundable Amount:</strong> ${maxRefundableAmount}</p>
-                <form onSubmit={this.refundCheckout}>
+                <Form horizontal onSubmit={this.refundCheckout}>
                     <FormGroup>
-                        <ControlLabel>Refund Amount</ControlLabel>
-                        <FormControl 
-                            type="number" 
-                            id="refundAmount"
-                            max={maxRefundableAmount}
-                            required
-                            />
+                        <Col lg={6} ms={12}>
+                            <ControlLabel>Refund Amount</ControlLabel>
+                            <FormControl 
+                                type="number" 
+                                id="refundAmount"
+                                step="0.01"
+                                max={maxRefundableAmount}
+                                ref = "refundAmount"
+                                onChange = {this.handleAmountChange}
+                                required
+                                />
+                        </Col>
+                        <Col lg={6} ms={12}>
+                            <ControlLabel>Refund Percentage</ControlLabel>
+                            <FormControl
+                                type="number"
+                                id="refundPercentage"
+                                step="0.01"
+                                max="100"
+                                onChange={this.handlePercentChange}
+                            />    
+                        </Col>
                     </FormGroup>
                     <FormGroup>
-                        <ControlLabel>Refund Reason</ControlLabel>    
-                        <FormControl
-                            type="text"
-                            id="refundReason"
-                            required/>
+                        <Col lg={12}>
+                            <ControlLabel>Refund Reason</ControlLabel>    
+                            <FormControl
+                                type="text"
+                                id="refundReason"
+                                required/>
+                        </Col>
                     </FormGroup>
-                    {successful_refund}
-                    <Button type="submit" bsStyle="success" value="Submit Refund" disabled={this.props.submitted_refund}>Submit Refund</Button>
-                </form>
+                    <FormGroup>
+                        <Col lg={12}>
+                        {successful_refund}
+                        </Col>
+                    </FormGroup>
+                    <FormGroup>
+                        <Col lg={12}>
+                        <Button type="submit" bsStyle="success" value="Submit Refund" disabled={this.props.submitted_refund}>Submit Refund</Button>
+                        </Col>
+                    </FormGroup>
+                </Form>
                 </Modal.Body>
             </Modal>
             </div>
             );
     },
     handleAmountChange: function(event) {
-        var current = this.state.refund;
-        current.refundAmount = event.target.value; 
-        this.setState({refund: current})
+        var currentPercent = $("#refundPercentage");
+        var refundAmount = event.target.value; 
+        var maxRefundableAmount = $("#refundAmount").prop("max");
+        currentPercent.val(((refundAmount*100)/maxRefundableAmount).toFixed(2));
+
+    },
+    handlePercentChange: function(event) {
+        var currentAmount = $("#refundAmount");
+        var currentPercent = event.target.value;
+        var maxRefundableAmount = $("#refundAmount").prop("max");
+
+        // change the refund amount based on the percent value that the user has entered
+        // this is designed to make the refund easier.  If their policy is to refund half, this takes away the guess work
+        currentAmount.val((maxRefundableAmount * (currentPercent/100.0)).toFixed(2));
+
     },
     handleReasonChange: function(event) {
         var current = this.state.refund;
         current.refundReason = event.target.value; 
         this.setState({refund: current})
     },
+    fetchMoreCheckouts: function(event) {
+        console.log("Fetching more checkouts for: ", this.props.email, this.props.account_id);
+        var start = this.props.checkoutInfo.length;
+        this.props.dispatch(fetchCheckoutIfNeeded(this.props.email, this.props.account_id, null, start));
+    },
     refundCheckout: function(e) {
         e.preventDefault();
         console.log("Performing refund for: ", this.state.refund.selectedCheckoutId);
+
         var checkout_id = this.state.refund.selectedCheckoutId;
         var refundAmount = $("#refundAmount").val();
         var refundReason = $("#refundReason").val();
+        var maxRefundableAmount = $("#refundAmount").prop("max");
+
+        console.log(refundAmount, maxRefundableAmount);
+
+        if (refundAmount - maxRefundableAmount == 0) {
+            console.log("Full refund!");
+            refundAmount = null;
+        }
         var current = this.state.refund;
+        current['refundAmount'] = refundAmount;
+        current['refundReason'] = refundReason;
         this.setState({refund:current})
 
         this.props.dispatch(fetchRefundIfNeeded(this.props.email, checkout_id, refundAmount, refundReason));
@@ -114,7 +165,7 @@ var Checkouts = React.createClass({
         var refundString = (<p><strong>Refunded</strong>: ${cell}<br></br>{row.refund_refund_reason}</p>);
         var refundButton = (<Button bsStyle="primary" bsSize="small" id={row.checkout_id} onClick={this.openModal}>Refund</Button>)
         if (cell > 0) {
-            if (cell == row.amount) {
+            if (cell >= row.amount) {
                 return (<div>{refundString}</div>)
             }
             else {
@@ -183,7 +234,12 @@ var Checkouts = React.createClass({
                             dataField = "amount"
                             >
                             Amount
-                        </TableHeaderColumn>    
+                        </TableHeaderColumn>   
+                        <TableHeaderColumn
+                            dataField="gross"
+                            >
+                            Gross Amount
+                        </TableHeaderColumn> 
                         <TableHeaderColumn 
                             dataField = "payer_email"
                             >
@@ -202,6 +258,15 @@ var Checkouts = React.createClass({
                         </TableHeaderColumn> 
                     </BootstrapTable>
                     </Row>
+                    <Row>
+                        <div className="pull-right">
+                            <Button 
+                                id="fetchMoreCheckouts"
+                                onClick = {this.fetchMoreCheckouts}
+                                bsStyle="primary"
+                            >Get More Checkouts</Button>
+                        </div>
+                    </Row>
                     {this.buildModal()}
                 </div>
             );
@@ -213,6 +278,7 @@ const mapStateToProps = (state) => {
     return {
         checkoutInfo:state.wepay_checkout.checkout.checkoutInfo,
         email: state.wepay_user.searchedUser,
+        account_id: state.wepay_account.searchedAccount.account_id,
         error: state.errors.info,
         submitted_refund: state.wepay_checkout.checkout.submitted_refund,
         successful_refund: state.wepay_checkout.checkout.successful_refund,

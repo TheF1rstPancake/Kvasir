@@ -26,6 +26,9 @@ var Withdrawals= React.createClass({
         }
         return array;
     },
+    formatBank: function(cell, row) {
+        return row.bank_data_bank_name + " XXXXXX" + cell;
+    },
     render: function() {
         var withdrawals = this.props.withdrawalInfo;
         console.log("WITHDRAWALS: ", withdrawals);
@@ -64,8 +67,9 @@ var Withdrawals= React.createClass({
                         </TableHeaderColumn>
                         <TableHeaderColumn 
                             dataField="bank_data_account_last_four" 
+                            dataFormat={this.formatBank}
                             >
-                            Account Last Four
+                            Bank
                         </TableHeaderColumn>
 
                     </BootstrapTable>

@@ -24,7 +24,7 @@ export function invalidateCheckout(email, account_id = null, checkout_id=null) {
     }
 }
 
-function requestCheckout(email, account_id = null, checkout_id = null) {
+function requestCheckout(email, account_id = null, checkout_id = null, start = null, stop = null) {
     return {
         type: REQUEST,
         email:email,
@@ -80,11 +80,11 @@ function requestRefund(email, checkout_id, amount=null, refund_reason) {
     }
 }
 
-function fetchCheckout(email, account_id = null, checkout_id = null) {
+function fetchCheckout(email, account_id = null, checkout_id = null, start = null) {
     return dispatch => {
         dispatch(requestCheckout(email, account_id, checkout_id))
 
-        return $.post("/checkout", {"email":email, "checkout_id":checkout_id, "account_id":account_id})
+        return $.post("/checkout", {"email":email, "checkout_id":checkout_id, "account_id":account_id, "start":start})
             .fail(function(data){
                 console.log("ERROR: ", data);
                 var error_data = JSON.parse(data.responseText);
@@ -97,7 +97,7 @@ function fetchCheckout(email, account_id = null, checkout_id = null) {
 }
 
 function shouldFetchCheckout(state, account_id) {
-    if (state.wepay_account && state.wepay_account.searchedAccount.account_id != null) {
+    if (state.wepay_account && state.wepay_account.searchedAccount.account_id != null && !state.wepay_checkout.checkout.isFetching) {
         return true;
     }
     else if(state.wepay_user.isFetching){
@@ -106,10 +106,10 @@ function shouldFetchCheckout(state, account_id) {
     return false;
 }
 
-export function fetchCheckoutIfNeeded(email, account_id=null, checkout_id=null) {
+export function fetchCheckoutIfNeeded(email, account_id=null, checkout_id=null, start = null) {
     return (dispatch, getState) => {
         if (shouldFetchCheckout(getState())) {
-            return dispatch(fetchCheckout(email, account_id, checkout_id))
+            return dispatch(fetchCheckout(email, account_id, checkout_id, start))
         }
     }
 }

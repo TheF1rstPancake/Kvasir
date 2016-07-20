@@ -33,7 +33,14 @@ function updateCheckout(state, action) {
             break;
         }
     }
+    state.isFeteching = false;
     return state
+}
+
+function appendCheckouts(state, action){
+    if (state.checkoutInfo.length > 0) {
+
+    }
 }
 
 
@@ -62,7 +69,7 @@ function checkout_base(state = {
             return Object.assign({}, state, {
                 isFetching: false,
                 didInvalidate: false,
-                checkoutInfo: action.checkout,
+                checkoutInfo: (state.checkoutInfo ? state.checkoutInfo.concat(action.checkout): action.checkout),
                 lastUpdated: action.receivedAt
             })
         case REFUND:
