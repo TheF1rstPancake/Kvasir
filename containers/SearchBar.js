@@ -40,17 +40,22 @@ var SearchBar = React.createClass({
         // prevent form default behavior to prevent page reload on submit
         // after this is complete, the form will re-render and only contain results that match or string
         event.preventDefault();
+        var this2 = this;
         this.setState({searchString: this.state.value});
 
         // change the state because now we've searched a user
         this.props.dispatch(searchUser(this.state.value));
 
-        // fetch the user info
-        this.props.dispatch(fetchUserIfNeeded(this.state.value));
+        // fetch the user info and after the user info is fetched, get the account error
+        this.props.dispatch(fetchUserIfNeeded(this.state.value, 
+                function(){
+                    this2.props.dispatch(fetchAccountIfNeeded(this2.state.value))
+                }
+        ));
 
         // we could also add fetch account info at this point to
         // if the user search was successful then go get the account data
-        this.props.dispatch(fetchAccountIfNeeded(this.state.value));
+        //this.props.dispatch(fetchAccountIfNeeded(this.state.value));
     },
     render: function(dispatch) {
         var searchString = this.state.searchString.trim().toLowerCase();

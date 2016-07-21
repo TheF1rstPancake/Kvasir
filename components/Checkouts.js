@@ -59,6 +59,9 @@ var Checkouts = React.createClass({
         if (this.props.successful_refund) {
             successful_refund = (<h3><Label bsStyle="success">Refund completed!</Label></h3>);
         }
+        else if (this.props.refund_error) {
+            successful_refund = (<h3><Label bsStyle="warning">{this.props.refund_error.error_message}</Label></h3>);
+        }
         return (
             <div>
             <Modal show = {this.state.showModal} onHide = {this.closeModal}>
@@ -203,7 +206,6 @@ var Checkouts = React.createClass({
         return array;
     },
     render: function() {
-        console.log("Rendering checkouts");
         if (this.props.checkoutInfo == null || $.isEmptyObject(this.props.checkoutInfo) || $.isEmptyObject(this.props.error) == false) {
             return (<div></div>);
         }
@@ -295,7 +297,8 @@ const mapStateToProps = (state) => {
         account_id: state.wepay_account.searchedAccount.account_id,
         submitted_refund: state.wepay_checkout.checkout.submitted_refund,
         successful_refund: state.wepay_checkout.checkout.successful_refund,
-        error: state.errors.global ? state.errors.global.info : {}
+        error: state.errors.global ? state.errors.global.info : {},
+        refund_error: state.errors.refund ? state.errors.refund.info: {}
 
     }
 }

@@ -25,9 +25,6 @@ var Withdrawals= React.createClass({
     },
     serializeWithdrawals: function(info) {
         var array = [];
-
-        console.log("BASE: ", Base);
-
         for (var i = 0; i < info.length; i++) {
             array.push(Base.flatten(info[i]));
         }

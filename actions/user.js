@@ -35,19 +35,22 @@ function receiveUser(email, json) {
     }
 }
 
-function fetchUser(email) {
+function fetchUser(email, callback) {
     return dispatch => {
         dispatch(requestUser(email))
-
         return $.post("/user", {"email":email})
             .fail(function(data){
                 console.log("ERROR: ", data);
-                var error_data = JSON.parse(data.responseText);
+                var error_data = data.responseJSON;
                 dispatch(addError(error_data));
             })
             .done(function(data){
                 dispatch(receiveUser(email, data));
                 dispatch(clearError());
+                if(callback != undefined) {
+                    console.log("CALLBACK: ", callback);
+                    callback();
+                }
             })
     }
 }
@@ -63,10 +66,10 @@ function shouldFetchUser(state, email) {
     return false;
 }
 
-export function fetchUserIfNeeded(email) {
+export function fetchUserIfNeeded(email, callback) {
     return (dispatch, getState) => {
         if (shouldFetchUser(getState(), email)) {
-            return dispatch(fetchUser(email))
+            return dispatch(fetchUser(email, callback))
         }
     }
 }

@@ -70,8 +70,8 @@ function requestRefund(email, checkout_id, amount=null, refund_reason) {
         return $.post("/refund", {"email":email, "checkout_id": checkout_id, "amount":amount, "refund_reason":refund_reason})
         .fail(function(data){
                 console.log("ERROR: ", data);
-                var error_data = JSON.parse(data.responseText);
-                dispatch(addError(error_data));
+                var error_data = data.responseJSON;
+                dispatch(addError(error_data, "refund"));
             })
             .done(function(data){
                 //dispatch receive refund action
@@ -93,7 +93,7 @@ function fetchCheckout(email, account_id = null, checkout_id = null, start = nul
         return $.post("/checkout", {"email":email, "checkout_id":checkout_id, "account_id":account_id, "start":start})
             .fail(function(data){
                 console.log("ERROR: ", data);
-                var error_data = JSON.parse(data.responseText);
+                var error_data = data.responseJSON;
             })
             .done(function(data){
                //dispatch the receive reach

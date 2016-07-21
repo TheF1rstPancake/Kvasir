@@ -49,7 +49,6 @@ var AccountBlock= React.createClass({
     },
     render: function() {
         var accounts = this.props.accountInfo;
-        console.log("ACCOUNT INFO: ", this.props.accountInfo);
         var this2 = this;
         if (accounts == null || $.isEmptyObject(accounts)  || $.isEmptyObject(this.props.error)==false) {
             return (<div></div>);

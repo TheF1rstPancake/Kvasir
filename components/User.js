@@ -11,7 +11,7 @@
 import React, { PropTypes } from 'react'
 import {FormGroup, FormControl, Row, Col, ControlLabel, Table, Button, Label} from "react-bootstrap"
 import { connect } from 'react-redux'
-import {addAccounts} from "../actions/accounts"
+import {addAccounts, fetchAccountIfNeeded} from "../actions/accounts"
 
 var UserInfo = React.createClass({
     getInitialState: function(){
@@ -32,8 +32,6 @@ var UserInfo = React.createClass({
                 this2.setState(
                     {resendError:{}}
                 );
-                this2.props.dispatch(addAccounts(data));
-
             });    
     },
     render: function() {

@@ -42,3 +42,6 @@ ngrok
 
 # OS X DS_STORE files
 *.DS_STORE
+
+# config.js file should not be shown as it will have secret info
+config.js

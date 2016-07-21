@@ -3,6 +3,10 @@ var webpackDevMiddleware = require('webpack-dev-middleware')
 var webpackHotMiddleware = require('webpack-hot-middleware')
 var config = require('./webpack.config')
 var bodyParser = require('body-parser')
+var request = require("request")
+
+var cookieSession = require("cookie-session")
+
 var WePay = require("wepay").WEPAY;
 
 var express = require("express");
@@ -10,6 +14,10 @@ var express = require("express");
 var app = new (express)()
 var port = 3000
 
+// load app configuration settings
+var config = require('./config');
+
+// load webpack compiler
 var compiler = webpack(config)
 app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: config.output.publicPath }))
 app.use(webpackHotMiddleware(compiler))
@@ -18,6 +26,11 @@ app.use(webpackHotMiddleware(compiler))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
+// setup cookie based sessions
+app.use(cookieSession({
+    name:"session",
+    secret: config.cookie_secret
+}))
 
 app.use('/static', express.static('static'));
 
@@ -32,116 +45,59 @@ app.use('/static', express.static('static'));
 function sendResponse(package, res) {
     res.setHeader('Content-Type', 'application/json');
     if ("error_code" in package) {
-        var error_package = {"error_code":500, "error_description":"wepay call died.  check server logs for more details.", "error_message":package.error_description}
+        var error_package = {"error_code":500, "error_description":"wepay call died. Check server logs for more details.", "error_message":package.error_description}
         console.log("Sending error!\t", error_package);
-        res.status(500).send(JSON.stringify(error_package));
+        return res.status(500).send(JSON.stringify(error_package));
     }
     else {
-        res.send(JSON.stringify(package));
+        return res.send(JSON.stringify(package));
     }
 }
 
-/**
- * Make a request to the WePay API.  This will only work for endpoints that don't require the client_id or client_secret.
- * This function will return a successful response with the data from WePay or an error response that can be used in the front end.
- *
- * @param req               - ExpressJS request object
- * @param res               - ExpressJS response object
- * @param wepay_endpoint    - the endpoint on WePay that we want to hit
- */
-function getData(req, res, wepay_endpoint) {
-    email = req.body.email;
-    console.log("Getting info for: ", wepay_endpoint, email);
-    if (email && email == "giovannib+test05171604KYC@wepay.com") {
-        var wepay_settings = {
-            "access_token":     "STAGE_d452ad6379b3b60cdcc1e91e673906bac0922c3a143b53c12ef8f9c18c5f8228"
-        }
-        var wepay = new WePay(wepay_settings);
-        wepay.use_staging();
+function getDataFromMiddleware(resource, data, callback) {
+    var uri = config.middleware_uri+"/"+resource;
 
-        wepay.call(wepay_endpoint, {}, function(response) {
-            var package = JSON.parse(response.toString());
-            sendResponse(package, res);
+    request.post(uri, {"json":data}, callback);
+}
+
+
+function getWePayData(res, wepay_endpoint, access_token, package) {
+    var wepay_settings = {
+        "access_token": access_token
+    }
+    var wepay = new WePay(wepay_settings);
+    wepay.use_staging();
+
+    console.log("Making request to wepay: ", wepay_endpoint, package);
+
+    try {
+        wepay.call(wepay_endpoint, package, function(response) {
+            sendResponse(JSON.parse(response.toString()), res);
         });
     }
-    else {
-        var error_package = {"error_code":400, "error_description":"database entry not found", "error_message":"No user exists with that email!  Please try again."}
-        console.log("Error: ", error_package);
-        res.status(400).send(JSON.stringify(error_package));
+    catch(error) {
+        //res.setHeader('Content-Type', 'application/json');
+        console.log("ERROR WITH WEPAY: ", error);
+        res.status(500).send(JSON.stringify(error));
     }
 }
 
-
-/**
- * Make a request to the WePay API.  This will only work for endpoints that don't require the client_id or client_secret.
- * This function will return a successful response with the data from WePay or an error response that can be used in the front end.
- *
- * @param req               - ExpressJS request object
- * @param res               - ExpressJS response object
- * @param wepay_endpoint    - the endpoint on WePay that we want to hit
- * @param package           - the data you want to send to the WePay endpoint
- */
-function getDataWithPackage(req, res, wepay_endpoint, package) {
-    email = req.body.email;
-
-    console.log("Getting info for: ", wepay_endpoint, email, package);
-    res.setHeader('Content-Type', 'application/json');
-
-    if (email && email == "giovannib+test05171604KYC@wepay.com") {
-        var wepay_settings = {
-            "access_token":     "STAGE_d452ad6379b3b60cdcc1e91e673906bac0922c3a143b53c12ef8f9c18c5f8228"
-        }
-        var wepay = new WePay(wepay_settings);
-        wepay.use_staging();
-        
-        try {
-            wepay.call(wepay_endpoint, package, function(response) {
-                wepay_response = JSON.parse(response.toString());
-                sendResponse(wepay_response, res);
-            });
-        }
-        catch(error) {
-            console.log(error);
-        }
-
+function parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint, wepay_package) {
+    if (body.error) {
+        // send error
+        body.error_code = 500;
+        body.error_description = body.error_message;
+        return sendResponse(body, res);
     }
     else {
-        console.log("ERROR");
-
-        res.status(400).send(JSON.stringify({"error_code":400, "error_description":"database entry not found", "error_message":"No user exists with that email!  Please try again."}));
+        if (body.access_token) {
+            console.log("Setting access token cookie:\t", body.access_token);
+            req.session.access_token = body.access_token;
+        }
+        return getWePayData(res, wepay_endpoint, req.session.access_token, wepay_package);
     }
 }
 
-function getDataWithAccountId(req, res, wepay_endpoint) {
-    email = req.body.email;
-    account_id = req.body.account_id;
-
-    console.log("Getting info for: ", wepay_endpoint, email, account_id);
-    if (email && email == "giovannib+test05171604KYC@wepay.com") {
-        var wepay_settings = {
-            "access_token":     "STAGE_d452ad6379b3b60cdcc1e91e673906bac0922c3a143b53c12ef8f9c18c5f8228"
-        }
-        var wepay = new WePay(wepay_settings);
-        wepay.use_staging();
-        
-        var package ={};
-        try {
-            wepay.call(wepay_endpoint, {"account_id":account_id}, function(response) {
-                package = JSON.parse(response.toString());
-                sendResponse(package, res);
-            });
-        }
-        catch(error) {
-            console.log(error);
-        }
-
-    }
-    else {
-        console.log("ERROR");
-        res.setHeader('Content-Type', 'application/json');
-        res.status(400).send(JSON.stringify({"error_code":400, "error_description":"database entry not found", "error_message":"No user exists with that email!  Please try again."}));
-    }
-}
 
 /*send main file*/
 app.get("/", function(req, res) {
@@ -151,12 +107,36 @@ app.get("/", function(req, res) {
 
 /*send a request to /v2/user and return the response*/
 app.post("/user", function(req, res) {
-    getData(req, res, "/user");
+    console.log('Incoming user request');
+    var package = {};
+    
+    // get the email from the search
+    var email = req.body.email;
+
+    // get the necessary data from our middleware function and then make the corresponding request to WePay
+    getDataFromMiddleware(
+        "user", 
+        {"account_owner_email":email}, 
+        function(error, response, body) {
+            return parseMiddlewareResponse(req, res, error, response, body, "/user", {});
+        }
+    );
 })
 
 /*send a request to /v2/account/find and return the response*/
 app.post('/account', function(req, res){
-    getData(req, res, "/account/find");
+    if (!req.session.access_token) {
+        return getDataFromMiddleware(
+            "account",
+            {},
+            function(error, response, body) {
+
+            }
+        );
+    }
+    else {
+        return getWePayData(res, "/account/find", req.session.access_token, {});
+    }
 })
 
 /**
@@ -166,17 +146,35 @@ app.post('/account', function(req, res){
  * Passing the checkout_id is useful for updating a checkout's info after performing an action with the dashboard. 
  */
 app.post("/checkout", function(req, res) {
+    // prep the package and wepay_endpoint we want to hit
+    var package = {};
+    var wepay_endpoint = "";
     if (req.body.checkout_id) {
-        var package = {"checkout_id":req.body.checkout_id}
-        getDataWithPackage(req, res, "/checkout", package);
+        package = {"checkout_id":req.body.checkout_id};
+        wepay_endpoint = "/checkout";
     }
     else {
-        var package = {"account_id": req.body.account_id};
+        package = {"account_id": req.body.account_id};
         if (req.body.start && req.body.start != '') {
             package.start = req.body.start;
         }
-        getDataWithPackage(req, res, "/checkout/find", package);
+        wepay_endpoint = "/checkout/find";
     }
+
+    // check if an access token has already been set.  If not, we are going to need to get one
+    if (!req.session.access_token) {
+        return getDataFromMiddleware(
+            "checkout",
+            {},
+            function(error,response, body) {
+                return parseMiddlewareResponse(req, res, parseMiddlewareResponse, error, response, body, wepay_endpoint, package)
+            }
+        );
+    }
+    else {
+        return getWePayData(res, wepay_endpoint, req.session.access_token, package);
+    }
+    
 })
 
 /**
@@ -190,7 +188,19 @@ app.post("/user/resend_confirmation", function(req, res){
  * Get a list of the 50 most recent withdrawals for the given account_id
  */
 app.post("/withdrawal", function(req, res){
-    getDataWithPackage(req, res, "/withdrawal/find", {"account_id":req.body.account_id});
+    var package = {"account_id":req.body.account_id};
+    if(!req.session.access_token) {
+        getDataFromMiddleware(
+            "withdrawal", 
+            {}, 
+            function(error, response, body) {
+                return parseMiddlewareResponse(req, res, error, response, body, "/withdrawal/find", package);
+            }
+        );
+    }
+    else {
+        getWePayData(res, "/withdrawal/find", package);
+    }
 })
 
 /**
@@ -204,7 +214,19 @@ app.post("/refund", function(req, res) {
     if (req.body.amount) {
         package['amount'] = req.body.amount;
     }
-    getDataWithPackage(req, res, "/checkout/refund", package);
+    if(!req.session.access_token) {
+        getDataFromMiddleware(
+            "checkout", 
+            {}, 
+            function(error, response, body) {
+                return parseMiddlewareResponse(req, res, error, response, body, "/checkout/refund", package);
+            }
+        );
+    }
+    else {
+        getWePayData(res, "/checkout/refund", req.session.access_token, package);
+
+    }
 })
 
 /**

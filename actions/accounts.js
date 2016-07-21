@@ -46,7 +46,7 @@ function fetchAccount(email, account_id = null) {
         return $.post("/account", {"email":email, "account_id":account_id})
             .fail(function(data){
                 console.log("ERROR: ", data);
-                var error_data = JSON.parse(data.responseText);
+                var error_data = data.responseJSON;
                 dispatch(addError(error_data));
             })
             .done(function(data){

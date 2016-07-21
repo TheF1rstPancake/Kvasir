@@ -19,6 +19,7 @@
   "dependencies": {
     "babel-polyfill": "^6.3.14",
     "body-parser": "^1.15.2",
+    "cookie-session": "^2.0.0-alpha.1",
     "graceful-fs": "^4.1.4",
     "react-bootstrap": "^0.29.5",
     "react-bootstrap-table": "^2.3.7",
