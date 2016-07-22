@@ -4,6 +4,7 @@ export const REQUEST = 'REQUEST_WITHDRAWALS'
 export const RECEIVE = 'RECEIVE_WITHDRAWALS'
 export const SEARCH = 'SEARCH_WITHDRAWALS'
 export const INVALIDATE = 'INVALIDATE_WITHDRAWALS'
+export const CLEAR = "CLEAR_WITHDRAWALS"
 
 const ERROR_SCOPE = "withdrawals"
 
@@ -76,5 +77,11 @@ export function fetchWithdrawalIfNeeded(email, account_id) {
         if (shouldFetchWithdrawal(getState())) {
             return dispatch(fetchWithdrawal(email, account_id))
         }
+    }
+}
+
+export function clearWithdrawals() {
+    return {
+        type: CLEAR
     }
 }

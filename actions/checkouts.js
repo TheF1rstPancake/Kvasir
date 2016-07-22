@@ -7,6 +7,7 @@ export const INVALIDATE = 'INVALIDATE_CHECKOUTS'
 export const REFUND = "REFUND_CHECKOUT"
 export const RECEIVE_REFUND = "RECEIVE_REFUND_CHECKOUT"
 export const CLEAR_REFUND = "CLEAR_REFUND_STATE"
+export const CLEAR_CHECKOUTS = "CLEAR_CHECKOUTS"
 
 export function searchCheckout(email, account_id = null, checkout_id=null) {
     return {
@@ -148,5 +149,11 @@ export function fetchRefundIfNeeded(email, checkout_id, amount, refund_reason) {
 export function clearRefund() {
     return {
         type: CLEAR_REFUND
+    }
+}
+
+export function clearCheckouts() {
+    return {
+        type: CLEAR_CHECKOUTS
     }
 }

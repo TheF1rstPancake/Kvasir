@@ -11,10 +11,12 @@ import React from 'react'
 import {FormGroup, FormControl} from "react-bootstrap"
 import UserInfo from "../components/User"
 import {addUser} from "../actions/user"
-import {addAccounts} from "../actions/accounts"
+import {addAccounts, clearAccounts} from "../actions/accounts"
 import {addError} from "../actions/errors"
 import {searchUser, fetchUserIfNeeded} from "../actions/user"
 import {fetchAccountIfNeeded} from "../actions/accounts"
+import {clearCheckouts} from "../actions/checkouts"
+import {clearWithdrawals} from "../actions/withdrawals"
 
 var SearchBar = React.createClass({
 
@@ -45,6 +47,10 @@ var SearchBar = React.createClass({
 
         // change the state because now we've searched a user
         this.props.dispatch(searchUser(this.state.value));
+
+        this.props.dispatch(clearAccounts());
+        this.props.dispatch(clearCheckouts());
+        this.props.dispatch(clearWithdrawals());
 
         // fetch the user info and after the user info is fetched, get the account error
         this.props.dispatch(fetchUserIfNeeded(this.state.value, 

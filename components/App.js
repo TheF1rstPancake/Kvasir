@@ -8,7 +8,6 @@ import {Row, Col, Grid} from "react-bootstrap"
 
 const App = () => (
   <Grid fluid={true}>
-  <h1>WePay Support Dashboard</h1>
     <Row>
         <Col lg={6} sm={12}>
             <SearchBar />
@@ -16,7 +15,7 @@ const App = () => (
             <AccountBlock />
             <Withdrawals />
         </Col>
-        <Col lg={6} sm={12} style={{"border-left":"solid black 1px"}}>
+        <Col lg={6} sm={12}>
             <Checkouts />
         </Col>
     </Row>  

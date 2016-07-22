@@ -206,7 +206,7 @@ var Checkouts = React.createClass({
         return array;
     },
     render: function() {
-        if (this.props.checkoutInfo == null || $.isEmptyObject(this.props.checkoutInfo) || $.isEmptyObject(this.props.error) == false) {
+        if (this.props.checkoutInfo == null || $.isEmptyObject(this.props.error) == false) {
             return (<div></div>);
         }
         else {

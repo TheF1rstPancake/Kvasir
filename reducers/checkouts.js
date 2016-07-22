@@ -5,7 +5,7 @@ import { combineReducers } from 'redux'
 
 import {
     SEARCH, INVALIDATE,
-    REQUEST, RECEIVE, REFUND, RECEIVE_REFUND, CLEAR_REFUND
+    REQUEST, RECEIVE, REFUND, RECEIVE_REFUND, CLEAR_REFUND, CLEAR_CHECKOUTS
 } from '../actions/checkouts'
 
 function searchedCheckout(state = {}, action) {
@@ -98,6 +98,8 @@ function checkout(state = {}, action) {
         case REFUND:
         case CLEAR_REFUND:
             return Object.assign({}, state, checkout_base(state, action))
+        case CLEAR_CHECKOUTS:
+            return {};
         default:
             return state
     }

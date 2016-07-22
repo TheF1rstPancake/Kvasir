@@ -4,6 +4,7 @@ export const REQUEST_ACCOUNT = 'REQUEST_ACCOUNT'
 export const RECEIVE_ACCOUNT = 'RECEIVE_ACCOUNT'
 export const SEARCH_ACCOUNT = 'SEARCH_ACCOUNT'
 export const INVALIDATE_ACCOUNT = 'INVALIDATE_ACCOUNT'
+export const CLEAR_ACCOUNTS = "CLEAR_ACCOUNTS"
 
 export function searchAccount(email, account_id = null) {
     return {
@@ -71,5 +72,11 @@ export function fetchAccountIfNeeded(email) {
         if (shouldFetchAccount(getState(), email)) {
             return dispatch(fetchAccount(email))
         }
+    }
+}
+
+export function clearAccounts() {
+    return {
+        type: CLEAR_ACCOUNTS
     }
 }

@@ -5,7 +5,7 @@ import { combineReducers } from 'redux'
 
 import {
     SEARCH, INVALIDATE,
-    REQUEST, RECEIVE
+    REQUEST, RECEIVE, CLEAR
 } from '../actions/withdrawals'
 
 function searchedWithdrawal(state = {}, action) {
@@ -50,6 +50,8 @@ function withdrawal(state = {}, action) {
         case RECEIVE:
         case REQUEST:
             return Object.assign({}, state, withdrawal_base(state, action))
+        case CLEAR:
+            return {}
         default:
             return state
     }

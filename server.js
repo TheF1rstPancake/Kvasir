@@ -11,11 +11,13 @@ var WePay = require("wepay").WEPAY;
 
 var express = require("express");
 
+// load app configuration settings
+var app_config = require('./config')
+
+
 var app = new (express)()
 var port = 3000
 
-// load app configuration settings
-var config = require('./config');
 
 // load webpack compiler
 var compiler = webpack(config)
@@ -29,7 +31,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 // setup cookie based sessions
 app.use(cookieSession({
     name:"session",
-    secret: config.cookie_secret
+    secret: app_config.cookie_secret
 }))
 
 app.use('/static', express.static('static'));
@@ -55,7 +57,7 @@ function sendResponse(package, res) {
 }
 
 function getDataFromMiddleware(resource, data, callback) {
-    var uri = config.middleware_uri+"/"+resource;
+    var uri = app_config.middleware_uri+"/"+resource;
 
     request.post(uri, {"json":data}, callback);
 }
@@ -199,7 +201,7 @@ app.post("/withdrawal", function(req, res){
         );
     }
     else {
-        getWePayData(res, "/withdrawal/find", package);
+        getWePayData(res, "/withdrawal/find", req.session.access_token, package);
     }
 })
 

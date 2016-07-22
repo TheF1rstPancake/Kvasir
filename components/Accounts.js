@@ -8,8 +8,8 @@
 import React, { PropTypes } from 'react'
 import {FormGroup, FormControl, Row, Col, ControlLabel, Table} from "react-bootstrap"
 import { connect } from 'react-redux'
-import {addCheckouts} from "../actions/checkouts"
-import {addWithdrawals} from "../actions/withdrawals"
+import {addCheckouts, clearCheckouts} from "../actions/checkouts"
+import {addWithdrawals, clearWithdrawals} from "../actions/withdrawals"
 import {addError} from "../actions/errors"
 import {BootstrapTable} from "react-bootstrap-table"
 
@@ -24,21 +24,32 @@ var AccountBlock= React.createClass({
     getInitialState: function() {
         return {
             accountInfo: {},
-            error: {}
+            error: {},
+            selectRowProp: {
+                mode: "radio",
+                clickToSelect: true,
+                bgColor: "rgb(249, 255, 172)",
+                onSelect: this.handleClick
+            }
         }
     },
-    handleClick: function(event) {
+    handleClick: function(row, isSelected) {
         // set the account 
-        this.props.dispatch(searchAccount(this.props.email, event.target.id));
+        var account_id = row.account_id;
+        this.props.dispatch(searchAccount(this.props.email, account_id));
         
+        // clear current widthdrawals and checkouts
+        this.props.dispatch(clearWithdrawals());
+        this.props.dispatch(clearCheckouts());
+
         // fetch the checkouts
-        this.props.dispatch(fetchCheckoutIfNeeded(this.props.email, event.target.id));
+        this.props.dispatch(fetchCheckoutIfNeeded(this.props.email, account_id));
 
         // fetch the withdrawals
-        this.props.dispatch(fetchWithdrawalIfNeeded(this.props.email, event.target.id));
+        this.props.dispatch(fetchWithdrawalIfNeeded(this.props.email, account_id));
     },
     formatAccountId: function(col, row) {
-        return <a href='#' id={row.account_id} onClick={this.handleClick}>{col} - {row.account_id}</a>;
+        return <div>{col} - {row.account_id}</div>;
     },
     serialize: function(info) {
         var array = [];
@@ -47,6 +58,7 @@ var AccountBlock= React.createClass({
         }
         return array;
     },
+    
     render: function() {
         var accounts = this.props.accountInfo;
         var this2 = this;
@@ -65,13 +77,18 @@ var AccountBlock= React.createClass({
                         hover={true}
                         pagination={true}
                         search={true}
+                        selectRow = {this.state.selectRowProp}
                     >
                         <TableHeaderColumn 
                             dataField="name" 
-                            isKey={true}  
-                            dataFormat={this.formatAccountId}
                             >
                             Account Name
+                        </TableHeaderColumn>
+                        <TableHeaderColumn
+                            dataField="account_id"
+                            isKey={true}
+                            >
+                            Account Id
                         </TableHeaderColumn>
                         <TableHeaderColumn 
                             dataField="balances_0_currency" 
@@ -99,6 +116,7 @@ var AccountBlock= React.createClass({
 const mapStateToProps = (state) => {
     return {
         accountInfo:state.wepay_account.account.accountInfo,
+        searchedAccount: state.wepay_account.searchedAccount,
         email: state.wepay_user.searchedUser,
         error: state.errors.global ? state.errors.global.info : {}
     }
