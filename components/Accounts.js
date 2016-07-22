@@ -68,8 +68,7 @@ var AccountBlock= React.createClass({
         else {
             accounts = this.serialize(accounts); 
             return (
-
-                <div>
+                <div id="account_info">
                     <h4> Account Details </h4>
                     <BootstrapTable
                         data = {accounts}
@@ -78,6 +77,7 @@ var AccountBlock= React.createClass({
                         pagination={true}
                         search={true}
                         selectRow = {this.state.selectRowProp}
+                        width="99%"
                     >
                         <TableHeaderColumn 
                             dataField="name" 
@@ -91,14 +91,9 @@ var AccountBlock= React.createClass({
                             Account Id
                         </TableHeaderColumn>
                         <TableHeaderColumn 
-                            dataField="balances_0_currency" 
-                            >
-                            Currency
-                        </TableHeaderColumn>
-                        <TableHeaderColumn 
                             dataField="balances_0_balance" 
                             >
-                            Balance
+                            Balance ({accounts[0] ? accounts[0].balances_0_currency : "Currency"})
                         </TableHeaderColumn>
                         <TableHeaderColumn 
                             dataField="balances_0_withdrawal_bank_name" 

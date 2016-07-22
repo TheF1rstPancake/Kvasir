@@ -34,6 +34,9 @@ var Base = {
         }
 
         return flatDict;
+    },
+    formatDate: function(cell, row) {
+        return new Date(cell * 1000).toString();
     }
 }
 

@@ -5,6 +5,7 @@ var config = require('./webpack.config')
 var bodyParser = require('body-parser')
 var request = require("request")
 
+
 var cookieSession = require("cookie-session")
 
 var WePay = require("wepay").WEPAY;
@@ -59,7 +60,16 @@ function sendResponse(package, res) {
 function getDataFromMiddleware(resource, data, callback) {
     var uri = app_config.middleware_uri+"/"+resource;
 
-    request.post(uri, {"json":data}, callback);
+    request.post(
+        {
+            "url":uri, 
+            "json":data,
+            headers: {
+                "Authorization":app_config.middleware_secret
+            }
+        }, 
+        callback
+    );
 }
 
 
@@ -105,7 +115,6 @@ function parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint
 app.get("/", function(req, res) {
     res.sendFile(__dirname + '/index.html')
 })
-
 
 /*send a request to /v2/user and return the response*/
 app.post("/user", function(req, res) {
@@ -230,6 +239,15 @@ app.post("/refund", function(req, res) {
 
     }
 })
+
+app.post("/reserve", function(req, res) {
+    if(!req.session.access_token) {
+        console.log("ERROR: do not have an access token to work with");
+    }
+    else {
+        getWePayData(res, "/account/get_reserve_details", req.session.access_token, {"account_id":req.body.account_id});
+    }
+});
 
 /**
  * Start the application

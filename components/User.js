@@ -52,7 +52,8 @@ var UserInfo = React.createClass({
                 }
             }
 
-            userInfoSection= (<BootstrapTable
+            userInfoSection= (
+                <BootstrapTable
                 data={[this.props.userInfo]}
                 striped={true}
                 hover={true}
@@ -84,9 +85,10 @@ var UserInfo = React.createClass({
                     >
                     User Id
                 </TableHeaderColumn>
-            </BootstrapTable>);
+            </BootstrapTable>
+            );
             
-            return (<div>{userInfoSection}</div>);
+            return (<div id="user_info">{userInfoSection}</div>);
         }   
     }
 });

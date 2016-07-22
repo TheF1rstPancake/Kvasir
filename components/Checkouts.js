@@ -172,9 +172,6 @@ var Checkouts = React.createClass({
     formatCheckoutID: function(cell,row) {
          return "<a href='#' id=" + cell + ">" + cell + "</a>";
     },
-    formatDate: function(cell, row) {
-        return new Date(cell * 1000).toString();
-    },
     formatRefund: function(cell, row) {
         // cell is the refund_amount_refunded value.  If this is less than the amount of the original checkout then we want to include a refund button
         // if the value is greater than 0, then someone initiated a refund, so we want to include the reason for the refund and how much it was
@@ -228,15 +225,10 @@ var Checkouts = React.createClass({
                             dataFormat={this.formatCheckoutID}
                             >
                             Checkout ID
-                        </TableHeaderColumn>
-                        <TableHeaderColumn 
-                            dataField = "currency"
-                            >
-                            Currency
                         </TableHeaderColumn>    
                         <TableHeaderColumn 
                             dataField = "create_time"
-                            dataFormat={this.formatDate}
+                            dataFormat={Base.formatDate}
                             dataSort={true}
                             >
                             Date
@@ -249,12 +241,12 @@ var Checkouts = React.createClass({
                         <TableHeaderColumn 
                             dataField = "amount"
                             >
-                            Amount
+                            Amount ({checkouts[0].currency})
                         </TableHeaderColumn>   
                         <TableHeaderColumn
                             dataField="gross"
                             >
-                            Gross Amount
+                            Gross Amount ({checkouts[0] ? checkouts[0].currency : "Currency"})
                         </TableHeaderColumn> 
                         <TableHeaderColumn 
                             dataField = "payer_email"
