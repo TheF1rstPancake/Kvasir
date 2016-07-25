@@ -10,12 +10,13 @@ const App = () => (
   <Grid fluid={true}>
     <Row>
         <Col lg={6} sm={12}>
-            <SearchBar />
+            <SearchBar resource={"user"} />
             <UserInfo />
             <AccountBlock />
             <Withdrawals />
         </Col>
         <Col lg={6} sm={12}>
+            <SearchBar resource={"payer"} />
             <Checkouts />
         </Col>
     </Row>  

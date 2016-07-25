@@ -104,7 +104,7 @@ function fetchCheckout(email, account_id = null, checkout_id = null, start = nul
 }
 
 function shouldFetchCheckout(state, account_id) {
-    if (state.wepay_account && state.wepay_account.searchedAccount.account_id != null && !state.wepay_checkout.checkout.isFetching) {
+    if (state.wepay_account && state.wepay_account.searchedAccount.account_id != null && !state.wepay_checkout.checkout.isFetching && !state.wepay_payer.payerInfo) {
         return true;
     }
     else if(state.wepay_user.isFetching){

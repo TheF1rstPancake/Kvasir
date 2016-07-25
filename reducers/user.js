@@ -11,10 +11,10 @@ import {
     REQUEST_USER, RECEIVE_USER
 } from '../actions/user'
 
-function searchedUser(state = '', action) {
+function searchedUser(state = {"email":"", "account_id":""}, action) {
     switch (action.type) {
         case SEARCH_USER:
-            return action.email
+            return Object.assign({}, state, action.info);
         default:
             return state
     }

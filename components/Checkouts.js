@@ -17,6 +17,8 @@ import { connect } from 'react-redux'
 import {BootstrapTable} from "react-bootstrap-table"
 
 import {fetchRefundIfNeeded, clearRefund, fetchCheckoutIfNeeded, searchCheckout} from "../actions/checkouts"
+import {searchUser, fetchUserIfNeeded} from "../actions/user"
+import {fetchAccountIfNeeded} from "../actions/accounts"
 
 import Base from "./Base"
 
@@ -28,8 +30,27 @@ var Checkouts = React.createClass({
                 selectedCheckoutId: null,
                 refundAmount: 0,
                 refundReason: "",
+            },
+            selectRowProp: {
+                mode: "radio",
+                clickToSelect: true,
+                bgColor: "rgb(249, 255, 172)",
+                onSelect: this.handlePayerCheckoutSelect
             }
         }
+    },
+    handlePayerCheckoutSelect: function(event) {
+        // set the account 
+        event.preventDefault();
+        var account_id = event.target.id;
+        var this2 = this;
+
+        // fetch the user info and after the user info is fetched, get the account error
+        this.props.dispatch(fetchUserIfNeeded(null, account_id,
+                function(){
+                    this2.props.dispatch(fetchAccountIfNeeded(account_id))
+                }
+        ));
     },
     openModal: function(event) {
         this.setState({showModal:true, refund:{selectedCheckoutId: event.target.id}});
@@ -41,9 +62,11 @@ var Checkouts = React.createClass({
     },
     buildModal: function() {
         var checkout = null;
-        for (var i = 0; i < this.props.checkoutInfo.length; i++) {
-            if(this.props.checkoutInfo[i].checkout_id == this.state.refund.selectedCheckoutId) {
-                checkout = this.props.checkoutInfo[i];
+        var checkout_list = this.props.payerInfo? this.props.payerInfo : this.props.checkoutInfo
+
+        for (var i = 0; i < checkout_list.length; i++) {
+            if(checkout_list[i].checkout_id == this.state.refund.selectedCheckoutId) {
+                checkout = checkout_list[i];
                 break;
             }
         }
@@ -169,8 +192,8 @@ var Checkouts = React.createClass({
 
         this.props.dispatch(fetchRefundIfNeeded(this.props.email, checkout_id, refundAmount, refundReason));
     },
-    formatCheckoutID: function(cell,row) {
-         return "<a href='#' id=" + cell + ">" + cell + "</a>";
+    formatAccountID: function(cell,row) {
+         return (<a href='#' id={cell} onClick={this.handlePayerCheckoutSelect}>{cell}</a>);
     },
     formatRefund: function(cell, row) {
         // cell is the refund_amount_refunded value.  If this is less than the amount of the original checkout then we want to include a refund button
@@ -203,10 +226,59 @@ var Checkouts = React.createClass({
         return array;
     },
     render: function() {
-        if (this.props.checkoutInfo == null || $.isEmptyObject(this.props.error) == false) {
-            return (<div></div>);
+        if(this.props.payerInfo != null) {
+            var refund_column;
+
+            
+                refund_column = (<TableHeaderColumn
+                    dataField = "refund_amount_refunded"
+                    dataFormat = {(this.props.account_id) ? this.formatRefund : function(cell){return cell}}
+                    >
+                    Refund
+                </TableHeaderColumn>); 
+
+            return (<div>
+                <Row>
+                    <h4>Payer Checkouts</h4>
+                    <BootstrapTable
+                        data={this.props.payerInfo}
+                        striped={true}
+                        hover={true}
+                        pagination={true}
+                        search={true}
+                        >
+                        <TableHeaderColumn 
+                            dataField="checkout_id" 
+                            isKey={true}  
+                            dataFormat={this.formatCheckoutID}
+                            >
+                            Checkout ID
+                        </TableHeaderColumn>    
+                        <TableHeaderColumn 
+                            dataField = "create_time"
+                            dataFormat={Base.formatDate}
+                            dataSort={true}
+                            >
+                            Date
+                        </TableHeaderColumn>    
+                        <TableHeaderColumn 
+                            dataField = "amount"
+                            >
+                            Amount
+                        </TableHeaderColumn>
+                        <TableHeaderColumn 
+                            dataField="account_id"
+                            dataFormat = {this.formatAccountID}
+                            >
+                            Account ID
+                        </TableHeaderColumn>
+                        {refund_column ? refund_column : null}
+                    </BootstrapTable>
+                    {this.buildModal()}
+                    </Row>
+            </div>);
         }
-        else {
+        else if(this.props.checkoutInfo != null){
             var checkouts = this.serialize(this.props.checkoutInfo);
             return (
                 <div>
@@ -279,24 +351,26 @@ var Checkouts = React.createClass({
                 </div>
             );
         }
+        
+        return (<div></div>);
     }
 });
 
 const mapStateToProps = (state) => {
     return {
-        checkoutInfo:state.wepay_checkout.checkout.checkoutInfo,
-        email: state.wepay_user.searchedUser,
-        account_id: state.wepay_account.searchedAccount.account_id,
-        submitted_refund: state.wepay_checkout.checkout.submitted_refund,
-        successful_refund: state.wepay_checkout.checkout.successful_refund,
-        error: state.errors.global ? state.errors.global.info : {},
-        refund_error: state.errors.refund ? state.errors.refund.info: {}
+        checkoutInfo:       state.wepay_checkout.checkout.checkoutInfo,
+        email:              state.wepay_user.searchedUser.email,
+        account_id:         state.wepay_account.searchedAccount.account_id,
+        submitted_refund:   state.wepay_checkout.checkout.submitted_refund,
+        successful_refund:  state.wepay_checkout.checkout.successful_refund,
+        error:              state.errors.global ? state.errors.global.info : {},
+        refund_error:       state.errors.refund ? state.errors.refund.info: {},
+        payerInfo:          state.wepay_payer.payer.payerInfo
 
     }
 }
 
 Checkouts = connect(mapStateToProps)(Checkouts);
-
 
 
 export default Checkouts

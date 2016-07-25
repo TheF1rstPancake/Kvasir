@@ -53,6 +53,7 @@ function sendResponse(package, res) {
         return res.status(500).send(JSON.stringify(error_package));
     }
     else {
+        console.log("Sending package back to client: ", package);
         return res.send(JSON.stringify(package));
     }
 }
@@ -105,8 +106,9 @@ function parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint
         if (body.access_token) {
             console.log("Setting access token cookie:\t", body.access_token);
             req.session.access_token = body.access_token;
+            return getWePayData(res, wepay_endpoint, req.session.access_token, wepay_package);
         }
-        return getWePayData(res, wepay_endpoint, req.session.access_token, wepay_package);
+        return sendResponse(body, res);
     }
 }
 
@@ -118,16 +120,20 @@ app.get("/", function(req, res) {
 
 /*send a request to /v2/user and return the response*/
 app.post("/user", function(req, res) {
-    console.log('Incoming user request');
+    console.log('Incoming user request: ', req.body);
     var package = {};
     
     // get the email from the search
     var email = req.body.email;
+    var account_id  =req.body.account_id;
 
     // get the necessary data from our middleware function and then make the corresponding request to WePay
     getDataFromMiddleware(
         "user", 
-        {"account_owner_email":email}, 
+        {
+            "account_owner_email":email,
+            "account_id": account_id
+        }, 
         function(error, response, body) {
             return parseMiddlewareResponse(req, res, error, response, body, "/user", {});
         }
@@ -248,6 +254,19 @@ app.post("/reserve", function(req, res) {
         getWePayData(res, "/account/get_reserve_details", req.session.access_token, {"account_id":req.body.account_id});
     }
 });
+
+app.post("/payer", function(req, res) {    
+    // get the email from the search
+    var email = req.body.email;
+    // get the necessary data from our middleware function and then make the corresponding request to WePay
+    return getDataFromMiddleware(
+        "payer", 
+        {"payer_email":email, "num_elements":50}, 
+        function(error, response, body) {
+            return parseMiddlewareResponse(req, res, error, response, body, null, null);
+        }
+    );
+})
 
 /**
  * Start the application

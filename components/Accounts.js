@@ -112,7 +112,7 @@ const mapStateToProps = (state) => {
     return {
         accountInfo:state.wepay_account.account.accountInfo,
         searchedAccount: state.wepay_account.searchedAccount,
-        email: state.wepay_user.searchedUser,
+        email: state.wepay_user.searchedUser.email,
         error: state.errors.global ? state.errors.global.info : {}
     }
 }
