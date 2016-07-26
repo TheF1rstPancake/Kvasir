@@ -36,17 +36,17 @@ var AccountBlock= React.createClass({
     handleClick: function(row, isSelected) {
         // set the account 
         var account_id = row.account_id;
-        this.props.dispatch(searchAccount(this.props.email, account_id));
+        this.props.dispatch(searchAccount(account_id));
         
         // clear current widthdrawals and checkouts
         this.props.dispatch(clearWithdrawals());
         this.props.dispatch(clearCheckouts());
 
         // fetch the checkouts
-        this.props.dispatch(fetchCheckoutIfNeeded(this.props.email, account_id));
+        this.props.dispatch(fetchCheckoutIfNeeded(account_id));
 
         // fetch the withdrawals
-        this.props.dispatch(fetchWithdrawalIfNeeded(this.props.email, account_id));
+        this.props.dispatch(fetchWithdrawalIfNeeded(account_id));
     },
     formatAccountId: function(col, row) {
         return <div>{col} - {row.account_id}</div>;

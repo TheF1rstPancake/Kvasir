@@ -142,17 +142,23 @@ app.post("/user", function(req, res) {
 
 /*send a request to /v2/account/find and return the response*/
 app.post('/account', function(req, res){
+    console.log("Received request for account info: ", req.body);
     if (!req.session.access_token) {
         return getDataFromMiddleware(
             "account",
             {},
             function(error, response, body) {
-
+                return;
             }
         );
     }
     else {
-        return getWePayData(res, "/account/find", req.session.access_token, {});
+        var package = {};
+        if (req.body.account_id) {
+            package['account_id'] = req.body.account_id;
+            return getWePayData(res, "/account", req.session.access_token, package);
+        }
+        return getWePayData(res, "/account/find", req.session.access_token, package);
     }
 })
 

@@ -4,6 +4,13 @@ export const REQUEST_USER = 'REQUEST_USERS'
 export const RECEIVE_USER = 'RECEIVE_USERS'
 export const SEARCH_USER = 'SEARCH_USERS'
 export const INVALIDATE_USER = 'INVALIDATE_USER'
+export const CLEAR_USER = "CLEAR_USER"
+
+export function clearUser() {
+    return {
+        type: CLEAR_USER
+    }
+}
 
 export function searchUser(email = null, account_id =null) {
     return {

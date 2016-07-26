@@ -13,7 +13,7 @@ import {
 function searchedAccount(state = {}, action) {
     switch (action.type) {
         case SEARCH_ACCOUNT:
-            return Object.assign({}, state, {"email":action.email, "account_id":action.account_id})
+            return Object.assign({}, state, {"account_id":action.account_id})
         default:
             return state
     }

@@ -8,7 +8,7 @@ import { combineReducers } from 'redux'
 
 import {
     SEARCH_USER, INVALIDATE_USER,
-    REQUEST_USER, RECEIVE_USER
+    REQUEST_USER, RECEIVE_USER, CLEAR_USER
 } from '../actions/user'
 
 function searchedUser(state = {"email":"", "account_id":""}, action) {
@@ -53,6 +53,8 @@ function user(state = { }, action) {
         case RECEIVE_USER:
         case REQUEST_USER:
             return Object.assign({}, state, user_base(state, action))
+        case CLEAR_USER:
+            return {}
         default:
             return state
     }

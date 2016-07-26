@@ -14,81 +14,78 @@ export const RECEIVE_RESERVE = "RECEIVE_RESERVE"
 
 const ERROR_SCOPE = "withdrawals"
 
-export function searchWithdrawal(email, account_id = null, withdrawal_id = null) {
+export function searchWithdrawal(account_id = null, withdrawal_id = null) {
     return {
         type: SEARCH,
-        email:email,
         withdrawal_id: withdrawal_id,
         account_id: account_id
     }
 }
 
-export function invalidateWithdrawal(email, account_id = null, withdarawl_id=null) {
+export function invalidateWithdrawal(account_id = null, withdarawl_id=null) {
     return {
         type: INVALIDATE,
-        email:email,
         withdarawal_id:withdrawal_id,
         account_id: account_id
     }
 }
 
-function requestWithdrawal(email, account_id = null, withdrawal_id = null) {
+function requestWithdrawal(account_id = null, withdrawal_id = null) {
     return {
         type: REQUEST,
-        email:email,
         withdrawal_id: withdrawal_id,
         account_id: account_id
     }
 }
 
-function receiveWithdrawal(email, account_id = null, withdrawal_id = null, json) {
+function receiveWithdrawal(account_id = null, withdrawal_id = null, json) {
     return {
         type: RECEIVE,
-        email:email,
         withdrawal_id: withdrawal_id,
         withdrawal: json,
         receivedAt: Date.now()
     }
 }
 
-function fetchWithdrawal(email, account_id = null, withdrawal_id = null) {
+function fetchWithdrawal(account_id = null, withdrawal_id = null) {
     return dispatch => {
-        dispatch(requestWithdrawal(email, account_id, withdrawal_id));
-        dispatch(fetchReserveDetail(email, account_id));
+        dispatch(requestWithdrawal(account_id, withdrawal_id));
+        
+        // get the reserve information too at this point
+        dispatch(fetchReserveDetail(account_id));
 
-        return $.post("/withdrawal", {"email":email, "withdrawal_id":withdrawal_id, "account_id":account_id})
+        return $.post("/withdrawal", {"withdrawal_id":withdrawal_id, "account_id":account_id})
             .fail(function(data){
                 console.log("ERROR: ", data);
                 var error_data = data.responseJSON;
                 dispatch(addError(error_data));
             })
             .done(function(data){
-                dispatch(receiveWithdrawal(email, account_id, withdrawal_id, data));
+                dispatch(receiveWithdrawal(account_id, withdrawal_id, data));
                 dispatch(clearError())
             })
     }
 }
 
-function receiveReserveDetail(email, account_id, data) {
+function receiveReserveDetail(account_id, data) {
     return {
         type: RECEIVE_RESERVE,
-        email: email,
         account_id: account_id,
         reserve: data
     }
 }
 
-function fetchReserveDetail(email, account_id) {
+function fetchReserveDetail(account_id) {
     return dispatch => {
         console.log("Fetching Reserves!");
-        return $.post("/reserve", {"email":email, "account_id":account_id})
+        return $.post("/reserve", {"account_id":account_id})
             .fail(function(data){
                 console.log("ERROR: ", data);
                 var error_data = data.responseJSON;
                 dispatch(addError(error_data));
             })
             .done(function(data){
-                dispatch(receiveReserveDetail(email, account_id, data));
+                dispatch(receiveReserveDetail(account_id, data));
                 dispatch(clearError());
             })
     }
@@ -105,10 +102,10 @@ function shouldFetchWithdrawal(state) {
     return false;
 }
 
-export function fetchWithdrawalIfNeeded(email, account_id) {
+export function fetchWithdrawalIfNeeded(account_id) {
     return (dispatch, getState) => {
         if (shouldFetchWithdrawal(getState())) {
-            return dispatch(fetchWithdrawal(email, account_id))
+            return dispatch(fetchWithdrawal(account_id))
         }
     }
 }

@@ -11,7 +11,7 @@ import {
 function searchedWithdrawal(state = {}, action) {
     switch (action.type) {
         case SEARCH:
-            return Object.assign({}, state, {"email":action.email, "account_id":action.account_id, "withdrawal_id":action.withdrawal_id})
+            return Object.assign({}, state, {"account_id":action.account_id, "withdrawal_id":action.withdrawal_id})
         default:
             return state
     }

@@ -20,6 +20,8 @@ import {fetchRefundIfNeeded, clearRefund, fetchCheckoutIfNeeded, searchCheckout}
 import {searchUser, fetchUserIfNeeded} from "../actions/user"
 import {fetchAccountIfNeeded} from "../actions/accounts"
 
+import {clearError} from "../actions/errors"
+
 import Base from "./Base"
 
 var Checkouts = React.createClass({
@@ -39,22 +41,25 @@ var Checkouts = React.createClass({
             }
         }
     },
-    handlePayerCheckoutSelect: function(event) {
+    handlePayerCheckoutSelect: function(row, isSelected) {
         // set the account 
         event.preventDefault();
-        var account_id = event.target.id;
+        var account_id = row.account_id;
+        var checkout_id = row.checkout_id;
         var this2 = this;
 
         // fetch the user info and after the user info is fetched, get the account error
         this.props.dispatch(fetchUserIfNeeded(null, account_id,
                 function(){
-                    this2.props.dispatch(fetchAccountIfNeeded(account_id))
+                    this2.props.dispatch(fetchAccountIfNeeded(null, account_id));
+                    this2.props.dispatch(fetchCheckoutIfNeeded(account_id, checkout_id));
                 }
         ));
     },
     openModal: function(event) {
         this.setState({showModal:true, refund:{selectedCheckoutId: event.target.id}});
-        this.props.dispatch(searchCheckout(this.props.email, null, this.state.refund.selectedCheckoutId));
+        this.props.dispatch(searchCheckout(null, this.state.refund.selectedCheckoutId));
+        this.props.dispatch(clearError("refund"));
     },
     closeModal: function() {
         this.props.dispatch(clearRefund());
@@ -62,7 +67,7 @@ var Checkouts = React.createClass({
     },
     buildModal: function() {
         var checkout = null;
-        var checkout_list = this.props.payerInfo? this.props.payerInfo : this.props.checkoutInfo
+        var checkout_list = this.props.checkoutInfo;
 
         for (var i = 0; i < checkout_list.length; i++) {
             if(checkout_list[i].checkout_id == this.state.refund.selectedCheckoutId) {
@@ -190,7 +195,7 @@ var Checkouts = React.createClass({
         current['refundReason'] = refundReason;
         this.setState({refund:current})
 
-        this.props.dispatch(fetchRefundIfNeeded(this.props.email, checkout_id, refundAmount, refundReason));
+        this.props.dispatch(fetchRefundIfNeeded(checkout_id, refundAmount, refundReason));
     },
     formatAccountID: function(cell,row) {
          return (<a href='#' id={cell} onClick={this.handlePayerCheckoutSelect}>{cell}</a>);
@@ -226,60 +231,9 @@ var Checkouts = React.createClass({
         return array;
     },
     render: function() {
-        if(this.props.payerInfo != null) {
-            var refund_column;
-
-            
-                refund_column = (<TableHeaderColumn
-                    dataField = "refund_amount_refunded"
-                    dataFormat = {(this.props.account_id) ? this.formatRefund : function(cell){return cell}}
-                    >
-                    Refund
-                </TableHeaderColumn>); 
-
-            return (<div>
-                <Row>
-                    <h4>Payer Checkouts</h4>
-                    <BootstrapTable
-                        data={this.props.payerInfo}
-                        striped={true}
-                        hover={true}
-                        pagination={true}
-                        search={true}
-                        >
-                        <TableHeaderColumn 
-                            dataField="checkout_id" 
-                            isKey={true}  
-                            dataFormat={this.formatCheckoutID}
-                            >
-                            Checkout ID
-                        </TableHeaderColumn>    
-                        <TableHeaderColumn 
-                            dataField = "create_time"
-                            dataFormat={Base.formatDate}
-                            dataSort={true}
-                            >
-                            Date
-                        </TableHeaderColumn>    
-                        <TableHeaderColumn 
-                            dataField = "amount"
-                            >
-                            Amount
-                        </TableHeaderColumn>
-                        <TableHeaderColumn 
-                            dataField="account_id"
-                            dataFormat = {this.formatAccountID}
-                            >
-                            Account ID
-                        </TableHeaderColumn>
-                        {refund_column ? refund_column : null}
-                    </BootstrapTable>
-                    {this.buildModal()}
-                    </Row>
-            </div>);
-        }
-        else if(this.props.checkoutInfo != null){
+        if(this.props.checkoutInfo != null){
             var checkouts = this.serialize(this.props.checkoutInfo);
+            console.log('Rendering checkout info gathered from WePay');
             return (
                 <div>
                 <Row>
@@ -350,6 +304,47 @@ var Checkouts = React.createClass({
                     {this.buildModal()}
                 </div>
             );
+        }
+        else if(this.props.payerInfo != null) {
+            console.log("Rendering checkout info gathered from partner database");
+            return (<div>
+                <Row>
+                    <h4>Payer Checkouts</h4>
+                    <BootstrapTable
+                        data={this.props.payerInfo}
+                        striped={true}
+                        hover={true}
+                        pagination={true}
+                        search={true}
+                        selectRow = {this.state.selectRowProp}
+                        >
+                        <TableHeaderColumn 
+                            dataField="checkout_id" 
+                            isKey={true}  
+                            dataFormat={this.formatCheckoutID}
+                            >
+                            Checkout ID
+                        </TableHeaderColumn>    
+                        <TableHeaderColumn 
+                            dataField = "create_time"
+                            dataFormat={Base.formatDate}
+                            dataSort={true}
+                            >
+                            Date
+                        </TableHeaderColumn>    
+                        <TableHeaderColumn 
+                            dataField = "amount"
+                            >
+                            Amount
+                        </TableHeaderColumn>
+                        <TableHeaderColumn 
+                            dataField="account_id"
+                            >
+                            Account ID
+                        </TableHeaderColumn>
+                    </BootstrapTable>
+                    </Row>
+            </div>);
         }
         
         return (<div></div>);

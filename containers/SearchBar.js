@@ -11,14 +11,14 @@ import React from 'react'
 import {FormGroup, FormControl} from "react-bootstrap"
 import UserInfo from "../components/User"
 
-import {searchUser, fetchUserIfNeeded} from "../actions/user"
+import {searchUser, fetchUserIfNeeded, clearUser} from "../actions/user"
 import {searchPayer, fetchPayerIfNeeded} from "../actions/payer"
 import {fetchAccountIfNeeded, clearAccounts} from "../actions/accounts"
 
 import {clearCheckouts} from "../actions/checkouts"
 import {clearWithdrawals} from "../actions/withdrawals"
 
-import {addPayer} from '../actions/payer'
+import {addPayer, clearPayer} from '../actions/payer'
 
 import {addError} from "../actions/errors"
 
@@ -51,19 +51,21 @@ var SearchBar = React.createClass({
         event.preventDefault();
 
         var this2 = this;
+
+        // clear all states
+        this.clearAll()
+
         this.setState({searchString: this.state.value});
 
         // change the state because now we've searched a user
         this.props.dispatch(searchUser(this.state.value));
 
-        this.props.dispatch(clearAccounts());
-        this.props.dispatch(clearCheckouts());
-        this.props.dispatch(clearWithdrawals());
+
 
         // fetch the user info and after the user info is fetched, get the account error
         this.props.dispatch(fetchUserIfNeeded(this.state.value, null,
                 function(){
-                    this2.props.dispatch(fetchAccountIfNeeded(this2.state.value))
+                    this2.props.dispatch(fetchAccountIfNeeded())
                 }
         ));
 
@@ -71,18 +73,24 @@ var SearchBar = React.createClass({
         // if the user search was successful then go get the account data
         //this.props.dispatch(fetchAccountIfNeeded(this.state.value));
     },
+    clearAll: function() {
+        this.props.dispatch(clearPayer());
+        this.props.dispatch(clearUser());
+        this.props.dispatch(clearAccounts());
+        this.props.dispatch(clearCheckouts());
+        this.props.dispatch(clearWithdrawals());
+    },
     searchPayer: function(event) {
         event.preventDefault();
 
          var this2 = this;
         this.setState({searchString: this.state.value});
 
+        // clear existing object states.  We are starting from scratch
+        this.clearAll();
+
         // change the state because now we've searched a user
         this.props.dispatch(searchPayer(this.state.value));
-
-        /*this.props.dispatch(clearAccounts());
-        this.props.dispatch(clearCheckouts());
-        this.props.dispatch(clearWithdrawals());*/
 
         // fetch the user info and after the user info is fetched, get the account error
         this.props.dispatch(fetchPayerIfNeeded(this.state.value));

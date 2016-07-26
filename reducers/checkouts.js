@@ -11,7 +11,7 @@ import {
 function searchedCheckout(state = {}, action) {
     switch (action.type) {
         case SEARCH:
-            return Object.assign({}, state, {"email":action.email, "account_id":action.account_id, "checkout_id":action.checkout_id})
+            return Object.assign({}, state, {"account_id":action.account_id, "checkout_id":action.checkout_id})
         default:
             return state
     }
@@ -56,10 +56,14 @@ function checkout_base(state = {
                 didInvalidate: false
             })
         case RECEIVE:
-            if (action.checkout_id) {
+            if (action.checkout_id && state.checkoutInfo) {
                 return Object.assign({}, state, updateCheckout(state, action));
             }
             else {
+                if (!action.checkout.length) {
+                    console.log("Need to convert to array!");
+                    action.checkout = [action.checkout];
+                }
                 return Object.assign({}, state, {
                     isFetching: false,
                     didInvalidate: false,
