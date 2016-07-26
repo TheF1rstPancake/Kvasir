@@ -10,21 +10,30 @@ import { connect } from 'react-redux'
 import React from 'react'
 import {FormGroup, FormControl} from "react-bootstrap"
 import UserInfo from "../components/User"
-import {addUser} from "../actions/user"
-import {addAccounts} from "../actions/accounts"
+
+import {searchUser, fetchUserIfNeeded, clearUser} from "../actions/user"
+import {searchPayer, fetchPayerIfNeeded} from "../actions/payer"
+import {fetchAccountIfNeeded, clearAccounts} from "../actions/accounts"
+
+import {clearCheckouts} from "../actions/checkouts"
+import {clearWithdrawals} from "../actions/withdrawals"
+
+import {addPayer, clearPayer} from '../actions/payer'
+
 import {addError} from "../actions/errors"
-import {searchUser, fetchUserIfNeeded} from "../actions/user"
-import {fetchAccountIfNeeded} from "../actions/accounts"
+
 
 var SearchBar = React.createClass({
-
+    propTypes: {
+        resource: React.PropTypes.string.isRequired    // what we are searching for.  Depending on what it is, it will do a different searchFunction
+    },
     // sets initial state
     // states in react are just nested associative objects
     getInitialState: function(){
         return { 
-            searchString: '',   // the search string we update on submit
-            value:"",            // the value of the input text box
-            error:{"error_message":""}
+            searchString: '',               // the search string we update on submit
+            value:"",                       // the value of the input text box
+            error:{"error_message":""},
         };
     },
 
@@ -40,17 +49,51 @@ var SearchBar = React.createClass({
         // prevent form default behavior to prevent page reload on submit
         // after this is complete, the form will re-render and only contain results that match or string
         event.preventDefault();
+
+        var this2 = this;
+
+        // clear all states
+        this.clearAll()
+
         this.setState({searchString: this.state.value});
 
         // change the state because now we've searched a user
         this.props.dispatch(searchUser(this.state.value));
 
-        // fetch the user info
-        this.props.dispatch(fetchUserIfNeeded(this.state.value));
+
+
+        // fetch the user info and after the user info is fetched, get the account error
+        this.props.dispatch(fetchUserIfNeeded(this.state.value, null,
+                function(){
+                    this2.props.dispatch(fetchAccountIfNeeded())
+                }
+        ));
 
         // we could also add fetch account info at this point to
         // if the user search was successful then go get the account data
-        this.props.dispatch(fetchAccountIfNeeded(this.state.value));
+        //this.props.dispatch(fetchAccountIfNeeded(this.state.value));
+    },
+    clearAll: function() {
+        this.props.dispatch(clearPayer());
+        this.props.dispatch(clearUser());
+        this.props.dispatch(clearAccounts());
+        this.props.dispatch(clearCheckouts());
+        this.props.dispatch(clearWithdrawals());
+    },
+    searchPayer: function(event) {
+        event.preventDefault();
+
+         var this2 = this;
+        this.setState({searchString: this.state.value});
+
+        // clear existing object states.  We are starting from scratch
+        this.clearAll();
+
+        // change the state because now we've searched a user
+        this.props.dispatch(searchPayer(this.state.value));
+
+        // fetch the user info and after the user info is fetched, get the account error
+        this.props.dispatch(fetchPayerIfNeeded(this.state.value));
     },
     render: function(dispatch) {
         var searchString = this.state.searchString.trim().toLowerCase();
@@ -59,29 +102,48 @@ var SearchBar = React.createClass({
         if(this.props.error) {
             error_message = this.props.error.error_message;
         }
-        return (
-            <div>
-                <h4>Search User by Email </h4>
-                <form onSubmit={this.searchUser}
-                >
-                <FormGroup controlId="userSearchForm">
-                    <FormControl 
-                        type="text" 
-                        value={this.state.value} 
-                        placeholder="Search!" 
-                        onChange={this.handleChange} />
-                </FormGroup>
-                <p>{error_message}</p>
-                </form>
-            </div>
-        )
+        if (this.props.resource == "user") {
+            return (
+                <div>
+                    <h4>Search User by Email </h4>
+                    <form onSubmit={this.searchUser}
+                    >
+                    <FormGroup controlId="userSearchForm">
+                        <FormControl 
+                            type="text" 
+                            value={this.state.value} 
+                            placeholder="Search!" 
+                            onChange={this.handleChange} />
+                    </FormGroup>
+                    <p>{error_message}</p>
+                    </form>
+                </div>
+            )
+        }
+        else if (this.props.resource == "payer") {
+            return (
+                <div>
+                    <h4>Search Payer by Email </h4>
+                    <form onSubmit={this.searchPayer}
+                    >
+                    <FormGroup controlId="payerSearchForm">
+                        <FormControl 
+                            type="text" 
+                            value={this.state.value} 
+                            placeholder="Search!" 
+                            onChange={this.handleChange} />
+                    </FormGroup>
+                    <p>{error_message}</p>
+                    </form>
+                </div>
+            )
+        }   
     }
 });
 
 const mapStateToProps = (state) => {
     return {
-        error: state.errors.global ? state.errors.global.info : {}
-
+        error:      state.errors.global ? state.errors.global.info : {}
     }
 }
 

@@ -11,7 +11,8 @@
 import React, { PropTypes } from 'react'
 import {FormGroup, FormControl, Row, Col, ControlLabel, Table, Button, Label} from "react-bootstrap"
 import { connect } from 'react-redux'
-import {addAccounts} from "../actions/accounts"
+import {addAccounts, fetchAccountIfNeeded} from "../actions/accounts"
+import {BootstrapTable} from "react-bootstrap-table"
 
 var UserInfo = React.createClass({
     getInitialState: function(){
@@ -32,8 +33,6 @@ var UserInfo = React.createClass({
                 this2.setState(
                     {resendError:{}}
                 );
-                this2.props.dispatch(addAccounts(data));
-
             });    
     },
     render: function() {
@@ -46,44 +45,52 @@ var UserInfo = React.createClass({
             var resendConf;
             if (this.props.userInfo.state != "registered") {
                 if(this.state.resendError.error_message) {
-                    resendConf = <Label bsStyle="warning">Error resending confirmation: {this.state.resendError.error_message}</Label>
+                    resendConf = (<Label bsStyle="warning">Error resending confirmation: {this.state.resendError.error_message}</Label>);
                 }
                 else{
-                    resendConf = <Button bsStyle="info" onClick={this.resendConf}>Resend Confirmation</Button>
+                    resendConf = (<Button bsStyle="info" onClick={this.resendConf}>Resend Confirmation</Button>);
                 }
             }
 
-            userInfoSection= <div>
-                <Row>
-                    <Col lg={12}>
-                    <p><strong>Email:</strong><br></br>{this.props.userInfo.email}
-                    </p>
-                    </Col>
-                </Row>  
-                <Row>
-                    <Col lg={6}>
-                        <strong>First Name:</strong><br></br>{this.props.userInfo.first_name}
-                    </Col>
-                    <Col lg={6}>
-                        <strong>Last Name:</strong><br></br>{this.props.userInfo.last_name}
-                    </Col>
-                </Row>
-                <Row>
-                    <Col lg={6}>
-                        <strong>State:</strong><br></br>{this.props.userInfo.state}
-                        <br></br>
-                        {resendConf}
-                    </Col>
-                    <Col lg={6}>
-                        <strong>User_ID:</strong><br></br>{this.props.userInfo.user_id}
-                    </Col>
-                </Row>
-                </div>;
-                
-        }
-        return (<div>{userInfoSection}</div>);
+            userInfoSection= (
+                <BootstrapTable
+                data={[this.props.userInfo]}
+                striped={true}
+                hover={true}
+                >
+                <TableHeaderColumn
+                    dataField="email"
+                    isKey = {true}
+                    >
+                    Email
+                </TableHeaderColumn>
+                <TableHeaderColumn
+                    dataField= "first_name"
+                    >
+                    First Name
+                </TableHeaderColumn>
+                <TableHeaderColumn
+                    dataField= "last_name"
+                     >
+                    Last Name
+                </TableHeaderColumn>
+                <TableHeaderColumn
+                    dataField= "state"
+                    >
+                    State
+                    {resendConf}
+                </TableHeaderColumn>
+                <TableHeaderColumn
+                    dataField= "user_id"
+                    >
+                    User Id
+                </TableHeaderColumn>
+            </BootstrapTable>
+            );
+            
+            return (<div id="user_info">{userInfoSection}</div>);
+        }   
     }
-
 });
 
 const mapStateToProps = (state) => {

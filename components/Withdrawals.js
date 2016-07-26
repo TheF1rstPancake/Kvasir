@@ -25,28 +25,48 @@ var Withdrawals= React.createClass({
     },
     serializeWithdrawals: function(info) {
         var array = [];
-
-        console.log("BASE: ", Base);
-
         for (var i = 0; i < info.length; i++) {
             array.push(Base.flatten(info[i]));
+        }
+        return array;
+    },
+    serializeReserves: function(info) {
+        var array = [];
+        for (var i = 0; i < info.withdrawals_schedule.length; i++) {
+            var f = Base.flatten(info.withdrawals_schedule[i]);
+            f.account_id = info.account_id;
+            f.reserved_amount = info.reserved_amount;
+            f.currency = info.currency;
+            array.push(f);
         }
         return array;
     },
     formatBank: function(cell, row) {
         return row.bank_data_bank_name + " XXXXXX" + cell;
     },
+    formatState:function(cell, row) {
+        if (cell == "captured") {
+            return (<div>{cell}<br></br>{Base.formatDate(row.withdrawal_data_capture_time)}</div>);
+        }
+        else if(cell == "started") {
+            return (<div>{cell}<br></br>{Base.formatDate(row.withdrawal_data_create_time)}</div>);
+        }
+        return (<div>{cell}</div>);
+    },
     render: function() {
         var withdrawals = this.props.withdrawalInfo;
+        var reserve = this.props.reserveInfo;
+        var withdrawal_content = (<div></div>);
+        var reserve_content = (<div></div>);
         var this2 = this;
         if (withdrawals == null || $.isEmptyObject(this.props.error) == false){
-            return (<div></div>);
+            withdrawal_content = withdrawal_content;
         }
         else {
-            withdrawals = this.serializeWithdrawals(withdrawals)
-            return (
+            withdrawals = this.serializeWithdrawals(withdrawals);
+            withdrawal_content = (
                 <div>
-                    <h4>Withdrawals </h4>
+                    <h4>Withdrawals</h4>
                     <BootstrapTable
                         data={withdrawals}
                         striped={true}
@@ -62,12 +82,13 @@ var Withdrawals= React.createClass({
                             Withdrawal ID
                         </TableHeaderColumn>
                         <TableHeaderColumn 
-                            dataField="currency" 
+                            dataField="amount" 
                             >
-                            Currency
+                            Amount ({withdrawals[0] ? withdrawals[0].currency : "Currency"})
                         </TableHeaderColumn>
                         <TableHeaderColumn 
                             dataField="state" 
+                            dataFormat={this.formatState}
                             >
                             State
                         </TableHeaderColumn>
@@ -82,15 +103,59 @@ var Withdrawals= React.createClass({
                 </div>
             );
         }
+
+        if(reserve == null || $.isEmptyObject(this.props.error) == false){
+            reserve_content = reserve_content;
+        }
+        else {
+            reserve = this.serializeReserves(reserve);
+            console.log("RESERVES: ", reserve);
+            reserve_content = (
+                <div>
+                    <h4>Reserves</h4>
+                    <BootstrapTable
+                        data={reserve}
+                        striped={true}
+                        hover={true}
+                        pagination={true}
+                    >
+                        <TableHeaderColumn 
+                            dataField="account_id" 
+                            isKey={true}  
+                            >
+                            Account ID
+                        </TableHeaderColumn>
+                        <TableHeaderColumn
+                            dataField = "reserved_amount"
+                            >
+                            Total Reserved ({reserve[0].currency})
+                        </TableHeaderColumn>
+                        <TableHeaderColumn
+                            dataField="amount"
+                            >
+                            Next Withdrawal Amount
+                        </TableHeaderColumn>
+                        <TableHeaderColumn
+                            dataField="time"
+                            dataFormat={Base.formatDate}
+                            >
+                            Next Withdrawal Date
+                        </TableHeaderColumn>
+                    </BootstrapTable>
+                </div>
+            )
+        }
+        return (<div id="withdrawal_reserve">{withdrawal_content}{reserve_content}</div>);
     }
 });
 
 
 const mapStateToProps = (state) => {
     return {
-        withdrawalInfo: state.wepay_withdrawal.withdrawal.withdrawalInfo,
-        email: state.wepay_user.searchedUser,
-        error: state.errors.global ? state.errors.global.info : {}
+        withdrawalInfo:     state.wepay_withdrawal.withdrawal.withdrawalInfo,
+        reserveInfo:        state.wepay_withdrawal.withdrawal.reserveInfo,
+        email:              state.wepay_user.searchedUser,
+        error:              state.errors.global ? state.errors.global.info : {}
 
     }
 }

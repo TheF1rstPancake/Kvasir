@@ -6,14 +6,14 @@ import { combineReducers } from 'redux'
 
 import {
     SEARCH_ACCOUNT, INVALIDATE_ACCOUNT,
-    REQUEST_ACCOUNT, RECEIVE_ACCOUNT
+    REQUEST_ACCOUNT, RECEIVE_ACCOUNT, CLEAR_ACCOUNTS
 } from '../actions/accounts'
 
 
 function searchedAccount(state = {}, action) {
     switch (action.type) {
         case SEARCH_ACCOUNT:
-            return Object.assign({}, state, {"email":action.email, "account_id":action.account_id})
+            return Object.assign({}, state, {"account_id":action.account_id})
         default:
             return state
     }
@@ -52,6 +52,8 @@ function account(state = [], action) {
         case RECEIVE_ACCOUNT:
         case REQUEST_ACCOUNT:
             return Object.assign({}, state, account_base(state, action))
+        case CLEAR_ACCOUNTS:
+            return {}
         default:
             return state
     }

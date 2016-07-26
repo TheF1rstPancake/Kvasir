@@ -4,11 +4,20 @@ export const REQUEST_USER = 'REQUEST_USERS'
 export const RECEIVE_USER = 'RECEIVE_USERS'
 export const SEARCH_USER = 'SEARCH_USERS'
 export const INVALIDATE_USER = 'INVALIDATE_USER'
+export const CLEAR_USER = "CLEAR_USER"
 
-export function searchUser(email) {
+export function clearUser() {
+    return {
+        type: CLEAR_USER
+    }
+}
+
+export function searchUser(email = null, account_id =null) {
     return {
         type: SEARCH_USER,
-        email:email
+        info: {"email":email,
+            "account_id": account_id
+        }
     }
 }
 
@@ -35,25 +44,28 @@ function receiveUser(email, json) {
     }
 }
 
-function fetchUser(email) {
+function fetchUser(email, account_id, callback) {
     return dispatch => {
         dispatch(requestUser(email))
-
-        return $.post("/user", {"email":email})
+        return $.post("/user", {"email":email, "account_id":account_id})
             .fail(function(data){
                 console.log("ERROR: ", data);
-                var error_data = JSON.parse(data.responseText);
+                var error_data = data.responseJSON;
                 dispatch(addError(error_data));
             })
             .done(function(data){
                 dispatch(receiveUser(email, data));
                 dispatch(clearError());
+                if(callback != undefined) {
+                    console.log("CALLBACK: ", callback);
+                    callback();
+                }
             })
     }
 }
 
 function shouldFetchUser(state, email) {
-    if (state.wepay_user && state.wepay_user.searchedUser != "") {
+    if (state.wepay_user && state.wepay_user.searchedUser) {
         console.log("Should fetch user");
         return true;
     }
@@ -63,10 +75,10 @@ function shouldFetchUser(state, email) {
     return false;
 }
 
-export function fetchUserIfNeeded(email) {
+export function fetchUserIfNeeded(email=null, account_id = null, callback = null) {
     return (dispatch, getState) => {
         if (shouldFetchUser(getState(), email)) {
-            return dispatch(fetchUser(email))
+            return dispatch(fetchUser(email, account_id, callback))
         }
     }
 }
