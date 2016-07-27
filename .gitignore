@@ -45,3 +45,6 @@ ngrok
 
 # config.js file should not be shown as it will have secret info
 config.js
+
+# Sphinx docs
+docs/_build/

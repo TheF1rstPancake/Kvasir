@@ -205,6 +205,9 @@ var Checkouts = React.createClass({
     formatAccountID: function(cell,row) {
          return (<a href='#' id={cell} onClick={this.handlePayerCheckoutSelect}>{cell}</a>);
     },
+    formatPaymentID: function(cell, row) {
+        return (<a href="#" id={cell} onClick={this.handlePaymentIDSelect}>{cell}</a>)
+    },
     formatRefund: function(cell, row) {
         // cell is the refund_amount_refunded value.  If this is less than the amount of the original checkout then we want to include a refund button
         // if the value is greater than 0, then someone initiated a refund, so we want to include the reason for the refund and how much it was
@@ -288,6 +291,12 @@ var Checkouts = React.createClass({
                             dataField = "payer_name"
                             >
                             Payer Name
+                        </TableHeaderColumn>
+                        <TableHeaderColumn
+                            dataField = "payment_method_credit_card_id"
+                            dataFormat = {this.formatPaymentID}
+                            >
+                            Payment Method
                         </TableHeaderColumn>
                         <TableHeaderColumn
                             dataField = "refund_amount_refunded"
