@@ -59,7 +59,10 @@ var Withdrawals= React.createClass({
         var withdrawal_content = (<div></div>);
         var reserve_content = (<div></div>);
         var this2 = this;
-        if (withdrawals == null || $.isEmptyObject(this.props.error) == false){
+        if (this.props.isFetching) {
+            return (<div><object data="/static/css/default_spinner.svg" type="image/svg+xml" width="150px"></object></div>);
+        }
+        if (this.props.withdrawalInfo === undefined || $.isEmptyObject(this.props.error) == false){
             withdrawal_content = withdrawal_content;
         }
         else {
@@ -155,7 +158,8 @@ const mapStateToProps = (state) => {
         withdrawalInfo:     state.wepay_withdrawal.withdrawal.withdrawalInfo,
         reserveInfo:        state.wepay_withdrawal.withdrawal.reserveInfo,
         email:              state.wepay_user.searchedUser,
-        error:              state.errors.global ? state.errors.global.info : {}
+        error:              state.errors.global ? state.errors.global.info : {},
+        isFetching:         state.wepay_withdrawal.withdrawal.isFetching
 
     }
 }

@@ -15,9 +15,9 @@ var express = require("express");
 // load app configuration settings
 var app_config = require('./config')
 
-
+// create the express app and define what port this is open on
 var app = new (express)()
-var port = 3000
+var port = app_config.port
 
 
 // load webpack compiler
@@ -61,7 +61,7 @@ function sendResponse(package, res) {
 function getDataFromMiddleware(resource, data, callback) {
     var uri = app_config.middleware_uri+"/"+resource;
 
-    request.post(
+    return request.post(
         {
             "url":uri, 
             "json":data,
@@ -125,7 +125,7 @@ app.post("/user", function(req, res) {
     
     // get the email from the search
     var email = req.body.email;
-    var account_id  =req.body.account_id;
+    var account_id = req.body.account_id;
 
     // get the necessary data from our middleware function and then make the corresponding request to WePay
     getDataFromMiddleware(

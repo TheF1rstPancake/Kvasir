@@ -11,6 +11,13 @@ import {
     REQUEST_USER, RECEIVE_USER, CLEAR_USER
 } from '../actions/user'
 
+var userDefaultState = {
+    isFetching: false,
+    didInvalidate: false,
+    haveAccessToken: false,
+    userInfo: {}
+};
+
 function searchedUser(state = {"email":"", "account_id":""}, action) {
     switch (action.type) {
         case SEARCH_USER:
@@ -20,30 +27,30 @@ function searchedUser(state = {"email":"", "account_id":""}, action) {
     }
 }
 
-function user_base(state = {
-    isFetching: false,
-    didInvalidate: false,
-    userInfo: {}
-}, action) {
+function user_base(state = userDefaultState, action) {
     switch (action.type) {
         case INVALIDATE_USER:
-        return Object.assign({}, state, {
-            didInvalidate: true
-        })
+            return Object.assign({}, state, {
+                didInvalidate:  true,
+                isFetching:     false,
+                haveAccessToken:false,
+            })
         case REQUEST_USER:
-        return Object.assign({}, state, {
-            isFetching: true,
-            didInvalidate: false
-        })
+            return Object.assign({}, state, {
+                isFetching:         true,
+                haveAccessToken:    false,
+                didInvalidate:      false
+            })
         case RECEIVE_USER:
-        return Object.assign({}, state, {
-            isFetching: false,
-            didInvalidate: false,
-            userInfo: action.user,
-            lastUpdated: action.receivedAt
-        })
+            return Object.assign({}, state, {
+                isFetching:      false,
+                didInvalidate:   false,
+                haveAccessToken: true,
+                userInfo:        action.user,
+                lastUpdated:     action.receivedAt
+            })
         default:
-        return state
+            return state
     }
 }
 

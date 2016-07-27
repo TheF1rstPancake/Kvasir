@@ -38,7 +38,10 @@ var UserInfo = React.createClass({
     render: function() {
         // render user info
         var userInfoSection;
-        if(this.props.userInfo == null || $.isEmptyObject(this.props.error) == false){
+        if (this.props.isFetching) {
+            return (<div><object data="/static/css/default_spinner.svg" type="image/svg+xml" width="150px"></object></div>);
+        }
+        else if(this.props.userInfo === undefined || $.isEmptyObject(this.props.error) == false){
             return <div></div>;
         }
         else {
@@ -95,8 +98,9 @@ var UserInfo = React.createClass({
 
 const mapStateToProps = (state) => {
     return {
-        userInfo:state.wepay_user.user.userInfo,
-        error: state.errors.global ? state.errors.global.info : {}
+        userInfo:   state.wepay_user.user.userInfo,
+        isFetching: state.wepay_user.user.isFetching,
+        error:      state.errors.global ? state.errors.global.info : {}
     }
 }
 

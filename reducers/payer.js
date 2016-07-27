@@ -7,6 +7,12 @@ import {
     SEARCH, INVALIDATE, REQUEST, RECEIVE, CLEAR
 } from '../actions/payer'
 
+var defaultPayerState = {
+    isFetching: false,
+    didInvalidate: false,
+    payerInfo: []
+};
+
 function searchedPayer(state = {"email":"", "account_id":""}, action) {
     switch (action.type) {
         case SEARCH:
@@ -18,11 +24,7 @@ function searchedPayer(state = {"email":"", "account_id":""}, action) {
     }
 }
 
-function payer_base(state = {
-    isFetching: false,
-    didInvalidate: false,
-    userInfo: {}
-}, action) {
+function payer_base(state = defaultPayerState, action) {
     switch (action.type) {
         case INVALIDATE:
         return Object.assign({}, state, {

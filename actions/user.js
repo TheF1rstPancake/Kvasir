@@ -50,11 +50,17 @@ function fetchUser(email, account_id, callback) {
         return $.post("/user", {"email":email, "account_id":account_id})
             .fail(function(data){
                 console.log("ERROR: ", data);
+                // add error
                 var error_data = data.responseJSON;
                 dispatch(addError(error_data));
+
+                // clear the user info
+                dispatch(clearUser());
             })
             .done(function(data){
                 dispatch(receiveUser(email, data));
+
+                // clear any existing errors
                 dispatch(clearError());
                 if(callback != undefined) {
                     console.log("CALLBACK: ", callback);

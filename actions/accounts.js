@@ -54,7 +54,7 @@ function fetchAccount(account_id = null) {
 }
 
 function shouldFetchAccount(state, account_id = null) {
-    if (state.wepay_user && state.wepay_user.searchedUser != "") {
+    if (state.wepay_user && state.wepay_user.user.haveAccessToken) {
         return true;
     }
     else if(state.wepay_user.isFetching){

@@ -8,6 +8,12 @@ import {
     REQUEST, RECEIVE, CLEAR, RECEIVE_RESERVE
 } from '../actions/withdrawals'
 
+var defaultWithdrawalState = {
+    isFetching: false,
+    didInvalidate: false,
+    withdrawalInfo: []
+};
+
 function searchedWithdrawal(state = {}, action) {
     switch (action.type) {
         case SEARCH:
@@ -17,11 +23,7 @@ function searchedWithdrawal(state = {}, action) {
     }
 }
 
-function withdrawal_base(state = {
-    isFetching: false,
-    didInvalidate: false,
-    withdrawalInfo: []
-}, action) {
+function withdrawal_base(state = defaultWithdrawalState, action) {
     switch (action.type) {
         case INVALIDATE:
         return Object.assign({}, state, {

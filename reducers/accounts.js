@@ -9,6 +9,11 @@ import {
     REQUEST_ACCOUNT, RECEIVE_ACCOUNT, CLEAR_ACCOUNTS
 } from '../actions/accounts'
 
+var defaultAccountState = {
+    isFetching: false,
+    didInvalidate: false,
+    accountInfo: []
+};
 
 function searchedAccount(state = {}, action) {
     switch (action.type) {
@@ -19,11 +24,7 @@ function searchedAccount(state = {}, action) {
     }
 }
 
-function account_base(state = {
-    isFetching: false,
-    didInvalidate: false,
-    accountInfo: {}
-}, action) {
+function account_base(state = defaultAccountState, action) {
     switch (action.type) {
         case INVALIDATE_ACCOUNT:
             return Object.assign({}, state, {

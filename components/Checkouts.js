@@ -231,7 +231,7 @@ var Checkouts = React.createClass({
         return array;
     },
     render: function() {
-        if(this.props.checkoutInfo != null){
+        if(!(this.props.checkoutInfo === undefined)){
             var checkouts = this.serialize(this.props.checkoutInfo);
             console.log('Rendering checkout info gathered from WePay');
             return (
@@ -305,7 +305,7 @@ var Checkouts = React.createClass({
                 </div>
             );
         }
-        else if(this.props.payerInfo != null) {
+        else if(!(this.props.payerInfo === undefined)) {
             console.log("Rendering checkout info gathered from partner database");
             return (<div>
                 <Row>
@@ -327,7 +327,6 @@ var Checkouts = React.createClass({
                         </TableHeaderColumn>    
                         <TableHeaderColumn 
                             dataField = "create_time"
-                            dataFormat={Base.formatDate}
                             dataSort={true}
                             >
                             Date
@@ -360,7 +359,8 @@ const mapStateToProps = (state) => {
         successful_refund:  state.wepay_checkout.checkout.successful_refund,
         error:              state.errors.global ? state.errors.global.info : {},
         refund_error:       state.errors.refund ? state.errors.refund.info: {},
-        payerInfo:          state.wepay_payer.payer.payerInfo
+        payerInfo:          state.wepay_payer.payer.payerInfo,
+        isFetching:         state.wepay_payer.payer.isFetching || state.wepay_checkout.checkout.isFetching
 
     }
 }

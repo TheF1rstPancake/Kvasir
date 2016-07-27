@@ -8,13 +8,11 @@
 import React, { PropTypes } from 'react'
 import {FormGroup, FormControl, Row, Col, ControlLabel, Table} from "react-bootstrap"
 import { connect } from 'react-redux'
-import {addCheckouts, clearCheckouts} from "../actions/checkouts"
-import {addWithdrawals, clearWithdrawals} from "../actions/withdrawals"
+import {addCheckouts, clearCheckouts, fetchCheckoutIfNeeded} from "../actions/checkouts"
+import {addWithdrawals, clearWithdrawals, fetchWithdrawalIfNeeded} from "../actions/withdrawals"
+import {clearPayer} from "../actions/payer"
 import {addError} from "../actions/errors"
 import {BootstrapTable} from "react-bootstrap-table"
-
-import {fetchWithdrawalIfNeeded} from "../actions/withdrawals"
-import {fetchCheckoutIfNeeded} from "../actions/checkouts"
 
 import {searchAccount} from "../actions/accounts"
 
@@ -41,6 +39,7 @@ var AccountBlock= React.createClass({
         // clear current widthdrawals and checkouts
         this.props.dispatch(clearWithdrawals());
         this.props.dispatch(clearCheckouts());
+        this.props.dispatch(clearPayer());
 
         // fetch the checkouts
         this.props.dispatch(fetchCheckoutIfNeeded(account_id));
@@ -62,7 +61,10 @@ var AccountBlock= React.createClass({
     render: function() {
         var accounts = this.props.accountInfo;
         var this2 = this;
-        if (accounts == null || $.isEmptyObject(accounts)  || $.isEmptyObject(this.props.error)==false) {
+        if (this.props.isFetching) {
+            return (<div><object data="/static/css/default_spinner.svg" type="image/svg+xml" width="150px"></object></div>);
+        }
+        else if (accounts == null || $.isEmptyObject(accounts)  || $.isEmptyObject(this.props.error)==false) {
             return (<div></div>);
         }
         else {
@@ -75,7 +77,6 @@ var AccountBlock= React.createClass({
                         striped={true}
                         hover={true}
                         pagination={true}
-                        search={true}
                         selectRow = {this.state.selectRowProp}
                         width="99%"
                     >
@@ -110,10 +111,11 @@ var AccountBlock= React.createClass({
 
 const mapStateToProps = (state) => {
     return {
-        accountInfo:state.wepay_account.account.accountInfo,
-        searchedAccount: state.wepay_account.searchedAccount,
-        email: state.wepay_user.searchedUser.email,
-        error: state.errors.global ? state.errors.global.info : {}
+        accountInfo:        state.wepay_account.account.accountInfo,
+        isFetching:         state.wepay_account.account.isFetching,
+        searchedAccount:    state.wepay_account.searchedAccount,
+        haveAccessToken:    state.wepay_user.user.haveAccessToken,
+        error:              state.errors.global ? state.errors.global.info : {}
     }
 }
 

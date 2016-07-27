@@ -8,6 +8,14 @@ import {
     REQUEST, RECEIVE, REFUND, RECEIVE_REFUND, CLEAR_REFUND, CLEAR_CHECKOUTS
 } from '../actions/checkouts'
 
+var defaultCheckoutState = {
+    isFetching: false,
+    didInvalidate: false,
+    submitted_refund: false,
+    successful_refund:false,
+    checkoutInfo: []
+};
+
 function searchedCheckout(state = {}, action) {
     switch (action.type) {
         case SEARCH:
@@ -22,7 +30,7 @@ function updateSingleCheckout(checkout, action) {
 }
 
 function updateCheckout(state, action) {
-    console.log("Updating checkout: ", action)
+    console.log("Updating checkout: ", action);
     for (var i = 0; i < state.checkoutInfo.length; i++) {
         if(state.checkoutInfo[i].checkout_id == action.checkout_id) {
             state.checkoutInfo =  [
@@ -38,13 +46,7 @@ function updateCheckout(state, action) {
 }
 
 
-function checkout_base(state = {
-    isFetching: false,
-    didInvalidate: false,
-    submitted_refund: false,
-    successful_refund:false,
-    checkoutInfo: []
-}, action) {
+function checkout_base(state = defaultCheckoutState, action) {
     switch (action.type) {
         case INVALIDATE:
             return Object.assign({}, state, {
@@ -56,7 +58,8 @@ function checkout_base(state = {
                 didInvalidate: false
             })
         case RECEIVE:
-            if (action.checkout_id && state.checkoutInfo) {
+
+            if (action.checkout_id && !(state.checkoutInfo === undefined)) {
                 return Object.assign({}, state, updateCheckout(state, action));
             }
             else {
@@ -89,7 +92,7 @@ function checkout_base(state = {
                 isFetching: false
             })
         default:
-        return state
+            return state
     }
 }
 
@@ -103,7 +106,7 @@ function checkout(state = {}, action) {
         case CLEAR_REFUND:
             return Object.assign({}, state, checkout_base(state, action))
         case CLEAR_CHECKOUTS:
-            return {};
+            return {}
         default:
             return state
     }
