@@ -69,6 +69,11 @@ var Checkouts = React.createClass({
         var checkout = null;
         var checkout_list = this.props.checkoutInfo;
 
+        console.log("checkout_list: ", checkout_list);
+        if (checkout_list.length <= 0) {
+            return (<div></div>);
+        }
+
         for (var i = 0; i < checkout_list.length; i++) {
             if(checkout_list[i].checkout_id == this.state.refund.selectedCheckoutId) {
                 checkout = checkout_list[i];
@@ -173,7 +178,7 @@ var Checkouts = React.createClass({
     fetchMoreCheckouts: function(event) {
         console.log("Fetching more checkouts for: ", this.props.email, this.props.account_id);
         var start = this.props.checkoutInfo.length;
-        this.props.dispatch(fetchCheckoutIfNeeded(this.props.email, this.props.account_id, null, start));
+        this.props.dispatch(fetchCheckoutIfNeeded(this.props.account_id, null, start));
     },
     refundCheckout: function(e) {
         e.preventDefault();
@@ -267,7 +272,7 @@ var Checkouts = React.createClass({
                         <TableHeaderColumn 
                             dataField = "amount"
                             >
-                            Amount ({checkouts[0].currency})
+                            Amount ({checkouts[0] ? checkouts[0].currency : "Currency"})
                         </TableHeaderColumn>   
                         <TableHeaderColumn
                             dataField="gross"

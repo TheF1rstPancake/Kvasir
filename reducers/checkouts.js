@@ -63,7 +63,7 @@ function checkout_base(state = defaultCheckoutState, action) {
                 return Object.assign({}, state, updateCheckout(state, action));
             }
             else {
-                if (!action.checkout.length) {
+                if (!Array.isArray(action.checkout)) {
                     console.log("Need to convert to array!");
                     action.checkout = [action.checkout];
                 }

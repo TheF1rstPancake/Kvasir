@@ -75,7 +75,6 @@ var Withdrawals= React.createClass({
                         striped={true}
                         hover={true}
                         pagination={true}
-                        search={true}
                     >
                         <TableHeaderColumn 
                             dataField="withdrawal_id" 
@@ -90,7 +89,8 @@ var Withdrawals= React.createClass({
                             Amount ({withdrawals[0] ? withdrawals[0].currency : "Currency"})
                         </TableHeaderColumn>
                         <TableHeaderColumn 
-                            dataField="state" 
+                            dataField="state"
+                            dataSort={true} 
                             dataFormat={this.formatState}
                             >
                             State
