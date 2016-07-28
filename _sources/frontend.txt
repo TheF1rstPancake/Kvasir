@@ -1,0 +1,99 @@
+The Front End: ReactJS and Redux
+=====================================
+After :ref:`completing the architecture <kvasirarch>` we began to look at what technologies were available to help us meet our end goal.  Again, we wanted to retain many of the benefits that come with a single page app (SPA) so we began looking at the available SPA frameworks and libraries.
+
+We saw the user-interface being composed of a set of components.  Each componenet had a tie to another component, and an update to the first component would impact the second, but not necessarily all other components.  For example, searching a user should impact the information displayed about that user, or the *user component* and the available account information directly stems from the information we have on the user.  Selecting a particular account would allow us to render *checkout* information about that account, but it shouldn't impact the account component itself or the user component.
+
+Essentially, our application should allow a user to walk through their internal database, in combination with WePay lookup calls and other actions, to gather information about a particular merchant or payer and complete tasks for them.
+
+`ReactJS <https://facebook.github.io/react/>`_ gave us exactly what we were looking for.  The entire philosophy behind React is the idea that a user interface should be composed of a set of independent components.  In our initial prototypes, we had trouble passing around information between components. `Redux <http://redux.js.org/>`_ solved the problem for us by making it easier to share information across the application.  We likely could have developed everything purely in React, but Redux made it easier.
+
+Actions, Components, and Reducers
+---------------------------------------
+React and Redux apps are comprised of 3 parts:
+    - Actions
+        * events that should manipulate the state of the application in some way
+        * also responsible for making POST requests to the back end and dispatching other actions as a result of those requests
+    - Reducers
+        * given an action, manipulate the state
+    - Components
+        * the front end views.  When a component's state changes due to a reducer, it re-renders itself
+
+Holding onto the idea that our application is really taking a user on a walk through their internal database, we have a set of "objects" or "models", each of which have their own set of actions, reducers and components.
+
+These objects are:
+   - User
+        * represents a given merchant.  A merchant can have multiple accounts.
+    
+    - Accounts
+        * represents a merchant account.
+    
+    - Checkouts
+        * represents the checkouts tied to a given merchant account (Accounts object)
+    
+    - Withdrawals
+        * represents the withdrawals tied to a given merchant account
+    
+    - Credit Card
+        * represents the credit card information associated with a given tokenized credit card ID used for a checkout
+
+If you look at these objects, you might recognize that all of these directly tie back to a WePay API endpoint.  That's intentional.  We assumed that many platforms would have developed their database configurations around the different WePay endpoints.  Since you generally have to interact with these endpoints in a certain order (/user endpoint, then /account endpoint, then /checkout endpoint), it makes sense that a partner's database would grow around that.  Regardless of how a partner's database is configured, Kvasir needs to interact with each of these endpoints to gather the information it needs.
+
+.. note::
+    The front end objects do not make any calls directly to the WePay API.  All of those are done by the back-end server.
+
+General Object Implementation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All of the objects are different in the sense that they require different search requirements (user_id, account_id, etc.); however, they are all implmeneted in very similar ways.  
+
+Really, what all of the objects require a handful of actions:
+    1) Search
+        - Notify all components the object is being *searched* for and what exactly we are searching for
+    
+    2) Request
+        - notify all components that the resource is being *requested*
+        - make POST request to back-end for more information (which subsequently makes a call to the WePay API and the middleware if necessary)
+    
+    3a) Receive
+        - If the POST request completes successfully, then we notify all components that new information has been received
+    
+    3b) Error
+        - If the POST request did complete successfully, then we notify all components of the error
+    
+    4) Clear
+        - Notify all components that we are starting over and need to clear any previously held information because it is no longer valid
+
+But not all of these actions are directly accessible.  For example, request and receive are always bundled together.
+
+In general, these are the public functions that each object has for dispatching actions:
+    - ``search(id)``
+        * Will cause the associated reducer to update its state with the information the user passed in order to search the object.
+    
+    - ``fetchIfNeeded(id)``
+        * First checks to make sure that we have all the infomration that we need in order to fetch information
+        * Then calls the ``fetch()`` function which will make the call to the back-end for more info
+        * this will result in the dispatching of the *request* action along with *receive* or *error* depending on the result
+
+The reducers that take these actions are also very similar.  
+Each reducer is actually composed of two smaller reducers - a *searched* reducer and a *base* reducer. 
+We do this because of the asynchronous nature of Redux actions mixed with the POST requests to our back-end.  If someone searches a user, but then realizes they searched the wrong email and changes the search parameter, we need a way to handle that.
+
+These two reducers are:
+    1) ``searched(state ={}, action)``
+        - When a search action fires, update the object's state with the information we used to search (account_id, user's email, etc).
+        - The initial state is an empty object
+    
+    2) ``base(state=defaultState, action)`` 
+        - For all other actions other than searching, they are sent to the base reducer
+        - Responsibly for modifying the information that we maintain for a given searched object
+        - The initial state is defined by each object but generally they all look this
+            >>> defaultState = {
+            >>>    isFetching: false,
+            >>>    info: []
+            >>> }
+
+Going back to the early example, if someone were to search a user with one email and immediately change the search parameters, there is no way for them to cancel the original request.  It has likely already been sent to the back-end to be processed.  There is also no guarantee that the first request will finish before the second request.  So, the user may be handed information from the original request, despite the fact that they didn't want to.  Separating the search state from the information we receive allows to validate that the information we received is actually the info we wanted.  If it's not, we can ignore it and prevent the state from being updated with inaccurate info.
+
+User Object
+~~~~~~~~~~~~
+The user objects represents a WePay merchant accessible through the :wepay:`user` endpoint.  

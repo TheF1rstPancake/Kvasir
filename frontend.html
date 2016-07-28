@@ -1,0 +1,421 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The Front End: ReactJS and Redux &mdash; Kvasir 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
+        <link rel="prev" title="Kvasir’s Architecture" href="architecture.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kvasir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">The Front End: ReactJS and Redux</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#actions-components-and-reducers">Actions, Components, and Reducers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#general-object-implementation">General Object Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#user-object">User Object</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kvasir</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>The Front End: ReactJS and Redux</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/frontend.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-front-end-reactjs-and-redux">
+<h1>The Front End: ReactJS and Redux<a class="headerlink" href="#the-front-end-reactjs-and-redux" title="Permalink to this headline">¶</a></h1>
+<p>After <a class="reference internal" href="architecture.html#kvasirarch"><span>completing the architecture</span></a> we began to look at what technologies were available to help us meet our end goal.  Again, we wanted to retain many of the benefits that come with a single page app (SPA) so we began looking at the available SPA frameworks and libraries.</p>
+<p>We saw the user-interface being composed of a set of components.  Each componenet had a tie to another component, and an update to the first component would impact the second, but not necessarily all other components.  For example, searching a user should impact the information displayed about that user, or the <em>user component</em> and the available account information directly stems from the information we have on the user.  Selecting a particular account would allow us to render <em>checkout</em> information about that account, but it shouldn&#8217;t impact the account component itself or the user component.</p>
+<p>Essentially, our application should allow a user to walk through their internal database, in combination with WePay lookup calls and other actions, to gather information about a particular merchant or payer and complete tasks for them.</p>
+<p><a class="reference external" href="https://facebook.github.io/react/">ReactJS</a> gave us exactly what we were looking for.  The entire philosophy behind React is the idea that a user interface should be composed of a set of independent components.  In our initial prototypes, we had trouble passing around information between components. <a class="reference external" href="http://redux.js.org/">Redux</a> solved the problem for us by making it easier to share information across the application.  We likely could have developed everything purely in React, but Redux made it easier.</p>
+<div class="section" id="actions-components-and-reducers">
+<h2>Actions, Components, and Reducers<a class="headerlink" href="#actions-components-and-reducers" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>React and Redux apps are comprised of 3 parts:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>Actions</dt>
+<dd><ul class="first last simple">
+<li>events that should manipulate the state of the application in some way</li>
+<li>also responsible for making POST requests to the back end and dispatching other actions as a result of those requests</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Reducers</dt>
+<dd><ul class="first last simple">
+<li>given an action, manipulate the state</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Components</dt>
+<dd><ul class="first last simple">
+<li>the front end views.  When a component&#8217;s state changes due to a reducer, it re-renders itself</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p>Holding onto the idea that our application is really taking a user on a walk through their internal database, we have a set of &#8220;objects&#8221; or &#8220;models&#8221;, each of which have their own set of actions, reducers and components.</p>
+<dl class="docutils">
+<dt>These objects are:</dt>
+<dd><ul class="first">
+<li><dl class="first docutils">
+<dt>User</dt>
+<dd><ul class="first last simple">
+<li>represents a given merchant.  A merchant can have multiple accounts.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<blockquote class="last">
+<div><ul>
+<li><dl class="first docutils">
+<dt>Accounts</dt>
+<dd><ul class="first last simple">
+<li>represents a merchant account.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Checkouts</dt>
+<dd><ul class="first last simple">
+<li>represents the checkouts tied to a given merchant account (Accounts object)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Withdrawals</dt>
+<dd><ul class="first last simple">
+<li>represents the withdrawals tied to a given merchant account</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Credit Card</dt>
+<dd><ul class="first last simple">
+<li>represents the credit card information associated with a given tokenized credit card ID used for a checkout</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</dd>
+</dl>
+<p>If you look at these objects, you might recognize that all of these directly tie back to a WePay API endpoint.  That&#8217;s intentional.  We assumed that many platforms would have developed their database configurations around the different WePay endpoints.  Since you generally have to interact with these endpoints in a certain order (/user endpoint, then /account endpoint, then /checkout endpoint), it makes sense that a partner&#8217;s database would grow around that.  Regardless of how a partner&#8217;s database is configured, Kvasir needs to interact with each of these endpoints to gather the information it needs.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The front end objects do not make any calls directly to the WePay API.  All of those are done by the back-end server.</p>
+</div>
+<div class="section" id="general-object-implementation">
+<h3>General Object Implementation<a class="headerlink" href="#general-object-implementation" title="Permalink to this headline">¶</a></h3>
+<p>All of the objects are different in the sense that they require different search requirements (user_id, account_id, etc.); however, they are all implmeneted in very similar ways.</p>
+<dl class="docutils">
+<dt>Really, what all of the objects require a handful of actions:</dt>
+<dd><ol class="first arabic">
+<li><dl class="first docutils">
+<dt>Search</dt>
+<dd><ul class="first last simple">
+<li>Notify all components the object is being <em>searched</em> for and what exactly we are searching for</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Request</dt>
+<dd><ul class="first last simple">
+<li>notify all components that the resource is being <em>requested</em></li>
+<li>make POST request to back-end for more information (which subsequently makes a call to the WePay API and the middleware if necessary)</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+<dl class="docutils">
+<dt>3a) Receive</dt>
+<dd><ul class="first last simple">
+<li>If the POST request completes successfully, then we notify all components that new information has been received</li>
+</ul>
+</dd>
+<dt>3b) Error</dt>
+<dd><ul class="first last simple">
+<li>If the POST request did complete successfully, then we notify all components of the error</li>
+</ul>
+</dd>
+</dl>
+<ol class="last arabic" start="4">
+<li><dl class="first docutils">
+<dt>Clear</dt>
+<dd><ul class="first last simple">
+<li>Notify all components that we are starting over and need to clear any previously held information because it is no longer valid</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</dd>
+</dl>
+<p>But not all of these actions are directly accessible.  For example, request and receive are always bundled together.</p>
+<dl class="docutils">
+<dt>In general, these are the public functions that each object has for dispatching actions:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">search(id)</span></code></dt>
+<dd><ul class="first last simple">
+<li>Will cause the associated reducer to update its state with the information the user passed in order to search the object.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">fetchIfNeeded(id)</span></code></dt>
+<dd><ul class="first last simple">
+<li>First checks to make sure that we have all the infomration that we need in order to fetch information</li>
+<li>Then calls the <code class="docutils literal"><span class="pre">fetch()</span></code> function which will make the call to the back-end for more info</li>
+<li>this will result in the dispatching of the <em>request</em> action along with <em>receive</em> or <em>error</em> depending on the result</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p>The reducers that take these actions are also very similar.
+Each reducer is actually composed of two smaller reducers - a <em>searched</em> reducer and a <em>base</em> reducer.
+We do this because of the asynchronous nature of Redux actions mixed with the POST requests to our back-end.  If someone searches a user, but then realizes they searched the wrong email and changes the search parameter, we need a way to handle that.</p>
+<dl class="docutils">
+<dt>These two reducers are:</dt>
+<dd><ol class="first last arabic">
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">searched(state</span> <span class="pre">={},</span> <span class="pre">action)</span></code></dt>
+<dd><ul class="first last simple">
+<li>When a search action fires, update the object&#8217;s state with the information we used to search (account_id, user&#8217;s email, etc).</li>
+<li>The initial state is an empty object</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">base(state=defaultState,</span> <span class="pre">action)</span></code></dt>
+<dd><ul class="first last">
+<li><p class="first">For all other actions other than searching, they are sent to the base reducer</p>
+</li>
+<li><p class="first">Responsibly for modifying the information that we maintain for a given searched object</p>
+</li>
+<li><dl class="first docutils">
+<dt>The initial state is defined by each object but generally they all look this</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">defaultState</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">isFetching</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">info</span><span class="p">:</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">}</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ol>
+</dd>
+</dl>
+<p>Going back to the early example, if someone were to search a user with one email and immediately change the search parameters, there is no way for them to cancel the original request.  It has likely already been sent to the back-end to be processed.  There is also no guarantee that the first request will finish before the second request.  So, the user may be handed information from the original request, despite the fact that they didn&#8217;t want to.  Separating the search state from the information we receive allows to validate that the information we received is actually the info we wanted.  If it&#8217;s not, we can ignore it and prevent the state from being updated with inaccurate info.</p>
+</div>
+<div class="section" id="user-object">
+<h3>User Object<a class="headerlink" href="#user-object" title="Permalink to this headline">¶</a></h3>
+<p>The user objects represents a WePay merchant accessible through the <a class="reference external" href="https://stage.wepay.com/developer/reference/user#lookup">/user</a> endpoint.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="architecture.html" class="btn btn-neutral" title="Kvasir’s Architecture" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Giovanni Briggs.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

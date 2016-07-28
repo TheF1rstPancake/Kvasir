@@ -82,6 +82,7 @@
             
                 <ul>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a></li>
 </ul>
 
             
@@ -185,7 +186,7 @@ It provides most of the essential functionality that a support teams needs to ha
 </div>
 <div class="section" id="tech-stack">
 <h2>Tech Stack<a class="headerlink" href="#tech-stack" title="Permalink to this headline">¶</a></h2>
-<p>Kvasir is comprised of two major components - a back end server running on <cite>NodeJS &lt;http://https://nodejs.org/en/&gt;_</cite> and a set of front-end JavaScript files built on top of <cite>ReactJS &lt;https://facebook.github.io/react/&gt;_</cite> and <cite>Redux &lt;http://redux.js.org/&gt;_</cite>.</p>
+<p>Kvasir is comprised of two major components - a back end server running on <a class="reference external" href="http://https://nodejs.org/en/">NodeJS</a> and a set of front-end JavaScript files built on top of <a class="reference external" href="https://facebook.github.io/react/">ReactJS</a> and <a class="reference external" href="http://redux.js.org/">Redux</a>.</p>
 <p>You are free to pick and choose what parts of the application you want to use.  ReactJS is designed to be back end agnostic - it doesn&#8217;t care what technology you use on the back end, as long as it receives the information it needs and in the format that it expects.  You could chose to scrape the NodeJS server and rebuild it in your own language of choice.  The reverse is true as well - if you want to work your support dashboard within an existing infrastructure, then you can throw away the front end component and build your own on top of our NodeJS server.</p>
 <p>In order to be fully functional, Kvasir requires a connection to your database.
 Since no two database configurations are the same, there is no realistic way for Kvasir to come with a way to pull information from every possible configuration.
@@ -195,7 +196,7 @@ NodeJS comes with some nice functions that make compiling our front end JavaScri
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>First make sure that you have <cite>NodeJS &lt;https://nodejs.org/en/download/&gt;_</cite> installed on your machine.  Node comes prepackaged with it&#8217;s package manager <cite>npm &lt;https://www.npmjs.com/&gt;_</cite> which will allow you to download and manage all of the packages and dependencies.</p>
+<p>First make sure that you have <a class="reference external" href="https://nodejs.org/en/download/">NodeJS</a> installed on your machine.  Node comes prepackaged with it&#8217;s package manager <a class="reference external" href="https://www.npmjs.com/">npm</a> which will allow you to download and manage all of the packages and dependencies.</p>
 <dl class="docutils">
 <dt>From within the main application directory run:</dt>
 <dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">npm</span> <span class="n">install</span>
@@ -211,6 +212,11 @@ NodeJS comes with some nice functions that make compiling our front end JavaScri
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="architecture.html#a-brief-history">A Brief History</a></li>
 <li class="toctree-l2"><a class="reference internal" href="architecture.html#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#integrating-with-kvasir">Integrating with Kvasir</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="frontend.html#actions-components-and-reducers">Actions, Components, and Reducers</a></li>
 </ul>
 </li>
 </ul>

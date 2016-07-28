@@ -31,6 +31,7 @@
 
   
     <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
+        <link rel="next" title="The Front End: ReactJS and Redux" href="frontend.html"/>
         <link rel="prev" title="Welcome to Kvasir’s documentation!" href="index.html"/> 
 
   
@@ -84,8 +85,10 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="">Kvasir&#8217;s Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#a-brief-history">A Brief History</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integrating-with-kvasir">Integrating with Kvasir</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a></li>
 </ul>
 
             
@@ -131,7 +134,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="kvasir-s-architecture">
-<h1>Kvasir&#8217;s Architecture<a class="headerlink" href="#kvasir-s-architecture" title="Permalink to this headline">¶</a></h1>
+<span id="kvasirarch"></span><h1>Kvasir&#8217;s Architecture<a class="headerlink" href="#kvasir-s-architecture" title="Permalink to this headline">¶</a></h1>
 <p>This page details Kvasir&#8217;s architecture.  It explains in detail why each architecture decision was made.</p>
 <div class="section" id="a-brief-history">
 <h2>A Brief History<a class="headerlink" href="#a-brief-history" title="Permalink to this headline">¶</a></h2>
@@ -171,6 +174,11 @@ By using a framework/library such as AngularJS or ReactJS, we could provide a SP
 <p>In order to achieve this, we came up with this idea of a &#8220;middleware component.&#8221;  This is a layer that is provided by a developer trying to use Kvasir that gives Kvasir access to the information that it needs.</p>
 <p>This middleware can be provided in any language that the developer chooses, using any structure that they want.  As long as it can receive and send back information in the way that Kvasir expects, the rest is up to the developer.  The information that Kvasir requests may be spread out across three or four tables for one developer, but be completed contained in a single table for another.  This middleware piece allows Kvasir to be apathetic towards a developer&#8217;s underlying database.  This provides us with the necessary flexibility to be able to provide this as a solution to all company&#8217;s currently using WePay, not just a handful.</p>
 </div>
+<div class="section" id="integrating-with-kvasir">
+<h2>Integrating with Kvasir<a class="headerlink" href="#integrating-with-kvasir" title="Permalink to this headline">¶</a></h2>
+<p>The entire architectural model assumes that this application is running on an company&#8217;s internal network.  It does not come with any sort of authentication and there are no plans for it.  Similarly to database configurations there are a plethora of authentication systems out there that we cannot provide mechanisms to interact with all of them.</p>
+<p>You should launch Kvasir on system that is only accessible to your employees and not the greater Internet.  Otherwise, you will be exposing your database, and all of the information about your end users.</p>
+</div>
 </div>
 
 
@@ -179,6 +187,8 @@ By using a framework/library such as AngularJS or ReactJS, we could provide a SP
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="frontend.html" class="btn btn-neutral float-right" title="The Front End: ReactJS and Redux" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="Welcome to Kvasir’s documentation!" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>

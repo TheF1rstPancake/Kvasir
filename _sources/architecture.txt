@@ -1,3 +1,5 @@
+.. _kvasirarch:
+
 Kvasir's Architecture
 =========================
 This page details Kvasir's architecture.  It explains in detail why each architecture decision was made.
@@ -40,3 +42,9 @@ In order to achieve this, we came up with this idea of a "middleware component."
 
 This middleware can be provided in any language that the developer chooses, using any structure that they want.  As long as it can receive and send back information in the way that Kvasir expects, the rest is up to the developer.  The information that Kvasir requests may be spread out across three or four tables for one developer, but be completed contained in a single table for another.  This middleware piece allows Kvasir to be apathetic towards a developer's underlying database.  This provides us with the necessary flexibility to be able to provide this as a solution to all company's currently using WePay, not just a handful.
 
+
+Integrating with Kvasir
+----------------------------
+The entire architectural model assumes that this application is running on an company's internal network.  It does not come with any sort of authentication and there are no plans for it.  Similarly to database configurations there are a plethora of authentication systems out there that we cannot provide mechanisms to interact with all of them.
+
+You should launch Kvasir on system that is only accessible to your employees and not the greater Internet.  Otherwise, you will be exposing your database, and all of the information about your end users.
