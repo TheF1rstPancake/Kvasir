@@ -8,6 +8,14 @@ Welcome to Kvasir's documentation!
 Kvasir (Vas-eer) is a support dashboard built for WePay partner's to use with their customer support teams.  
 It provides most of the essential functionality that a support teams needs to handle the various actions that merchants and payers need.
 
+.. note::
+    This documentation was added to GitLab pages and GitHub pages by following this tutorial:
+        http://lucasbardella.com/blog/2010/02/hosting-your-sphinx-docs-in-github
+
+    Getting it to work for GitLab pages required some changes and help from the following link:
+        https://about.gitlab.com/2016/04/07/gitlab-pages-setup/
+        
+
 Kvasir's Capabilities
 ---------------------
 Kvasir is designed to aid in the completion of many actions that your typical customer support user would have to do after integrating with WePay.
@@ -29,7 +37,7 @@ These actions include:
 
 Tech Stack
 -----------
-Kvasir is comprised of two major components - a back end server running on `NodeJS <http://https://nodejs.org/en/>_` and a set of front-end JavaScript files built on top of `ReactJS <https://facebook.github.io/react/>_` and `Redux <http://redux.js.org/>_`.
+Kvasir is comprised of two major components - a back end server running on `NodeJS <http://https://nodejs.org/en/>`_ and a set of front-end JavaScript files built on top of `ReactJS <https://facebook.github.io/react/>`_ and `Redux <http://redux.js.org/>`_.
 
 You are free to pick and choose what parts of the application you want to use.  ReactJS is designed to be back end agnostic - it doesn't care what technology you use on the back end, as long as it receives the information it needs and in the format that it expects.  You could chose to scrape the NodeJS server and rebuild it in your own language of choice.  The reverse is true as well - if you want to work your support dashboard within an existing infrastructure, then you can throw away the front end component and build your own on top of our NodeJS server.
 
@@ -42,7 +50,7 @@ NodeJS comes with some nice functions that make compiling our front end JavaScri
 
 Installation
 ---------------
-First make sure that you have `NodeJS <https://nodejs.org/en/download/>_` installed on your machine.  Node comes prepackaged with it's package manager `npm <https://www.npmjs.com/>_` which will allow you to download and manage all of the packages and dependencies.
+First make sure that you have `NodeJS <https://nodejs.org/en/download/>`_ installed on your machine.  Node comes prepackaged with it's package manager `npm <https://www.npmjs.com/>`_ which will allow you to download and manage all of the packages and dependencies.
 
 From within the main application directory run:
     >>> npm install
@@ -58,7 +66,7 @@ Contents:
    :maxdepth: 2
    
    architecture
-
+   frontend
 
 
 Indices and tables

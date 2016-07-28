@@ -52,7 +52,7 @@ function account(state = [], action) {
         case INVALIDATE_ACCOUNT:
         case RECEIVE_ACCOUNT:
         case REQUEST_ACCOUNT:
-            return Object.assign({}, state, account_base(state, action))
+            return Object.assign([], state, account_base(state, action))
         case CLEAR_ACCOUNTS:
             return {}
         default:

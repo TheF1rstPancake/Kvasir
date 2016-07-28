@@ -5,11 +5,13 @@ var config = require('./webpack.config')
 var bodyParser = require('body-parser')
 var request = require("request")
 
-
+// library for securely handeling hashed cookie objects
 var cookieSession = require("cookie-session")
 
+// WePay library
 var WePay = require("wepay").WEPAY;
 
+// express library for defining routes
 var express = require("express");
 
 // load app configuration settings
@@ -58,22 +60,14 @@ function sendResponse(package, res) {
     }
 }
 
-function getDataFromMiddleware(resource, data, callback) {
-    var uri = app_config.middleware_uri+"/"+resource;
-
-    return request.post(
-        {
-            "url":uri, 
-            "json":data,
-            headers: {
-                "Authorization":app_config.middleware_secret
-            }
-        }, 
-        callback
-    );
-}
-
-
+/**
+ * Request data from the given wepay_endpoint, using the specified access_token and package.  This function will immediately send the response back to the client
+ *
+ * @param res               -   Express response object
+ * @param wepay_endpoint    -   the WePay API endpoint we want to hit
+ * @param access_token      -   the access token we want to use with the request.  NOTE: for certain endpoints, this can be *null*
+ * @param package           -   the package of data we want to send along with request.  This can be an empty object depending on the endpoint
+ */
 function getWePayData(res, wepay_endpoint, access_token, package) {
     
     var wepay_settings = {}
@@ -99,6 +93,45 @@ function getWePayData(res, wepay_endpoint, access_token, package) {
     }
 }
 
+/*
+ * Given a resource, and package of data, send a request to the middleware.
+ * Once the request is complete, it will call the callback function provided.
+ *
+ * Refer to the middleware specification for more details about what resources are available and what each resource expects in it's data package
+ *
+ * @params resource - the resource that we want to search on the partner's database.  This should be user, account, or payer
+ * @params data     - the package we use to query information about the provided resource
+ * @params callback - a callback function to execute after the middleware returns information.  Typically this is `parseMiddlewareResponse`
+ */
+function getDataFromMiddleware(resource, data, callback) {
+    var uri = app_config.middleware_uri+"/"+resource;
+
+    return request.post(
+        {
+            "url":uri, 
+            "json":data,
+            headers: {
+                "Authorization":app_config.middleware_secret
+            }
+        }, 
+        callback
+    );
+}
+
+/*
+ * Parse the response from the middleware and decide what to do with it.
+ * If the middleware sends an error, raise that error back to the client
+ * If a wepay_endpoint is provided, then use the information provided by the client and request information from the provided endpoint with the wepay_package
+ * If no wepay_endpoint is provided, then just send the results from the middleware back to the client
+ *
+ * @params req            -   Expresses Request object
+ * @params res            -   Express Response object
+ * @params error          -   A JSON structure with error information (empty if no error occured)
+ * @params response       -   A detailed response object
+ * @params body           -   A JSON structure with returned data
+ * @params wepay_endpoint -   The wepay_endpoint to hit after receiving a response from the middleware
+ * @params wepay_package  -   The package to send to the wepay_endpoint
+ */
 function parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint, wepay_package) {
     if (body.error) {
         // send error
@@ -256,6 +289,11 @@ app.post("/refund", function(req, res) {
     }
 })
 
+/**
+ * Get reserve information from the WePay API.
+ * Requires an access token and an account_id
+ *
+ */
 app.post("/reserve", function(req, res) {
     if(!req.session.access_token) {
         console.log("ERROR: do not have an access token to work with");
@@ -265,6 +303,9 @@ app.post("/reserve", function(req, res) {
     }
 });
 
+/**
+ * Given a payer's unique identifying information (such as their email), get a list of all of their checkouts from the middleware
+ */
 app.post("/payer", function(req, res) {    
     // get the email from the search
     var email = req.body.email;
@@ -278,6 +319,9 @@ app.post("/payer", function(req, res) {
     );
 })
 
+/*
+ * Given a credit_card_id (tokenized card) get more information about the card from the v2/credit_card WePay API endpoint
+ */
 app.post("/credit_card", function(req, res){
     var credit_card_id = parseInt(req.body.credit_card_id);
 
