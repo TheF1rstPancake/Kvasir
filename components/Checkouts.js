@@ -19,6 +19,7 @@ import {BootstrapTable} from "react-bootstrap-table"
 import {fetchRefundIfNeeded, clearRefund, fetchCheckoutIfNeeded, searchCheckout} from "../actions/checkouts"
 import {searchUser, fetchUserIfNeeded} from "../actions/user"
 import {fetchAccountIfNeeded} from "../actions/accounts"
+import {fetchCardIfNeeded, searchCard} from "../actions/credit_card"
 
 import {clearError} from "../actions/errors"
 
@@ -174,6 +175,12 @@ var Checkouts = React.createClass({
         var current = this.state.refund;
         current.refundReason = event.target.value; 
         this.setState({refund: current})
+    },
+    handlePaymentIDSelect: function(event) {
+        var credit_card_id = parseInt(event.target.id);
+
+        this.props.dispatch(searchCard(credit_card_id));
+        this.props.dispatch(fetchCardIfNeeded(credit_card_id));
     },
     fetchMoreCheckouts: function(event) {
         console.log("Fetching more checkouts for: ", this.props.email, this.props.account_id);

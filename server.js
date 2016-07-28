@@ -75,9 +75,13 @@ function getDataFromMiddleware(resource, data, callback) {
 
 
 function getWePayData(res, wepay_endpoint, access_token, package) {
-    var wepay_settings = {
-        "access_token": access_token
+    
+    var wepay_settings = {}
+
+    if (access_token) {
+        wepay_settings.access_token = access_token;
     }
+
     var wepay = new WePay(wepay_settings);
     wepay.use_staging();
 
@@ -272,6 +276,12 @@ app.post("/payer", function(req, res) {
             return parseMiddlewareResponse(req, res, error, response, body, null, null);
         }
     );
+})
+
+app.post("/credit_card", function(req, res){
+    var credit_card_id = parseInt(req.body.credit_card_id);
+
+    getWePayData(res, "/credit_card", null, {"credit_card_id":credit_card_id, "client_id":app_config.client_id, "client_secret":app_config.client_secret});
 })
 
 /**

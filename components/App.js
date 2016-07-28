@@ -4,6 +4,7 @@ import SearchBar from '../containers/SearchBar'
 import AccountBlock from '../components/Accounts'
 import Checkouts from '../components/Checkouts'
 import Withdrawals from '../components/Withdrawals'
+import CreditCardBlock from "../components/CreditCard"
 import {Row, Col, Grid} from "react-bootstrap"
 
 const App = () => (
@@ -18,6 +19,7 @@ const App = () => (
         <Col lg={6} sm={12}>
             <SearchBar resource={"payer"} />
             <Checkouts />
+            <CreditCardBlock />
         </Col>
     </Row>  
   </Grid>

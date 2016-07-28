@@ -28,7 +28,9 @@ With all of these considerations in mind, we decided to stick with an SPA but pr
 .. note::
     The color of the lines is not extremely important, but the idea is that information moves along that path from green, to yellow to red.
 
-As you can see, the idea is that a user interacts with Kvasir's front-end component (no surprises there).  Certain actions will fire off commands to the back-end server, which will typically do two tasks in order to complete a user request:
+As you can see, the idea is that a user interacts with Kvasir's front-end component (no surprises there) which then communicates with our back-end for additional information. 
+
+Certain actions will fire off commands to the back-end server, which will typically do two tasks in order to complete a user request:
     1) get essential information (such as access tokens) from a database that exists outside of Kvasir
     2) take that information and make WePay API calls to gather more information
 
@@ -38,4 +40,3 @@ In order to achieve this, we came up with this idea of a "middleware component."
 
 This middleware can be provided in any language that the developer chooses, using any structure that they want.  As long as it can receive and send back information in the way that Kvasir expects, the rest is up to the developer.  The information that Kvasir requests may be spread out across three or four tables for one developer, but be completed contained in a single table for another.  This middleware piece allows Kvasir to be apathetic towards a developer's underlying database.  This provides us with the necessary flexibility to be able to provide this as a solution to all company's currently using WePay, not just a handful.
 
- 
