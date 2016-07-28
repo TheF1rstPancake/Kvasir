@@ -8,6 +8,14 @@ Welcome to Kvasir's documentation!
 Kvasir (Vas-eer) is a support dashboard built for WePay partner's to use with their customer support teams.  
 It provides most of the essential functionality that a support teams needs to handle the various actions that merchants and payers need.
 
+.. note::
+    This documentation was added to GitLab pages and GitHub pages by following this tutorial:
+        http://lucasbardella.com/blog/2010/02/hosting-your-sphinx-docs-in-github
+
+    Getting it to work for GitLab pages required some changes and help from the following link:
+        https://about.gitlab.com/2016/04/07/gitlab-pages-setup/
+        
+
 Kvasir's Capabilities
 ---------------------
 Kvasir is designed to aid in the completion of many actions that your typical customer support user would have to do after integrating with WePay.
