@@ -50,7 +50,7 @@ app.use('/static', express.static('static'));
 function sendResponse(package, res) {
     res.setHeader('Content-Type', 'application/json');
     if ("error_code" in package) {
-        var error_package = {"error_code":500, "error_description":"wepay call died. Check server logs for more details.", "error_message":package.error_description}
+        var error_package = {"error_code":500, "error_description":"wepay call died. Check server logs for more details.", "error_message":package.error_description, "original_error":package}
         console.log("Sending error!\t", error_package);
         return res.status(500).send(JSON.stringify(error_package));
     }
