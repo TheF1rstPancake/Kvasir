@@ -1,0 +1,653 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The Back End: NodeJS and ExpressJS &mdash; Kvasir 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
+        <link rel="next" title="The Middleware: Whatever Language You Want" href="middleware.html"/>
+        <link rel="prev" title="The Front End: ReactJS and Redux" href="frontend.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kvasir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">The Back End: NodeJS and ExpressJS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#endpoints">Endpoints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#user-endpoint">User Endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#account-endpoint">Account Endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#checkout-endpoint">Checkout Endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#widthdrawal-endpoint">Widthdrawal Endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#refund-endpoint">Refund Endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reserve-endpoint">Reserve Endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#payer-endpoint">Payer Endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#credit-card-endpoint">Credit Card Endpoint</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-data-from-wepay">Getting Data From WePay</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#managing-access-tokens">Managing Access Tokens</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-data-from-the-middleware">Getting Data From the Middleware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sending-data-back-to-the-client">Sending Data Back to the Client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#server-configuration">Server Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#generating-secret-keys">Generating Secret Keys</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">The Middleware: Whatever Language You Want</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kvasir</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>The Back End: NodeJS and ExpressJS</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/backend.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-back-end-nodejs-and-expressjs">
+<span id="kvasirbackend"></span><h1>The Back End: NodeJS and ExpressJS<a class="headerlink" href="#the-back-end-nodejs-and-expressjs" title="Permalink to this headline">¶</a></h1>
+<p>The backend infrastructure is meant to support the front end and address the security concerns that prevented us from making a full SPA.</p>
+<p>The back-end is built using Node and ExpressJS.  While we personally prefer Python for our servers, bundling the resources and libraries necessary to run the front end part of the application was easier in Node.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This is documentation on the current behavior of the back end server.  Many of the endpoints will likely change over time, and this is not meant to be a roadmap of the functionality they aim to provide.</p>
+</div>
+<div class="section" id="structure">
+<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
+<p>The underlying structure is pretty simple.  Requests come in from the front end, some of those requests will require the server to communicate with the platform&#8217;s database, while others require requests to the WePay API.</p>
+<p>Each object built in the front-end app receives it&#8217;s own endpoint on the server.  For example, the <a class="reference internal" href="frontend.html#user-object"><span>user object</span></a> makes all of it&#8217;s requests to the <em>/user</em> endpoint on the server.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">While many of the endpoints on Kvasir&#8217;s server mirror the endpoint names of WePay, it is not a 1 to 1 relationship.</p>
+</div>
+<p>When the front end makes a request, the back end is responsible for formatting it into something the partner middleware or WePay will understand.  This provides a useful layer of abstraction should something change in either of those two systems.</p>
+<p>The server is also responsible for packaging responses back to the client, including error messages.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front end.  Typically, valid data is simply sent to the front end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.</p>
+<p>Kvasir&#8217;s node server also manages a small cookie based session for users.  We don&#8217;t want to expose access_tokens to the front end, but we also don&#8217;t want to have to request the access token from the partner&#8217;s database on each request.  After the server gets an access_token, it will set a hashed cookie based on a secret key in the client&#8217;s browser.  The cookie cannot be accessed by the front end, and the only the server can unhash it into something readable.</p>
+</div>
+<div class="section" id="endpoints">
+<h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this headline">¶</a></h2>
+<p>Each front end object has an associated endpoint on the server.  An object <em>could</em> call another endpoint if it wanted to, but it is more likely to do that indirectly by dispatching that other object&#8217;s actions.</p>
+<p>All endpoints only accept POST requests and for all information to be sent as a JSON object.</p>
+<div class="section" id="user-endpoint">
+<h3>User Endpoint<a class="headerlink" href="#user-endpoint" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>The user endpoint does two important actions:</dt>
+<dd><ol class="first last arabic simple">
+<li>Get user information from the WePay <a class="reference external" href="https://stage.wepay.com/developer/reference/user#lookup">/user</a> endpoint</li>
+<li>Get the access token for the user from the platform&#8217;s database</li>
+</ol>
+</dd>
+</dl>
+<p>Aquiring an access token is actually the first step to most operations that Kvasir completes, but it requires going to the partner&#8217;s database first to get it.  After receiving an access token back from the middleware, the server will set it as a secure, hashed cookie in the browser.  This allows it to persist between calls so that we don&#8217;t have to fetch the access_token on each request.</p>
+<dl class="post">
+<dt id="post--user">
+<code class="descname">POST </code><code class="descname">/user</code><a class="headerlink" href="#post--user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get information about a merchant</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>email</strong> &#8211; <em>(optional)</em> the merchants email</li>
+<li><strong>account_id</strong> &#8211; <em>(optional)</em> a valid account_id associated with the partner</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">While both parameters are optional, one or the other must be provided</p>
+</div>
+<p>The user endpoint also has a special endpoint called <em>/user/resend_confirmation</em>.  This is what the user object will call in order to resend email confirmation to a merchant who has not yet confirmed their account.</p>
+</div>
+<div class="section" id="account-endpoint">
+<h3>Account Endpoint<a class="headerlink" href="#account-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>The account endpoint simply makes requests to WePay.  However, depending on the parameters passed, it might do one of two different actions.</p>
+<p>If no account_id is provided, the endpoint will make a request to <a class="reference external" href="https://stage.wepay.com/developer/reference/account#find">/account/find</a> which will return all accounts associated with the user.  If an account_id is provided, the endpoint will make a request to <a class="reference external" href="https://stage.wepay.com/developer/reference/account#lookup">/account</a>, which will return information for just the specified account.</p>
+<dl class="post">
+<dt id="post--account">
+<code class="descname">POST </code><code class="descname">/account</code><a class="headerlink" href="#post--account" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get information about an account</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>account_id</strong> &#8211; <em>(optional)</em> the account_id assoicated with the account that you want more info for.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="checkout-endpoint">
+<h3>Checkout Endpoint<a class="headerlink" href="#checkout-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>Very similar to the <a class="reference internal" href="#post--account" title="POST /account"><code class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/account</span></code></a>, except it looks at <a class="reference external" href="https://stage.wepay.com/developer/reference/checkout#lookup">/checkout</a> instead.  If no checkout_id is provided, it will gather the 50 most recent checkouts for the given account_id.  If a checkout_id is provided, then it will only fetch information regarding that one checkout.</p>
+<dl class="post">
+<dt id="post--checkout">
+<code class="descname">POST </code><code class="descname">/checkout</code><a class="headerlink" href="#post--checkout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of checkouts made for a given account_id, or get information about a single checkout_id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>checkout_id</strong> &#8211; <em>(optional)</em> the unique id of the checkout you want to search</li>
+<li><strong>acccount_id</strong> &#8211; <em>(optional)</em> the unique id of the account that you want a list of checkouts for</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">While both parameters are optional, you must provide one or the other.</p>
+</div>
+</div>
+<div class="section" id="widthdrawal-endpoint">
+<h3>Widthdrawal Endpoint<a class="headerlink" href="#widthdrawal-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>We could have built the withdrawal endpoint in the same way that we built the <a class="reference internal" href="#post--checkout" title="POST /checkout"><code class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/checkout</span></code></a> and <a class="reference internal" href="#post--account" title="POST /account"><code class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/account</span></code></a> endpoints, but we didn&#8217;t.  There is no real need to update a withdrawal after it&#8217;s been rendered, so we have no need to search for just a single withdrawal.  This endpoint will gather the 50 most recent withdrawals for an account.</p>
+<dl class="post">
+<dt id="post--withdrawal">
+<code class="descname">POST </code><code class="descname">/withdrawal</code><a class="headerlink" href="#post--withdrawal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get withdrawal info for a given account_id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>account_id</strong> &#8211; the unique id of the account you want to gather withdrawals from</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="refund-endpoint">
+<h3>Refund Endpoint<a class="headerlink" href="#refund-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>Even though checkouts and refunds are merged into the same object, the refund part requires it&#8217;s own endpoint.</p>
+<p>Refunds are a complicated area.  The refund logic changes depending on who the <em>fee_payer</em> was in the original checkout.  However, all refunds have to go through the <a class="reference external" href="https://stage.wepay.com/developer/reference/checkout#refund">/checkout/refund</a> API endpoint.  This endpoint requires the checkout_id for the given checkout and a reason for why the checkout is being refunded.</p>
+<dl class="post">
+<dt id="post--refund">
+<code class="descname">POST </code><code class="descname">/refund</code><a class="headerlink" href="#post--refund" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do a full or partial refund for a given checkout</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>checkout_id</strong> &#8211; the id of the checkout you want to refund</li>
+<li><strong>refund_reason</strong> &#8211; the reason you are refunding the checkout</li>
+<li><strong>amount</strong> &#8211; <em>(optional)</em> how much you are refunding the checkout for.  If no amount is passed, a full refund is completed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="reserve-endpoint">
+<h3>Reserve Endpoint<a class="headerlink" href="#reserve-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>The reserve endpoint is typically hit at the same time as the withdrawal endpoint, and they function similiarly.</p>
+<p>This endpoint will gather the reserve information about an account from <a class="reference external" href="https://stage.wepay.com/developer/reference/account#get_reserve_details">/account/get_reserve_details</a>.</p>
+<dl class="post">
+<dt id="post--reserve">
+<code class="descname">POST </code><code class="descname">/reserve</code><a class="headerlink" href="#post--reserve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get reserve information about a particular account</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>account_id</strong> &#8211; the id of the account you want reserve information for.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="payer-endpoint">
+<h3>Payer Endpoint<a class="headerlink" href="#payer-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>The <em>/payer</em> endpoint does not make any calls to the WePay API.  It interacts only with the middleware to access a list of all of the checkouts that a given payer has completed on that platform.</p>
+<dl class="post">
+<dt id="post--payer">
+<code class="descname">POST </code><code class="descname">/payer</code><a class="headerlink" href="#post--payer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a set of search parameters for a payer, retrieval all checkouts from the middleware that match those search parameters.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>email</strong> &#8211; the email of the payer that we are searching for</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="credit-card-endpoint">
+<h3>Credit Card Endpoint<a class="headerlink" href="#credit-card-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>The credit_card endpoint allows us to get more information about a tokenized credit card.</p>
+<dl class="post">
+<dt id="post--credit_card">
+<code class="descname">POST </code><code class="descname">/credit_card</code><a class="headerlink" href="#post--credit_card" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get more information from WePay about a tokenized credit card id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>credit_card_id</strong> &#8211; the tokenzied id of the credit_card</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="getting-data-from-wepay">
+<h2>Getting Data From WePay<a class="headerlink" href="#getting-data-from-wepay" title="Permalink to this headline">¶</a></h2>
+<p>Kvasir&#8217;s NodeJS server facilitates communication with the WePay API and the partner middleware.  WePay has several pre-made SDKs for communicating with their API.  Kvasir uses the <a class="reference external" href="https://github.com/wepay/NodeJS-SDK">NodeJS SDK</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you want to use the SDK, download it from GitHub and not from npm.  The npm version is not up to date.</p>
+</div>
+<p>The NodeJS SDK will format all of our requests so that they match what the WePay API expects.  The two biggest parts of that are setting the <em>Authorization</em> and <em>Content-Type</em> headers.</p>
+<p>The <em>Authorization</em> header is where a user&#8217;s access_token is placed, and the <em>Content-Type</em> is always &#8220;application/json&#8221;.</p>
+<p>Kvasir provides a single function for communicating with the NodeJS WePay SDK.</p>
+<dl class="function">
+<dt id="getWePayData">
+<code class="descname">getWePayData</code><span class="sig-paren">(</span><em>res</em>, <em>wepay_endpoint</em>, <em>access_token</em>, <em>package</em><span class="sig-paren">)</span><a class="headerlink" href="#getWePayData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request data from the given wepay_endpoint, using the specified access_token and package.  This function will immediately send the response back to the client</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>res</strong> &#8211; ExpressJS response object</li>
+<li><strong>wepay_endpoint</strong> &#8211; the wepay endpoint that we want to get data from</li>
+<li><strong>access_token</strong> &#8211; the user&#8217;s access_token that we want to use to request data. <strong>NOTE</strong>: This value can be null if the endpoint does not require an access_token</li>
+<li><strong>pacakge</strong> &#8211; the package of data we want to send to the wepay_endpoint.  This can be an empty object if the endpoint does not require any additional parameters.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>We talk a lot about retrieving access tokens from the middleware as a critical component of accessing data from the WePay API.  While many of the endpoints require an access token, not all of them do.  For example, the <a class="reference external" href="https://stage.wepay.com/developer/reference/credit_card#lookup">/credit_card</a> endpoint does not require an acces token.  Instead, it wants the platform&#8217;s client_id and client_secret in the body of the request.</p>
+<p>Each endpoint on Kvasir&#8217;s server is responsible for creating the call to <a class="reference internal" href="#getWePayData" title="getWePayData"><code class="xref js js-func docutils literal"><span class="pre">getWePayData()</span></code></a> including formatting the package that it sends.</p>
+<div class="section" id="managing-access-tokens">
+<h3>Managing Access Tokens<a class="headerlink" href="#managing-access-tokens" title="Permalink to this headline">¶</a></h3>
+<p>We wanted to avoid a system that had to make a request to the partner&#8217;s database for a user&#8217;s access token for each request.  While this would certainly work, it increases the overhead of each request unnecessarily.</p>
+<p>Kvasir uses Express&#8217;s <a class="reference external" href="https://github.com/expressjs/cookie-session">cookie_session</a> library to securely store a user&#8217;s access token as a cookie in the client&#8217;s browser.  The cookies are hashed with a secret key and set with the <em>secure</em> and <em>httpOnly</em> flags.  These force the cookies to be sent only over an HTTPS connection, and prevent JavaScript functions in the browser from being able to access the cookie information.</p>
+<dl class="docutils">
+<dt>From within Kvasir&#8217;s ExpressJS server, the cookie is accessed via:</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">req</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">access_token</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>Most of the endpoints will check if this value is set before making any requests to WePay.  If the access token is not present, Kvasir will raise an error back to the client saying that it cannot perform the request because it does not have all of the required info.</p>
+</div>
+</div>
+<div class="section" id="getting-data-from-the-middleware">
+<h2>Getting Data From the Middleware<a class="headerlink" href="#getting-data-from-the-middleware" title="Permalink to this headline">¶</a></h2>
+<p>In order to be able to get information such as access tokens and a list of all checkouts a payer has completed on a given platform, Kvasir uses the idea of a platform generated middleware that allows it to communicate with a platform&#8217;s database.</p>
+<p>The ExpressJS server has two functions for communicating with the middleware.</p>
+<dl class="function">
+<dt id="getDataFromMiddleware">
+<code class="descname">getDataFromMiddleware</code><span class="sig-paren">(</span><em>resource</em>, <em>data</em>, <em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#getDataFromMiddleware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a resource, and package of data, send a request to the middleware.
+Once the request is complete, it will call the callback function provided.</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param resource:</th><td class="field-body">the resource that we want to search on the partner&#8217;s database (also referred to as <em>objects</em> such as user, account, payer)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">param data:</th><td class="field-body">the package we use to query information about the provided resource</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">param callback:</th><td class="field-body">a callback function to execute after the middleware returns information.  Typically this is <a class="reference internal" href="#parseMiddlewareResponse" title="parseMiddlewareResponse"><code class="xref js js-func docutils literal"><span class="pre">parseMiddlewareResponse()</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="parseMiddlewareResponse">
+<code class="descname">parseMiddlewareResponse</code><span class="sig-paren">(</span><em>req</em>, <em>res</em>, <em>error</em>, <em>response</em>, <em>body</em>, <em>wepay_endpoint</em>, <em>wepay_package</em><span class="sig-paren">)</span><a class="headerlink" href="#parseMiddlewareResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse the response from the middleware and decide what to do with it.
+If the middleware sends an error, raise that error back to the client
+If a wepay_endpoint is provided, then use the information provided by the client and request information from the provided endpoint with the wepay_package.
+If no wepay_endpoint is provided, then just send the results from the middleware back to the client.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>req</strong> &#8211; Expresses Request object</li>
+<li><strong>res</strong> &#8211; Express Response object</li>
+<li><strong>error</strong> &#8211; A JSON structure with error information (empty if no error occured)</li>
+<li><strong>response</strong> &#8211; A detailed response object</li>
+<li><strong>body</strong> &#8211; A JSON structure with returned data</li>
+<li><strong>wepay_endpoint</strong> &#8211; The wepay_endpoint to hit after receiving a response from the middleware</li>
+<li><strong>wepay_package</strong> &#8211; The package to send to the wepay_endpoint</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>First Kvasir will call <a class="reference internal" href="#getDataFromMiddleware" title="getDataFromMiddleware"><code class="xref js js-func docutils literal"><span class="pre">getDataFromMiddleware()</span></code></a> where necessary.  This will send a associated POST request to the platform&#8217;s middleware to get the information we need.  Once it receives the response it will pass the information to the callback function provided.</p>
+<p>Most of Kvasir&#8217;s endpoints will use <a class="reference internal" href="#parseMiddlewareResponse" title="parseMiddlewareResponse"><code class="xref js js-func docutils literal"><span class="pre">parseMiddlewareResponse()</span></code></a> to do that.  When we go to the middlware it is likely because we want a user&#8217;s access token and then be able to do an associated call to the WePay API.  <a class="reference internal" href="#parseMiddlewareResponse" title="parseMiddlewareResponse"><code class="xref js js-func docutils literal"><span class="pre">parseMiddlewareResponse()</span></code></a> will do that for us.  It will pull the access token out of the response and format a request to <a class="reference internal" href="#getWePayData" title="getWePayData"><code class="xref js js-func docutils literal"><span class="pre">getWePayData()</span></code></a> (which will subsequently send the data to the client).</p>
+<p>The other option for a callback is to just pass the information we receive from the middleware directly back to the client.  This is what <a class="reference internal" href="#post--payer" title="POST /payer"><code class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/payer</span></code></a> does.  It passes <a class="reference internal" href="#sendResponse" title="sendResponse"><code class="xref js js-func docutils literal"><span class="pre">sendResponse()</span></code></a> has the callback function in order to pass the response from the middleware directly back to the client.</p>
+</div>
+<div class="section" id="sending-data-back-to-the-client">
+<h2>Sending Data Back to the Client<a class="headerlink" href="#sending-data-back-to-the-client" title="Permalink to this headline">¶</a></h2>
+<p>The final step to any request is to send the data back to the client.  Kvasir provides a single function for this operation as well.</p>
+<dl class="function">
+<dt id="sendResponse">
+<code class="descname">sendResponse</code><span class="sig-paren">(</span><em>package</em>, <em>res</em><span class="sig-paren">)</span><a class="headerlink" href="#sendResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a response back to the client.  This function will also take care of sending back errors.</p>
+<dl class="docutils">
+<dt>Headers:</dt>
+<dd><ul class="first last simple">
+<li><strong>Content-Type</strong>: application/json</li>
+</ul>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>package</strong> &#8211; the data to send back to the user</li>
+<li><strong>res</strong> &#8211; the ExpressJS response object</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>This function does not format the response data.  It will pass it verbatim back to the client.  So if the endpoint you hit makes a call to the WePay API, then you will receive back the response from the WePay API, and only that response.</p>
+<p>The exception here is errors.  We do extra error reporting so that the errors that you receive as a result of both the middleware and WePay API are similar.  This is intended to make error handeling easier.</p>
+<p>An example error can be seen below:</p>
+<blockquote>
+<div><div class="highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;error_code&quot;</span><span class="o">:</span> <span class="mi">500</span><span class="p">,</span>
+    <span class="s2">&quot;error_description&quot;</span><span class="o">:</span> <span class="s2">&quot;wepay_call died. Check server logs for more details&quot;</span>
+    <span class="s2">&quot;error_message&quot;</span><span class="o">:</span> <span class="s2">&quot;Cannot refund checkout after 60 days&quot;</span>
+    <span class="s2">&quot;original_error&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;error&quot;</span><span class="o">:</span> <span class="s2">&quot;invalid_request&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;error_description&quot;</span><span class="o">:</span> <span class="s2">&quot;Cannot refund checkout after 60 days&quot;</span>
+        <span class="s2">&quot;error_code&quot;</span><span class="o">:</span> <span class="mi">1003</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The &#8220;error_message&#8221; field is intended to be a string that you can display to the end user so that they know what went wrong.  We include the original error package sent by either the middleware or WePay API for greater transparceny.  We don&#8217;t want to accidently truncate errors and lead developers down the wrong path.</p>
+</div>
+<div class="section" id="server-configuration">
+<h2>Server Configuration<a class="headerlink" href="#server-configuration" title="Permalink to this headline">¶</a></h2>
+<p>There is some information that Kvasir needs in order to function outside of information that it could access from the middleware.</p>
+<p>The configuration file is small, but contains necessary information for Kvasir to run properly.</p>
+<dl class="docutils">
+<dt>A sample configuration file looks like this:</dt>
+<dd><div class="first last highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">config</span> <span class="o">=</span><span class="p">{};</span>
+
+<span class="nx">config</span><span class="p">.</span><span class="nx">cookie_secret</span> <span class="o">=</span> <span class="s2">&quot;&lt;SOME_RANDOM_JUMBLE_OF_LETTERS_AND_NUMBERS&gt;&quot;</span><span class="p">;</span>
+<span class="nx">config</span><span class="p">.</span><span class="nx">middleware_uri</span><span class="o">=</span> <span class="s2">&quot;https://&lt;address_to_your_middleware&gt;&quot;</span><span class="p">;</span>
+<span class="nx">config</span><span class="p">.</span><span class="nx">middleware_secret</span> <span class="o">=</span> <span class="s2">&quot;&lt;SOME_RANDOM_JUMBLE_OF_LETTERS_AND_NUMBERS&gt;&quot;</span><span class="p">;</span>
+
+<span class="nx">config</span><span class="p">.</span><span class="nx">port</span> <span class="o">=</span> <span class="mi">3000</span><span class="p">;</span>
+
+<span class="c1">// wepay client_id and client_secret are needed for certain calls</span>
+<span class="nx">config</span><span class="p">.</span><span class="nx">client_id</span> <span class="o">=</span> <span class="s2">&quot;&lt;YOUR_WEPAY_CLIENT_ID&gt;&quot;</span><span class="p">;</span>
+<span class="nx">config</span><span class="p">.</span><span class="nx">client_secret</span> <span class="o">=</span> <span class="s2">&quot;&lt;YOUR_WEPAY_CLIENT_SECRET&gt;&quot;</span><span class="p">;</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">config</span><span class="p">;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>It must be saved in the root directory of Kvasir and be named <strong>config.js</strong>.</p>
+<dl class="docutils">
+<dt>The configuration contains two secret keys:</dt>
+<dd><ul class="first last simple">
+<li>cookie_secret:        a secret key to hash your cookie session with</li>
+<li>middleware_secret:    a secret key to use when making requests to your middleware.  It is placed in an <em>Authorization</em> header with each request.</li>
+</ul>
+</dd>
+</dl>
+<p>The <em>middleware_secret</em> should be shared with your middleware so that it can validate that the requests it is receiving are actually from Kvasir and not from someone else.</p>
+<p>It also needs the address of your middleware.  This provides it some flexibility in the event that the address changes.  This way you don&#8217;t have to manipulate the source code.</p>
+<p>The configuration also requires your WePay client_id and client_secret.  There are certain WePay API requests that require this info in place of an access token.  Providing it in the config file lets Kvasir access it when necessary.</p>
+<div class="section" id="generating-secret-keys">
+<h3>Generating Secret Keys<a class="headerlink" href="#generating-secret-keys" title="Permalink to this headline">¶</a></h3>
+<p>There are a lot of different methods for generating secret keys.</p>
+<p><a class="reference external" href="http://randomkeygen.com/">Random Key Generator</a> will do it for you, or you can use Python to quickly genreate key.</p>
+<dl class="docutils">
+<dt>The Python code is:</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">binascii</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">binascii</span><span class="o">.</span><span class="n">hexlify</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">24</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&#39;0ccd512f8c3493797a23557c32db38e7d51ed74f14fa7580&#39;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>Copy the output and paste it into the config file.  It is important that you <strong>do not share your secret key</strong>.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="middleware.html" class="btn btn-neutral float-right" title="The Middleware: Whatever Language You Want" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="frontend.html" class="btn btn-neutral" title="The Front End: ReactJS and Redux" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Giovanni Briggs.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,366 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The Middleware: Whatever Language You Want &mdash; Kvasir 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
+        <link rel="prev" title="The Back End: NodeJS and ExpressJS" href="backend.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kvasir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backend.html">The Back End: NodeJS and ExpressJS</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">The Middleware: Whatever Language You Want</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#a-quick-note-about-languages">A Quick Note about Languages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#middleware-specifications">Middleware Specifications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#authorization">Authorization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#user-resource">User Resource</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#payer-resource">Payer Resource</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-if-i-don-t-have-all-this-data">What If I don&#8217;t have all this data?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kvasir</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>The Middleware: Whatever Language You Want</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/middleware.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-middleware-whatever-language-you-want">
+<h1>The Middleware: Whatever Language You Want<a class="headerlink" href="#the-middleware-whatever-language-you-want" title="Permalink to this headline">¶</a></h1>
+<p>The purpose of the middleware is to provide Kvasir access to a platform&#8217;s database.  It is up to each platform to develop their middleware in a way that meets the specifications that Kvasir expects.</p>
+<p>The middleware is meant to be lightweight and rather uncomplicated.  Kvasir takes care of a brunt of the work, all it needs is a little extra help from the platform to fill in some of the blanks.</p>
+<p>This document details what those specifications are.</p>
+<div class="section" id="a-quick-note-about-languages">
+<h2>A Quick Note about Languages<a class="headerlink" href="#a-quick-note-about-languages" title="Permalink to this headline">¶</a></h2>
+<p>When developing Kvasir, we constructed a middleware that connected to a set of fake data.  Our middleware is developed in Python, so most of the code examples show here will also be in Python</p>
+<p><strong>You do not have to use Python.</strong>  You may use any language that you feel comfortable in.  There is really no one language that would be better than any other.  As long as it can receive and respond to POST requests and communicate with your underlying database, then it will work for this application.</p>
+</div>
+<div class="section" id="middleware-specifications">
+<h2>Middleware Specifications<a class="headerlink" href="#middleware-specifications" title="Permalink to this headline">¶</a></h2>
+<p>If you read the :ref`back-end server documentation &lt;kvasirbackend&gt;` then you know that the NodeJS server comes with one function for communicating with the middleware (<a class="reference internal" href="backend.html#getDataFromMiddleware" title="getDataFromMiddleware"><code class="xref js js-func docutils literal"><span class="pre">getDataFromMiddleware()</span></code></a>).</p>
+<p>This function is very simple, all it does is format it&#8217;s parameters into a POST request with a callback function.</p>
+<p>The idea is that the middleware gives Kvasir access to different <em>resources</em> in the partner&#8217;s database.  Those resources are queried via a set of data included in the body of the request, and then the response is sent to a callback function which then decides what to do with the data.</p>
+<dl class="docutils">
+<dt>Currently the list of available resources that your middleware should support are:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>user</dt>
+<dd><p class="first last">access to a merchant&#8217;s information.  Specifically their access token</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>payer</dt>
+<dd><p class="first last">access to a payer&#8217;s information.  Specifically a list of all checkouts that payer has performed on your platform.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p>Each resource corresponds with a different endpoint on your middleware.  The <em>user</em> resource is accessed by going to <a class="reference external" href="https:/">https:/</a>/&lt;your_server_address&gt;/user.  They should only accept POST requests.  It may be possible that a endpoint is requesting data that will require you to access multiple tables, and that is fine.  The whole point to the middleware is to allow you to figure out how to get the required information based on the given parameters.</p>
+<dl class="docutils">
+<dt>Overall, these are the requirements for the middleware:</dt>
+<dd><ul class="first last simple">
+<li>A server that connects to your internal database</li>
+<li>Contains a set of endpoints where each endpoint is responsible for returning very specific data back to Kvasir</li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Many of the middleware endpoints have names that match endpoints on the Kvasir server, and the WePay API.  There is not a 1 to 1 map between all of these different APIs.  Middleware endpoints will have <em>(middleware)</em> in front of all of them in order to seperate them from the Kvasir server endpoints.</p>
+</div>
+<div class="section" id="authorization">
+<h3>Authorization<a class="headerlink" href="#authorization" title="Permalink to this headline">¶</a></h3>
+<p>Security was a concern when developing the specifications for the middleware.  Exposing your database to another application posses some risk.</p>
+<p>In order to help mitigate the security concerns, all requests to the middleware will have an <em>Authoirzation</em> header similar to the way the <em>Authorization</em> header is required when sending a request to WePay.  This header will contain a shared secret between your middleware and Kvasir.  If the Authorization header is not present in a request, or does not match the secret, you <strong>should not process the request</strong>.</p>
+</div>
+<div class="section" id="user-resource">
+<h3>User Resource<a class="headerlink" href="#user-resource" title="Permalink to this headline">¶</a></h3>
+<p>The user resource should be accessed via the <em>(middleware)/user</em> endpoint.</p>
+<dl class="post">
+<dt id="post-(middleware)-user">
+<code class="descname">POST </code><code class="descname"></code><span class="sig-paren">(</span><em>middleware</em><span class="sig-paren">)</span><code class="descname">/user</code><a class="headerlink" href="#post-(middleware)-user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an access token for a merchant given the passed search parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Request Headers:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.8">Authorization</a> &#8211; shared-secret key between your middleware and Kvasir</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.17">Content-Type</a> &#8211; application/json</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><strong>acount_owner_email</strong> &#8211; <em>(optional)</em> the email used when registering the WePay merhcant.  This is likely the same email they used to sign up on your platform</li>
+<li><strong>account_id</strong> &#8211; <em>(optional)</em> the account_id that we need to find the associated access token for</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>access_token</strong> &#8211; the access_token for the user</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="docutils">
+<dt>This endpoint has two use cases:</dt>
+<dd><ol class="first last arabic simple">
+<li>given an email address, find the merchant tied to it and get their access token.</li>
+<li>given an account_id, find the merchant tied to it and get their accesss token.</li>
+</ol>
+</dd>
+</dl>
+<p>We don&#8217;t always have the merchant&#8217;s email address readily available.  In the event that a payer comes to you and asks for a refund, they may not know the merchant&#8217;s email address, and that information isn&#8217;t contained in WePay&#8217;s checkout objects.  But each checkout is tied to an account_id, so from that account_id, we can backtrack to get the user and then get the access token to issue the refund.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">While both parameters are optional, you must pass one or the other</p>
+</div>
+<p>You can include more information if you want in the response.  In the future, we plan on being able to optimize the requests we make to the WePay API.  The more data we receive from your internal database the more information we can render immediately without needing to make additional requests which can slow down performance.</p>
+</div>
+<div class="section" id="payer-resource">
+<h3>Payer Resource<a class="headerlink" href="#payer-resource" title="Permalink to this headline">¶</a></h3>
+<p>The payer reosurce should be accessed via the <em>(middleware)/payer</em> endpoint.</p>
+<dl class="post">
+<dt id="post-(middleware)-payer">
+<code class="descname">POST </code><code class="descname"></code><span class="sig-paren">(</span><em>middleware</em><span class="sig-paren">)</span><code class="descname">/payer</code><a class="headerlink" href="#post-(middleware)-payer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of checkouts for a payer given the passed search parameters</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Request Headers:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.8">Authorization</a> &#8211; shared-secret key between your middleware and Kvasir</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.17">Content-Type</a> &#8211; application/json</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><strong>payer_email</strong> &#8211; the payer&#8217;s email address</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Response JSON Object:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
+<li><strong>payer_checkouts</strong> &#8211; a list of all checkouts that the given payer has made.  Each checkout is a JSON object</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Response JSON Array of Objects:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>checkout_id</strong> &#8211; checkout_id of a given checkout</li>
+<li><strong>create_time</strong> &#8211; <em>(optional)</em> the time at which the checkout occurred</li>
+<li><strong>amount</strong> &#8211; <em>(optional)</em> the amount paid</li>
+<li><strong>account_id</strong> &#8211; the account_id for which the checkout was made</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p>The checkouts contained in <em>payer_checkouts</em> are very particular about the information they need to include.  Again, you can include more information, but this is the <strong>minimum</strong> information.</p>
+<p>The response is meant to look like what the WePay API sends back in its <a class="reference external" href="https://stage.wepay.com/developer/reference/checkout#lookup">/checkout</a> endpoint.  It&#8217;s a subset of the data, but the naming convention is the same and that&#8217;s intentional in order to keep some level of consistency between the two.</p>
+</div>
+<div class="section" id="what-if-i-don-t-have-all-this-data">
+<h3>What If I don&#8217;t have all this data?<a class="headerlink" href="#what-if-i-don-t-have-all-this-data" title="Permalink to this headline">¶</a></h3>
+<p>Certain fields are marked as optional in the response.  These fields are very, very nice to have as they will make it easier for your support teams; however, we understand that you may not have that data.  Optional fields can be left off.</p>
+<p>If the field is not marked with <em>(optional)</em>, the it is a required field for Kvasir to function properly.  Any kind of <em>id</em> field, such as checkout_id and account_id are required, because these are what allow us to jump between WePay endpoints to receive information.</p>
+<p>If you do not have a required field, you will likely need to add it into your database.  You can likely do that by making requests to the WePay API with the limited information that you have and expanding your tables to include new information.</p>
+<p>What our development database did was actually include the WePay responses as blobs in a column.  We pulled out data that we wanted to be able to index and search on (like emails, account_ids, account names and checkout_ids) and gave them dedicated columns.  While this increases the size of your database, it does give you all of the information regarding actions completed on your platform with regards to the WePay API.  Not all of the information contained in the WePay API responses are completely necessary, but they could become useful at some point.  Simply storing the original responses as blobs gives you the opportunity to pull them out and get more detailed information when appropriate.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="backend.html" class="btn btn-neutral" title="The Back End: NodeJS and ExpressJS" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Giovanni Briggs.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

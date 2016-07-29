@@ -67,7 +67,8 @@ Contents:
    
    architecture
    frontend
-
+   backend
+   middleware
 
 Indices and tables
 ==================
