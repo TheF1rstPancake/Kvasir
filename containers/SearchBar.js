@@ -8,7 +8,7 @@
 
 import { connect } from 'react-redux'
 import React from 'react'
-import {FormGroup, FormControl} from "react-bootstrap"
+import {FormGroup, FormControl, DropdownButton, Col, MenuItem} from "react-bootstrap"
 import UserInfo from "../components/User"
 
 import {searchUser, fetchUserIfNeeded, clearUser} from "../actions/user"
@@ -20,29 +20,56 @@ import {clearWithdrawals} from "../actions/withdrawals"
 
 import {addPayer, clearPayer} from '../actions/payer'
 
-import {addError} from "../actions/errors"
+import {addError, clearAllStates} from "../actions/errors"
 
 
 var SearchBar = React.createClass({
+    /**
+     * Define the properties for the SearchBar object
+     *
+     * resource -   the type of resource this search bar queries.  Currently, the options are "user" and "payer"
+     */
     propTypes: {
         resource: React.PropTypes.string.isRequired    // what we are searching for.  Depending on what it is, it will do a different searchFunction
     },
-    // sets initial state
-    // states in react are just nested associative objects
+    /**
+     * Set the initial state of the search bar
+     * Initially, it's just an empty search string and value
+     */
     getInitialState: function(){
         return { 
             searchString: '',               // the search string we update on submit
             value:"",                       // the value of the input text box
-            error:{"error_message":""},
+            resource: "user",                   // the value of the drop down box that tells us what we are searching for - merchant or payer
         };
     },
 
-    // sets state, triggers render method
+    /**
+     * Handle a change to the search bar object (for when someone starts typing in it)
+     */ 
     handleChange: function(event){
         // grab value form input box, and change it's value
         // without this, the value of the box won't update
         this.setState({value: event.target.value})
-        console.log("scope updated!");
+    },
+    handleResourceSelect: function(event) {
+        var value = event.target.options[event.target.options.selectedIndex].value
+        console.log(value)
+        this.setState({resource:value})
+    },
+    search: function(event) {
+        event.preventDefault();
+        if (this.state.resource == "user") {
+            console.log("Searching user");
+            this.searchUser(event);
+        }
+        else if(this.state.resource == "payer") {
+            console.log("Searching payer");
+            this.searchPayer(event);
+        }
+        else {
+            this.props.dispatch(addError({"error_message":"Resource not selected!  Don't know what to search."}));
+        }
     },
     searchUser: function(event) {
         // grab value form input box and update our searchString
@@ -60,30 +87,20 @@ var SearchBar = React.createClass({
         // change the state because now we've searched a user
         this.props.dispatch(searchUser(this.state.value));
 
-
-
         // fetch the user info and after the user info is fetched, get the account error
         this.props.dispatch(fetchUserIfNeeded(this.state.value, null,
                 function(){
                     this2.props.dispatch(fetchAccountIfNeeded())
                 }
         ));
-
-        // we could also add fetch account info at this point to
-        // if the user search was successful then go get the account data
-        //this.props.dispatch(fetchAccountIfNeeded(this.state.value));
     },
     clearAll: function() {
-        this.props.dispatch(clearPayer());
-        this.props.dispatch(clearUser());
-        this.props.dispatch(clearAccounts());
-        this.props.dispatch(clearCheckouts());
-        this.props.dispatch(clearWithdrawals());
+        this.props.dispatch(clearAllStates({}));
     },
     searchPayer: function(event) {
         event.preventDefault();
 
-         var this2 = this;
+        var this2 = this;
         this.setState({searchString: this.state.value});
 
         // clear existing object states.  We are starting from scratch
@@ -102,42 +119,30 @@ var SearchBar = React.createClass({
         if(this.props.error) {
             error_message = this.props.error.error_message;
         }
-        if (this.props.resource == "user") {
-            return (
-                <div>
-                    <h4>Search User by Email </h4>
-                    <form onSubmit={this.searchUser}
-                    >
+
+        return (
+            <div>
+                <h4>Search </h4>
+                <form onSubmit={this.search}>
                     <FormGroup controlId="userSearchForm">
+                        <Col lg={2} sm={6}>
+                            <FormControl componentClass="select" onChange={this.handleResourceSelect}>
+                                <option value ="user" key="user">User</option>
+                                <option value ="payer" key="payer">Payer</option>
+                            </FormControl>
+                        </Col>
+                        <Col lg={10} sm={6}>
                         <FormControl 
                             type="text" 
                             value={this.state.value} 
                             placeholder="Search!" 
                             onChange={this.handleChange} />
+                        </Col>
                     </FormGroup>
                     <p>{error_message}</p>
-                    </form>
-                </div>
-            )
-        }
-        else if (this.props.resource == "payer") {
-            return (
-                <div>
-                    <h4>Search Payer by Email </h4>
-                    <form onSubmit={this.searchPayer}
-                    >
-                    <FormGroup controlId="payerSearchForm">
-                        <FormControl 
-                            type="text" 
-                            value={this.state.value} 
-                            placeholder="Search!" 
-                            onChange={this.handleChange} />
-                    </FormGroup>
-                    <p>{error_message}</p>
-                    </form>
-                </div>
-            )
-        }   
+                </form>
+            </div>
+        );
     }
 });
 

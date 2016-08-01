@@ -79,7 +79,7 @@ var Checkouts = React.createClass({
         // fetch the user info and after the user info is fetched, get the account error
         this.props.dispatch(fetchUserIfNeeded(null, account_id,
                 function(){
-                    this2.props.dispatch(fetchAccountIfNeeded(null, account_id));
+                    this2.props.dispatch(fetchAccountIfNeeded(account_id));
                     this2.props.dispatch(fetchCheckoutIfNeeded(account_id, checkout_id));
                 }
         ));
@@ -249,7 +249,6 @@ var Checkouts = React.createClass({
         var checkout = null;
         var checkout_list = this.props.checkoutInfo;
 
-        console.log("checkout_list: ", checkout_list);
         if (checkout_list.length <= 0) {
             return (<div></div>);
         }

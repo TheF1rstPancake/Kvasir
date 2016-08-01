@@ -38,6 +38,13 @@ function account_base(state = defaultAccountState, action) {
                 didInvalidate: false
             })
         case RECEIVE_ACCOUNT:
+            if (action.account_id) {
+                if (!Array.isArray(action.accounts)) {
+                    console.log("Need accounts to convert to array!");
+                    action.accounts = [action.accounts];
+                }
+            }
+
             return Object.assign({}, state, {
                 isFetching: false,
                 didInvalidate: false,

@@ -62,7 +62,6 @@ function checkout_base(state = defaultCheckoutState, action) {
                 didInvalidate: false
             })
         case RECEIVE:
-
             if (action.checkout_id && !(state.checkoutInfo === undefined)) {
                 return Object.assign({}, state, updateCheckout(state, action));
             }
@@ -90,7 +89,6 @@ function checkout_base(state = defaultCheckoutState, action) {
                 isFetching: false
             })
         case CLEAR_REFUND:
-        case CLEAR_ALL_STATE:
             return Object.assign({}, state, {
                 submitted_refund: false,
                 successful_refund:false,
@@ -111,6 +109,7 @@ function checkout(state = {}, action) {
         case CLEAR_REFUND:
             return Object.assign({}, state, checkout_base(state, action))
         case CLEAR_CHECKOUTS:
+        case CLEAR_ALL_STATE:
             return {}
         default:
             return state

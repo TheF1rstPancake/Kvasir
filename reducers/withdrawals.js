@@ -8,6 +8,10 @@ import {
     REQUEST, RECEIVE, CLEAR, RECEIVE_RESERVE
 } from '../actions/withdrawals'
 
+import {
+    CLEAR_ALL_STATE
+} from "../actions/errors"
+
 var defaultWithdrawalState = {
     isFetching: false,
     didInvalidate: false,
@@ -58,6 +62,7 @@ function withdrawal(state = {}, action) {
         case RECEIVE_RESERVE:
             return Object.assign({}, state, withdrawal_base(state, action))
         case CLEAR:
+        case CLEAR_ALL_STATE:
             return {}
         default:
             return state

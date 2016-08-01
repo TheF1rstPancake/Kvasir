@@ -13,14 +13,16 @@ import {Row, Col, Grid} from "react-bootstrap"
 const App = () => (
   <Grid fluid={true}>
     <Row>
+        <SearchBar />
+    </Row>
+    <hr></hr>
+    <Row>
         <Col lg={6} sm={12}>
-            <SearchBar resource={"user"} />
             <UserInfo />
             <AccountBlock />
             <Withdrawals />
         </Col>
         <Col lg={6} sm={12}>
-            <SearchBar resource={"payer"} />
             <Checkouts />
             <CreditCardBlock />
         </Col>
