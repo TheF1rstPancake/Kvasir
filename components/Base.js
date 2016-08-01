@@ -80,6 +80,9 @@ var Base = {
      */
     formatDate: function(cell, row) {
         return new Date(cell * 1000).toString();
+    },
+    isFetchingSpinner: function() {
+        return (<div><object data="/static/css/default_spinner.svg" type="image/svg+xml" width="150px"></object></div>);
     }
 }
 

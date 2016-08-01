@@ -64,7 +64,7 @@ The user resource should be accessed via the *(middleware)/user* endpoint.
 
 This endpoint has two use cases:
     1) given an email address, find the merchant tied to it and get their access token.
-    2) given an account_id, find the merchant tied to it and get their accesss token.
+    2) given an account_id, find the merchant tied to it and get their access token.
 
 We don't always have the merchant's email address readily available.  In the event that a payer comes to you and asks for a refund, they may not know the merchant's email address, and that information isn't contained in WePay's checkout objects.  But each checkout is tied to an account_id, so from that account_id, we can backtrack to get the user and then get the access token to issue the refund.
 

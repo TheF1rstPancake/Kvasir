@@ -81,7 +81,7 @@ var AccountBlock= React.createClass({
         var accounts = this.props.accountInfo;
         var this2 = this;
         if (this.props.isFetching) {
-            return (<div><object data="/static/css/default_spinner.svg" type="image/svg+xml" width="150px"></object></div>);
+            return Base.isFetchingSpinner();
         }
         else if (accounts == null || $.isEmptyObject(accounts)  || $.isEmptyObject(this.props.error)==false) {
             return (<div></div>);
@@ -89,7 +89,7 @@ var AccountBlock= React.createClass({
         else {
             accounts = this.serialize(accounts); 
             return (
-                <div id="account_info">
+                <div id="account_table">
                     <h4> Account Details </h4>
                     <BootstrapTable
                         data = {accounts}

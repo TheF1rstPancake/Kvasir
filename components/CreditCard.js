@@ -42,7 +42,7 @@ var CreditCardBlock= React.createClass({
         var card = this.props.cardInfo;
         var this2 = this;
         if (this.props.isFetching) {
-            return (<div><object data="/static/css/default_spinner.svg" type="image/svg+xml" width="150px"></object></div>);
+            return Base.isFetchingSpinner();
         }
         else if (card == null || $.isEmptyObject(card)  || $.isEmptyObject(this.props.error)==false) {
             return (<div></div>);
@@ -51,7 +51,7 @@ var CreditCardBlock= React.createClass({
             // put the card in a list
             card = [card];
             return (
-                <div id="credit_card_info">
+                <div id="credit_card_table">
                     <h4>Card Details </h4>
                     <BootstrapTable
                         data = {card}

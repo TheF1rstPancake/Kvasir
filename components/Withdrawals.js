@@ -33,6 +33,11 @@ var Withdrawals= React.createClass({
         return "<a target='_blank' href="+ row.withdrawal_data_withdrawal_uri + " id=" + cell + ">" + cell + "</a>";
 
     },
+    /**
+     * Flatten the dictionaries in the list of withdrawals.  React-bootstrap-table can't handle nested dictionaries
+     *
+     * @param info  -   the list of dictionaries we want to flatten
+     */
     serializeWithdrawals: function(info) {
         var array = [];
         for (var i = 0; i < info.length; i++) {
@@ -40,6 +45,13 @@ var Withdrawals= React.createClass({
         }
         return array;
     },
+    /**
+     * Flatten the dictionaries in the list of reserves.  React-bootstrap-table can't handle nested dictionaries.
+     *
+     * The reserves object needs a little special treatment because what we really want to flatten is the list "withdrwawals_schedule" which is returned when we fetch the reserves information.
+     *
+     * @param info  -   the list of dictionaries we want to flatten
+     */
     serializeReserves: function(info) {
         var array = [];
         for (var i = 0; i < info.withdrawals_schedule.length; i++) {
@@ -51,9 +63,21 @@ var Withdrawals= React.createClass({
         }
         return array;
     },
+    /**
+     * Format the bank name and last four.
+     *
+     * @param cell  -   the cell that contains the last four digits of the merchant's bank account
+     * @param row   -   the row that holds the cell.  We get the bank name from `row.bank_data_bank_name`
+     */
     formatBank: function(cell, row) {
         return row.bank_data_bank_name + " XXXXXX" + cell;
     },
+    /**
+     * Format the "state" information of a given withdrawal.
+     *
+     * We want to display the state and the time that the withdrawal entered that state.  
+     * These times are in different fields depending on the state.
+     */
     formatState:function(cell, row) {
         if (cell == "captured") {
             return (<div>{cell}<br></br>{Base.formatDate(row.withdrawal_data_capture_time)}</div>);
@@ -63,6 +87,11 @@ var Withdrawals= React.createClass({
         }
         return (<div>{cell}</div>);
     },
+    /**
+     * Render the withdrawals and reserves information.
+     *
+     * Withdrawals and reserves are displayed in two different tables.
+     */
     render: function() {
         var withdrawals = this.props.withdrawalInfo;
         var reserve = this.props.reserveInfo;
@@ -70,7 +99,7 @@ var Withdrawals= React.createClass({
         var reserve_content = (<div></div>);
         var this2 = this;
         if (this.props.isFetching) {
-            return (<div><object data="/static/css/default_spinner.svg" type="image/svg+xml" width="150px"></object></div>);
+            return Base.isFetchingSpinner();
         }
         if (this.props.withdrawalInfo === undefined || $.isEmptyObject(this.props.error) == false){
             withdrawal_content = withdrawal_content;
@@ -78,7 +107,7 @@ var Withdrawals= React.createClass({
         else {
             withdrawals = this.serializeWithdrawals(withdrawals);
             withdrawal_content = (
-                <div>
+                <div id="withdrawals_table">
                     <h4>Withdrawals</h4>
                     <BootstrapTable
                         data={withdrawals}
@@ -124,7 +153,7 @@ var Withdrawals= React.createClass({
             reserve = this.serializeReserves(reserve);
             console.log("RESERVES: ", reserve);
             reserve_content = (
-                <div>
+                <div id="reserves_table">
                     <h4>Reserves</h4>
                     <BootstrapTable
                         data={reserve}
@@ -162,20 +191,25 @@ var Withdrawals= React.createClass({
     }
 });
 
-
+/**
+ * Map the Redux state to the properties for this object.
+ *
+ * withdrawalInfo:  the list of withdrawals
+ * reserveInfo:     the list of reserves
+ * erorr:           error information relating to withdrawals or reserves raised by /actions/withdrawal or /reducer/withdrawal
+ * isFetching:      true if the withdrawal object is fetching (which fetches reserves at the same time)
+ */
 const mapStateToProps = (state) => {
     return {
         withdrawalInfo:     state.wepay_withdrawal.withdrawal.withdrawalInfo,
         reserveInfo:        state.wepay_withdrawal.withdrawal.reserveInfo,
-        email:              state.wepay_user.searchedUser,
-        error:              state.errors.global ? state.errors.global.info : {},
+        error:              state.errors.withdrawal ? state.errors.withdrawal.info : {},
         isFetching:         state.wepay_withdrawal.withdrawal.isFetching
 
     }
 }
 
 Withdrawals = connect(mapStateToProps)(Withdrawals);
-
 
 
 export default Withdrawals

@@ -1,4 +1,4 @@
-import {CLEAR_ERROR, ADD_ERROR} from "../actions/errors"
+import {CLEAR_ERROR, ADD_ERROR, CLEAR_ALL_STATE} from "../actions/errors"
 /**
  * Reducer on errors.
  */
@@ -8,6 +8,12 @@ const errors = (state={}, action) => {
       return {
         [action.scope]: {
             info:action.info
+        }
+      }
+    case CLEAR_ALL_STATE:
+      return {
+        [action.error.scope]: {
+          info:action.error.info
         }
       }
     case CLEAR_ERROR:

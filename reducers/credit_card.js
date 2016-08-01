@@ -59,6 +59,7 @@ function card(state = { }, action) {
             return Object.assign({}, state, card_base(state, action))
         case CLEAR:
         case CLEAR_ALL_STATE:
+            console.log("CLEARING CREDIT CARD: ", action.type);
             return {}
         default:
             return state

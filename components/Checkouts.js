@@ -172,7 +172,7 @@ var Checkouts = React.createClass({
      * That function will go and gather the information about the tokenized id and display it in a table
      */
     formatPaymentID: function(cell, row) {
-        return (<a href="#" id={cell} onClick={this.handlePaymentIDSelect}>{cell}</a>)
+        return (<a href="#credit_card_table" id={cell} onClick={this.handlePaymentIDSelect}>{cell}</a>)
     },
     /**
      * Format the refund button
@@ -355,7 +355,7 @@ var Checkouts = React.createClass({
             var checkouts = this.serialize(this.props.checkoutInfo);
             console.log('Rendering checkout info gathered from WePay');
             return (
-                <div>
+                <div id="checkouts_table">
                 <Row>
                     <h4> Checkouts </h4>
                     <BootstrapTable
@@ -432,8 +432,11 @@ var Checkouts = React.createClass({
             );
         }
         else if(!(this.props.payerInfo === undefined)) {
+            if (this.props.isFetching) {
+                return Base.isFetchingSpinner();
+            }
             console.log("Rendering checkout info gathered from partner database");
-            return (<div>
+            return (<div id="payer_checkouts_table">
                 <Row>
                     <h4>Payer Checkouts</h4>
                     <BootstrapTable
