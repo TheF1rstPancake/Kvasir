@@ -213,7 +213,7 @@
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
 <tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first simple">
-<li><strong>acount_owner_email</strong> &#8211; <em>(optional)</em> the email used when registering the WePay merhcant.  This is likely the same email they used to sign up on your platform</li>
+<li><strong>acount_owner_email</strong> &#8211; <em>(optional)</em> the email used when registering the WePay merchant.  This is likely the same email they used to sign up on your platform</li>
 <li><strong>account_id</strong> &#8211; <em>(optional)</em> the account_id that we need to find the associated access token for</li>
 </ul>
 </td>
@@ -232,7 +232,7 @@
 <dt>This endpoint has two use cases:</dt>
 <dd><ol class="first last arabic simple">
 <li>given an email address, find the merchant tied to it and get their access token.</li>
-<li>given an account_id, find the merchant tied to it and get their accesss token.</li>
+<li>given an account_id, find the merchant tied to it and get their access token.</li>
 </ol>
 </dd>
 </dl>
@@ -276,9 +276,10 @@
 <tr class="field-even field"><th class="field-name" colspan="2">Response JSON Array of Objects:</th></tr>
 <tr class="field-even field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
 <li><strong>checkout_id</strong> &#8211; checkout_id of a given checkout</li>
-<li><strong>create_time</strong> &#8211; <em>(optional)</em> the time at which the checkout occurred</li>
-<li><strong>amount</strong> &#8211; <em>(optional)</em> the amount paid</li>
 <li><strong>account_id</strong> &#8211; the account_id for which the checkout was made</li>
+<li><strong>create_time</strong> &#8211; <em>(optional)</em> the time at which the checkout occurred</li>
+<li><strong>credit_card_id</strong> &#8211; <em>(optional)</em> the tokenized id of the card used to make the payment</li>
+<li><strong>amount</strong> &#8211; <em>(optional)</em> the amount paid</li>
 </ul>
 </td>
 </tr>
