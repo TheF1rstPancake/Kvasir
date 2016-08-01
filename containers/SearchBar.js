@@ -43,7 +43,15 @@ var SearchBar = React.createClass({
             resource: "user",                   // the value of the drop down box that tells us what we are searching for - merchant or payer
         };
     },
-
+    /**
+     * When we search a new resource, clear all existing states
+     *
+     * Normally `clearAllStates` is used when a global error occurs that should bring everything to a halt.
+     * We can leverage it here though with no error information to clear everything
+     */
+    clearAll: function() {
+        this.props.dispatch(clearAllStates({}));
+    },
     /**
      * Handle a change to the search bar object (for when someone starts typing in it)
      */ 
@@ -52,11 +60,19 @@ var SearchBar = React.createClass({
         // without this, the value of the box won't update
         this.setState({value: event.target.value})
     },
+    /**
+     * Handle a change in the select field next to the search bar
+     */
     handleResourceSelect: function(event) {
         var value = event.target.options[event.target.options.selectedIndex].value
         console.log(value)
         this.setState({resource:value})
     },
+    /**
+     * Handles the form submit.  
+     * After a user submits the form, we check what resource they had selected 
+     * and then call the apporpriate function to get the information for that resource
+     */
     search: function(event) {
         event.preventDefault();
         if (this.state.resource == "user") {
@@ -71,6 +87,10 @@ var SearchBar = React.createClass({
             this.props.dispatch(addError({"error_message":"Resource not selected!  Don't know what to search."}));
         }
     },
+    /**
+     * Search for a merchant based on the provided email address
+     * After the merchant is successfully found, we get their account information too
+     */
     searchUser: function(event) {
         // grab value form input box and update our searchString
         // prevent form default behavior to prevent page reload on submit
@@ -94,9 +114,9 @@ var SearchBar = React.createClass({
                 }
         ));
     },
-    clearAll: function() {
-        this.props.dispatch(clearAllStates({}));
-    },
+    /**
+     * Search for a pyaer based on the provided email address
+     */
     searchPayer: function(event) {
         event.preventDefault();
 
@@ -112,6 +132,9 @@ var SearchBar = React.createClass({
         // fetch the user info and after the user info is fetched, get the account error
         this.props.dispatch(fetchPayerIfNeeded(this.state.value));
     },
+    /**
+     * Render the search bar
+     */
     render: function(dispatch) {
         var searchString = this.state.searchString.trim().toLowerCase();
         //render the user search functionality
@@ -146,6 +169,15 @@ var SearchBar = React.createClass({
     }
 });
 
+/**
+ * Map the Redux state to props for this objects
+ *
+ * The search bar does not have it's own error structure.  
+ * Instead it reports all errors globally since a failed search should result in a halt of all operations.
+ *
+ * error:   global errors that may have occurred.  
+ *
+ */
 const mapStateToProps = (state) => {
     return {
         error:      state.errors.global ? state.errors.global.info : {}

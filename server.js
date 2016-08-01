@@ -181,13 +181,10 @@ app.post("/user", function(req, res) {
 app.post('/account', function(req, res){
     console.log("Received request for account info: ", req.body);
     if (!req.session.access_token) {
-        return getDataFromMiddleware(
-            "account",
-            {},
-            function(error, response, body) {
-                return;
-            }
-        );
+        return sendResponse({
+            "error_message":"Do not have access_token which is required to gather account information",
+            "error": "access token not defined"
+        }, res)
     }
     else {
         var package = {};
@@ -221,15 +218,13 @@ app.post("/checkout", function(req, res) {
         wepay_endpoint = "/checkout/find";
     }
 
-    // check if an access token has already been set.  If not, we are going to need to get one
+    // check if an access token has already been set.  
+    // If not, send an error because we can't get checkout info with the token
     if (!req.session.access_token) {
-        return getDataFromMiddleware(
-            "checkout",
-            {},
-            function(error,response, body) {
-                return parseMiddlewareResponse(req, res, parseMiddlewareResponse, error, response, body, wepay_endpoint, package)
-            }
-        );
+        return sendResponse({
+            "error_message":"Do not have access_token which is required to gather account information",
+            "error": "access token not defined"
+        }, res);
     }
     else {
         return getWePayData(res, wepay_endpoint, req.session.access_token, package);
@@ -250,13 +245,10 @@ app.post("/user/resend_confirmation", function(req, res){
 app.post("/withdrawal", function(req, res){
     var package = {"account_id":req.body.account_id};
     if(!req.session.access_token) {
-        getDataFromMiddleware(
-            "withdrawal", 
-            {}, 
-            function(error, response, body) {
-                return parseMiddlewareResponse(req, res, error, response, body, "/withdrawal/find", package);
-            }
-        );
+        return sendResponse({
+            "error_message":"Do not have access_token which is required to gather account information",
+            "error": "access token not defined"
+        }, res);
     }
     else {
         getWePayData(res, "/withdrawal/find", req.session.access_token, package);
@@ -296,7 +288,10 @@ app.post("/refund", function(req, res) {
  */
 app.post("/reserve", function(req, res) {
     if(!req.session.access_token) {
-        console.log("ERROR: do not have an access token to work with");
+        return sendResponse({
+            "error_message":"Do not have access_token which is required to gather account information",
+            "error": "access token not defined"
+        }, res)
     }
     else {
         getWePayData(res, "/account/get_reserve_details", req.session.access_token, {"account_id":req.body.account_id});
