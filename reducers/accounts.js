@@ -9,6 +9,8 @@ import {
     REQUEST_ACCOUNT, RECEIVE_ACCOUNT, CLEAR_ACCOUNTS
 } from '../actions/accounts'
 
+import {CLEAR_ALL_STATE} from "../actions/errors"
+
 var defaultAccountState = {
     isFetching: false,
     didInvalidate: false,
@@ -54,7 +56,8 @@ function account(state = [], action) {
         case REQUEST_ACCOUNT:
             return Object.assign([], state, account_base(state, action))
         case CLEAR_ACCOUNTS:
-            return {}
+        case CLEAR_ALL_STATE:
+            return {}            
         default:
             return state
     }

@@ -19,18 +19,29 @@ import {searchAccount} from "../actions/accounts"
 import Base from "./Base"
 
 var AccountBlock= React.createClass({
+    /**
+     * Get the initial state the object
+     *
+     * This state simply holds the information for what happens when a row of the account table is selected
+     */
     getInitialState: function() {
         return {
-            accountInfo: {},
-            error: {},
             selectRowProp: {
                 mode: "radio",
-                clickToSelect: true,
+                clickToSelect: false,
                 bgColor: "rgb(249, 255, 172)",
                 onSelect: this.handleClick
             }
         }
     },
+    /**
+     * Defines the behavior when a row in the table is selected
+     *
+     * This will clear all objects that are linked to this table because we want to overwrite all of that info
+     * This means that we need to clear withdrawals, checkouts, and the payer table (clearing withdrawals also takes care of reserves)
+     * 
+     * After everything has been cleared, we fetch the 50 most recent checkouts tied to the account, and the 50 most recent withdrawals and reserve states
+     */
     handleClick: function(row, isSelected) {
         // set the account 
         var account_id = row.account_id;
@@ -47,9 +58,13 @@ var AccountBlock= React.createClass({
         // fetch the withdrawals
         this.props.dispatch(fetchWithdrawalIfNeeded(account_id));
     },
-    formatAccountId: function(col, row) {
-        return <div>{col} - {row.account_id}</div>;
-    },
+    /**
+     * React-bootstrap-table requires that the data passed to it is a list of flat dictionaries.
+     * However, WePay often has nested structures.
+     * This function will flatten all of the accounts so that we can pass the data to the table
+     *
+     * @param info  -   the list of nested dictionaries containing account information
+     */
     serialize: function(info) {
         var array = [];
         for (var i = 0; i < info.length; i++) {
@@ -57,7 +72,11 @@ var AccountBlock= React.createClass({
         }
         return array;
     },
-    
+    /**
+     * Render the account table
+     *
+     * If there are multiple accounts, each one will be displayed on a different row.
+     */
     render: function() {
         var accounts = this.props.accountInfo;
         var this2 = this;
@@ -108,14 +127,22 @@ var AccountBlock= React.createClass({
     }
 });
 
-
+/**
+ * Map the Redux state to props for this object
+ *
+ * accountInfo:         a list of dictionaries representing different accounts
+ * isFetching:          true if the object is currently fetching account details
+ * searchedAccount:     the account_id of the account we are currently looking up/rendering
+ * haveAccessToken:     true if we successfully got an access token when looking up a user
+ * error:               errors raised by /actions/accounts and /reducers/accounts 
+ */
 const mapStateToProps = (state) => {
     return {
         accountInfo:        state.wepay_account.account.accountInfo,
         isFetching:         state.wepay_account.account.isFetching,
         searchedAccount:    state.wepay_account.searchedAccount,
         haveAccessToken:    state.wepay_user.user.haveAccessToken,
-        error:              state.errors.global ? state.errors.global.info : {}
+        error:              state.errors.account ? state.errors.account.info : {}
     }
 }
 

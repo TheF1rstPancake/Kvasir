@@ -16,25 +16,28 @@ import {searchAccount} from "../actions/accounts"
 import Base from "./Base"
 
 var CreditCardBlock= React.createClass({
+    /**
+     * Get initial state for the credit_card object
+     * 
+     * There is no initial state info, so return an empty object
+     */
     getInitialState: function() {
-        return {
-            accountInfo: {},
-            error: {}
-        }
+        return {};
     },
-    formatAccountId: function(col, row) {
-        return <div>{col} - {row.account_id}</div>;
-    },
-    serialize: function(info) {
-        var array = [];
-        for (var i = 0; i < info.length; i++) {
-            array.push(Base.flatten(info[i]));
-        }
-        return array;
-    },
+    /**
+     * Format the expiration date of the card so that it is MM/YYYY
+     *
+     * @param cell  - the cell that contains the expiration month
+     * @param row   - the entire row that this cell belongs to.  The YYYY can be gathered from row.expiration_year
+     */
     formatExpriation: function(cell, row) {
         return <div>{cell}/{row.expiration_year}</div>
     },
+    /**
+     * Render the credit card table.
+     *
+     * This will show information about a tokenized card gathered by making a call to WePay's /credit_card endpoint
+     */
     render: function() {
         var card = this.props.cardInfo;
         var this2 = this;
@@ -90,14 +93,20 @@ var CreditCardBlock= React.createClass({
     }
 });
 
-
+/**
+ * Map Redux state to properties for this object
+ *
+ * cardInfo:        list that contains a dictionary that describes the credit card
+ * isFetching:      true if we are currently fetching information about the card
+ * searchedCard:    the tokenized id of the credit card for which we are currently looking up/rendering
+ * error:           errors created by /actions/credit_card and /reducer/credit_card
+ */
 const mapStateToProps = (state) => {
     return {
         cardInfo:           state.wepay_card.card.cardInfo,
         isFetching:         state.wepay_card.card.isFetching,
         searchedCard:       state.wepay_card.searchedCard,
-        haveAccessToken:    state.wepay_user.user.haveAccessToken,
-        error:              state.errors.global ? state.errors.global.info : {}
+        error:              state.errors.credit_card ? state.errors.credit_card.info : {}
     }
 }
 

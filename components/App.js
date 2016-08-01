@@ -7,6 +7,9 @@ import Withdrawals from '../components/Withdrawals'
 import CreditCardBlock from "../components/CreditCard"
 import {Row, Col, Grid} from "react-bootstrap"
 
+/**
+ * The main application.  Defines the bootstrap grid in which all of our various objects live
+ */
 const App = () => (
   <Grid fluid={true}>
     <Row>

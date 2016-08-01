@@ -8,6 +8,10 @@ import {
     REQUEST, RECEIVE, REFUND, RECEIVE_REFUND, CLEAR_REFUND, CLEAR_CHECKOUTS
 } from '../actions/checkouts'
 
+import {
+    CLEAR_ALL_STATE
+} from "../actions/errors"
+
 var defaultCheckoutState = {
     isFetching: false,
     didInvalidate: false,
@@ -86,6 +90,7 @@ function checkout_base(state = defaultCheckoutState, action) {
                 isFetching: false
             })
         case CLEAR_REFUND:
+        case CLEAR_ALL_STATE:
             return Object.assign({}, state, {
                 submitted_refund: false,
                 successful_refund:false,

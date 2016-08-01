@@ -7,6 +7,10 @@ import {
     SEARCH, INVALIDATE, REQUEST, RECEIVE, CLEAR
 } from '../actions/credit_card'
 
+import {
+    CLEAR_ALL_STATE
+} from "../actions/errors"
+
 var defaultCardState = {
     isFetching: false,
     didInvalidate: false,
@@ -54,6 +58,7 @@ function card(state = { }, action) {
         case REQUEST:
             return Object.assign({}, state, card_base(state, action))
         case CLEAR:
+        case CLEAR_ALL_STATE:
             return {}
         default:
             return state

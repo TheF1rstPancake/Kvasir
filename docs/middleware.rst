@@ -57,7 +57,7 @@ The user resource should be accessed via the *(middleware)/user* endpoint.
     :reqheader Authorization:   shared-secret key between your middleware and Kvasir
     :reqheader Content-Type:    application/json
 
-    :form acount_owner_email:   *(optional)* the email used when registering the WePay merhcant.  This is likely the same email they used to sign up on your platform
+    :form acount_owner_email:   *(optional)* the email used when registering the WePay merchant.  This is likely the same email they used to sign up on your platform
     :form account_id:           *(optional)* the account_id that we need to find the associated access token for
 
     :>json access_token:    the access_token for the user
@@ -88,9 +88,10 @@ The payer reosurce should be accessed via the *(middleware)/payer* endpoint.
 
     :>json payer_checkouts:     a list of all checkouts that the given payer has made.  Each checkout is a JSON object
     :>jsonarr checkout_id:      checkout_id of a given checkout
-    :>jsonarr create_time:      *(optional)* the time at which the checkout occurred
-    :>jsonarr amount:           *(optional)* the amount paid
     :>jsonarr account_id:       the account_id for which the checkout was made
+    :>jsonarr create_time:      *(optional)* the time at which the checkout occurred
+    :>jsonarr credit_card_id:   *(optional)* the tokenized id of the card used to make the payment
+    :>jsonarr amount:           *(optional)* the amount paid
 
 The checkouts contained in *payer_checkouts* are very particular about the information they need to include.  Again, you can include more information, but this is the **minimum** information.
 

@@ -7,6 +7,10 @@ import {
     SEARCH, INVALIDATE, REQUEST, RECEIVE, CLEAR
 } from '../actions/payer'
 
+import {
+    CLEAR_ALL_STATE
+} from "../actions/errors"
+
 var defaultPayerState = {
     isFetching: false,
     didInvalidate: false,
@@ -54,6 +58,7 @@ function payer(state = { }, action) {
         case REQUEST:
             return Object.assign({}, state, payer_base(state, action))
         case CLEAR:
+        case CLEAR_ALL_STATE:
             return {}
         default:
             return state

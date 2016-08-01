@@ -15,13 +15,23 @@ import {addAccounts, fetchAccountIfNeeded} from "../actions/accounts"
 import {BootstrapTable} from "react-bootstrap-table"
 
 var UserInfo = React.createClass({
+    /**
+     * Get the initial state of the user
+     * 
+     * The initial state of the user object only contains a blank resendError dictionary,
+     * This dictionary holds any errors that are the result of resending the confirmation email to a user
+     * We store it in this state because there is no action to dispatch for it because we relly don't need one.
+     */
     getInitialState: function(){
         return { 
-           userInfo:{},
-           error:{},
            resendError: {}
         }
     },
+    /**
+     * Resend confirmation email to a user.
+     *
+     * There is no action for this because it does not impact any other state nor is it really something that should impact this object's state unless there's an error.
+     */
     resendConf: function() {
         var this2 = this;
         $.post("/user/resend_confirmation", {"email":this.props.userInfo.email})
@@ -35,8 +45,12 @@ var UserInfo = React.createClass({
                 );
             });    
     },
+    /**
+     * Render the table displaying user info.
+     *
+     * The table contains really basic information about each user gathered from the WePay /user endpoint
+     */
     render: function() {
-        // render user info
         var userInfoSection;
         if (this.props.isFetching) {
             return (<div><object data="/static/css/default_spinner.svg" type="image/svg+xml" width="150px"></object></div>);
@@ -96,11 +110,18 @@ var UserInfo = React.createClass({
     }
 });
 
+/**
+ * Map Redux State to this object's properties
+ *
+ * userInfo:    the object that holds information about this user
+ * isFetching:  true if we are currently fetching information about this user
+ * error:       error object with that contains error messages generated from /actions/user and /reducers/user
+ */
 const mapStateToProps = (state) => {
     return {
         userInfo:   state.wepay_user.user.userInfo,
         isFetching: state.wepay_user.user.isFetching,
-        error:      state.errors.global ? state.errors.global.info : {}
+        error:      state.errors.user ? state.errors.user.info : {}
     }
 }
 

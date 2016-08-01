@@ -11,6 +11,10 @@ import {
     REQUEST_USER, RECEIVE_USER, CLEAR_USER
 } from '../actions/user'
 
+import {
+    CLEAR_ALL_STATE
+} from "../actions/errors"
+
 var userDefaultState = {
     isFetching: false,
     didInvalidate: false,
@@ -61,6 +65,7 @@ function user(state = { }, action) {
         case REQUEST_USER:
             return Object.assign({}, state, user_base(state, action))
         case CLEAR_USER:
+        case CLEAR_ALL_STATE:
             return {}
         default:
             return state

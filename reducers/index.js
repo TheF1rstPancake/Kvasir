@@ -7,6 +7,8 @@ import wepay_payer from './payer'
 import errors from './errors'
 import wepay_card from './credit_card'
 
+
+
 /*Combine all the reducers to import into the main application*/
 const todoApp = combineReducers({
   wepay_user,

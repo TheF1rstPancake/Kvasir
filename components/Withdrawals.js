@@ -14,11 +14,21 @@ import {BootstrapTable} from "react-bootstrap-table"
 import Base from "./Base"
 
 var Withdrawals= React.createClass({
+    /**
+     * Get the initial state for the withdrawals object
+     *
+     * This object doesn't really maintain any state information internally, so this is an empty object
+     */
     getInitialState: function() {
-        return {
-            error: ""
-        }
+        return {}
     },
+    /**
+     * Format the withdrawal id
+     *
+     * This turns all withdrawal_ids into links that, when clicked, will take the user to the uri that has more information about the withdrawal.
+     * WARNING:     these uris are hosted on WePay.com.  The user will need to use their wepay email and password to get in.
+     *              for whitelabeled partners, they may not want to use this option
+     */
     formatWithdrawalId: function(cell, row) {
         return "<a target='_blank' href="+ row.withdrawal_data_withdrawal_uri + " id=" + cell + ">" + cell + "</a>";
 
