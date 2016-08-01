@@ -11,7 +11,7 @@ The back-end is built using Node and ExpressJS.  While we personally prefer Pyth
 
 Structure
 ----------------
-The underlying structure is pretty simple.  Requests come in from the front end, some of those requests will require the server to communicate with the platform's database, while others require requests to the WePay API.
+The underlying structure is pretty simple.  Requests come in from the front end, and some of those requests will require the server to communicate with the platform's database, while others require requests to the WePay API, and then there are requests that will require both.
 
 Each object built in the front-end app receives it's own endpoint on the server.  For example, the :ref:`user object <user_object>` makes all of it's requests to the */user* endpoint on the server.
 
@@ -20,15 +20,15 @@ Each object built in the front-end app receives it's own endpoint on the server.
 
 When the front end makes a request, the back end is responsible for formatting it into something the partner middleware or WePay will understand.  This provides a useful layer of abstraction should something change in either of those two systems.
 
-The server is also responsible for packaging responses back to the client, including error messages.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front end.  Typically, valid data is simply sent to the front end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.
+The server is also responsible for :ref:`packaging responses back to the client, including error messages <backend_sendingdatabacktoclient>`.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front end.  Typically, valid data is simply sent to the front end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.
 
-Kvasir's node server also manages a small cookie based session for users.  We don't want to expose access_tokens to the front end, but we also don't want to have to request the access token from the partner's database on each request.  After the server gets an access_token, it will set a hashed cookie based on a secret key in the client's browser.  The cookie cannot be accessed by the front end, and the only the server can unhash it into something readable.
+Kvasir's node server also manages a small cookie based session for users.  We don't want to expose access tokens to the front end, but we also don't want to have to request the access token from the partner's database on each request.  After the server gets an access token, it will set a hashed cookie based on a secret key provided in Kvasir's configuration file.  The cookie cannot be accessed by the front end, and the only the server can unhash it into something readable.
 
 Endpoints
 -----------
 Each front end object has an associated endpoint on the server.  An object *could* call another endpoint if it wanted to, but it is more likely to do that indirectly by dispatching that other object's actions.
 
-All endpoints only accept POST requests and for all information to be sent as a JSON object.
+All endpoints *only* accept POST requests with a JSON structured body.
 
 User Endpoint
 ~~~~~~~~~~~~~~~
@@ -36,14 +36,14 @@ The user endpoint does two important actions:
     1) Get user information from the WePay :wepay:`user` endpoint
     2) Get the access token for the user from the platform's database
 
-Aquiring an access token is actually the first step to most operations that Kvasir completes, but it requires going to the partner's database first to get it.  After receiving an access token back from the middleware, the server will set it as a secure, hashed cookie in the browser.  This allows it to persist between calls so that we don't have to fetch the access_token on each request.
+Aquiring an access token is actually the first step to most operations that Kvasir completes, but it requires going to the partner's database first to get it.  After receiving an access token back from the :ref:`middleware <kvasirmiddleware>`, the server will set it as a secure, hashed cookie in the browser.  This allows it to persist between calls so that we don't have to fetch the access token on each request.
 
 .. http:post:: /user
     
     Get information about a merchant
 
-    :form email:        *(optional)* the merchants email
-    :form account_id:   *(optional)* a valid account_id associated with the partner
+    :<json email:        *(optional)* the merchants email
+    :<json account_id:   *(optional)* a valid account_id associated with the partner
 
 .. note::
     While both parameters are optional, one or the other must be provided
@@ -60,7 +60,7 @@ If no account_id is provided, the endpoint will make a request to :wepay:`accoun
 
     Get information about an account
 
-    :form account_id: *(optional)* the account_id assoicated with the account that you want more info for.
+    :<json account_id: *(optional)* the account_id assoicated with the account that you want more info for.
 
 Checkout Endpoint
 ~~~~~~~~~~~~~~~~~~~~
@@ -70,8 +70,8 @@ Very similar to the :http:post:`/account`, except it looks at :wepay:`checkout` 
 
     Get a list of checkouts made for a given account_id, or get information about a single checkout_id
 
-    :form checkout_id:    *(optional)* the unique id of the checkout you want to search
-    :form acccount_id:     *(optional)* the unique id of the account that you want a list of checkouts for
+    :<json checkout_id:    *(optional)* the unique id of the checkout you want to search
+    :<json acccount_id:     *(optional)* the unique id of the account that you want a list of checkouts for
 
 .. note::
     While both parameters are optional, you must provide one or the other.
@@ -84,7 +84,7 @@ We could have built the withdrawal endpoint in the same way that we built the :h
 
     Get withdrawal info for a given account_id
 
-    :form account_id:  the unique id of the account you want to gather withdrawals from
+    :<json account_id:  the unique id of the account you want to gather withdrawals from
 
 Refund Endpoint
 ~~~~~~~~~~~~~~~~~
@@ -96,9 +96,9 @@ Refunds are a complicated area.  The refund logic changes depending on who the *
 
     Do a full or partial refund for a given checkout
 
-    :form checkout_id:     the id of the checkout you want to refund
-    :form refund_reason:   the reason you are refunding the checkout
-    :form amount:          *(optional)* how much you are refunding the checkout for.  If no amount is passed, a full refund is completed
+    :<json checkout_id:     the id of the checkout you want to refund
+    :<json refund_reason:   the reason you are refunding the checkout
+    :<json amount:          *(optional)* how much you are refunding the checkout for.  If no amount is passed, a full refund is completed
 
 Reserve Endpoint
 ~~~~~~~~~~~~~~~~~~
@@ -110,7 +110,7 @@ This endpoint will gather the reserve information about an account from :wepay:`
 
     Get reserve information about a particular account
 
-    :form account_id:  the id of the account you want reserve information for.
+    :<json account_id:  the id of the account you want reserve information for.
 
 Payer Endpoint
 ~~~~~~~~~~~~~~~~~~
@@ -120,7 +120,7 @@ The */payer* endpoint does not make any calls to the WePay API.  It interacts on
     
     Given a set of search parameters for a payer, retrieval all checkouts from the middleware that match those search parameters.
 
-    :form email:   the email of the payer that we are searching for
+    :<json email:   the email of the payer that we are searching for
 
 Credit Card Endpoint
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -130,29 +130,32 @@ The credit_card endpoint allows us to get more information about a tokenized cre
     
     Get more information from WePay about a tokenized credit card id
 
-    :form credit_card_id:  the tokenzied id of the credit_card
+    :<json credit_card_id:  the tokenzied id of the credit_card
 
 
 Getting Data From WePay
 ---------------------------
-Kvasir's NodeJS server facilitates communication with the WePay API and the partner middleware.  WePay has several pre-made SDKs for communicating with their API.  Kvasir uses the `NodeJS SDK <https://github.com/wepay/NodeJS-SDK>`_.
+
+.. _nodejssdk:  https://github.com/wepay/NodeJS-SDK
+
+Kvasir's NodeJS server facilitates communication with the WePay API and the partner middleware.  WePay has several pre-made SDKs for communicating with their API.  Kvasir uses the `NodeJS SDK <nodejssdk>`_.
 
 .. note::
     If you want to use the SDK, download it from GitHub and not from npm.  The npm version is not up to date.
 
-The NodeJS SDK will format all of our requests so that they match what the WePay API expects.  The two biggest parts of that are setting the *Authorization* and *Content-Type* headers.
+The `NodeJS SDK <nodejssdk>`_ will format all of our requests so that they match what the WePay API expects.  The two biggest parts of that are setting the *Authorization* and *Content-Type* headers.
 
-The *Authorization* header is where a user's access_token is placed, and the *Content-Type* is always "application/json".
+The *Authorization* header is where a user's access token is placed, and the *Content-Type* is always "application/json".
 
-Kvasir provides a single function for communicating with the NodeJS WePay SDK.
+Kvasir provides a single function for communicating with `WePay's NodeJS SDK <nodejssdk>`_.
 
-.. function:: getWePayData(res, wepay_endpoint, access_token, package)
+.. function:: getWePayData(res, wepay_endpoint, access token, package)
     
-    Request data from the given wepay_endpoint, using the specified access_token and package.  This function will immediately send the response back to the client
+    Request data from the given wepay_endpoint, using the specified access token and package.  This function will immediately send the response back to the client
 
     :param res:                 ExpressJS response object
     :param wepay_endpoint:      the wepay endpoint that we want to get data from
-    :param access_token:        the user's access_token that we want to use to request data. **NOTE**: This value can be null if the endpoint does not require an access_token
+    :param access token:        the user's access token that we want to use to request data. **NOTE**: This value can be null if the endpoint does not require an access token
     :param pacakge:             the package of data we want to send to the wepay_endpoint.  This can be an empty object if the endpoint does not require any additional parameters.
 
 We talk a lot about retrieving access tokens from the middleware as a critical component of accessing data from the WePay API.  While many of the endpoints require an access token, not all of them do.  For example, the :wepay:`credit_card` endpoint does not require an acces token.  Instead, it wants the platform's client_id and client_secret in the body of the request.
@@ -166,7 +169,7 @@ We wanted to avoid a system that had to make a request to the partner's database
 Kvasir uses Express's `cookie_session <https://github.com/expressjs/cookie-session>`_ library to securely store a user's access token as a cookie in the client's browser.  The cookies are hashed with a secret key and set with the *secure* and *httpOnly* flags.  These force the cookies to be sent only over an HTTPS connection, and prevent JavaScript functions in the browser from being able to access the cookie information.  
 
 From within Kvasir's ExpressJS server, the cookie is accessed via:
-    >>> req.session.access_token
+    >>> req.session.access token
 
 Most of the endpoints will check if this value is set before making any requests to WePay.  If the access token is not present, Kvasir will raise an error back to the client saying that it cannot perform the request because it does not have all of the required info.
 
@@ -206,6 +209,8 @@ First Kvasir will call :func:`getDataFromMiddleware` where necessary.  This will
 Most of Kvasir's endpoints will use :func:`parseMiddlewareResponse` to do that.  When we go to the middlware it is likely because we want a user's access token and then be able to do an associated call to the WePay API.  :func:`parseMiddlewareResponse` will do that for us.  It will pull the access token out of the response and format a request to :func:`getWePayData` (which will subsequently send the data to the client).
 
 The other option for a callback is to just pass the information we receive from the middleware directly back to the client.  This is what :http:post:`/payer` does.  It passes :func:`sendResponse` has the callback function in order to pass the response from the middleware directly back to the client.
+
+.. _backend_sendingdatabacktoclient:
 
 Sending Data Back to the Client
 --------------------------------
@@ -290,4 +295,4 @@ The Python code is:
     >>> binascii.hexlify(os.urandom(24))
     >>> '0ccd512f8c3493797a23557c32db38e7d51ed74f14fa7580'
 
-Copy the output and paste it into the config file.  It is important that you **do not share your secret key**.
+Copy the output and paste it into the config file.  It is important that you **do not share your secret key**.  You also shouldn't use that key there, because it's not secret if it's published somewhere.

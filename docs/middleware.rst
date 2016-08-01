@@ -1,3 +1,5 @@
+.. _kvasirmiddleware:
+
 The Middleware: Whatever Language You Want
 =============================================
 The purpose of the middleware is to provide Kvasir access to a platform's database.  It is up to each platform to develop their middleware in a way that meets the specifications that Kvasir expects.
@@ -12,9 +14,10 @@ When developing Kvasir, we constructed a middleware that connected to a set of f
 
 **You do not have to use Python.**  You may use any language that you feel comfortable in.  There is really no one language that would be better than any other.  As long as it can receive and respond to POST requests and communicate with your underlying database, then it will work for this application.
 
+
 Middleware Specifications
 ---------------------------
-If you read the :ref`back-end server documentation <kvasirbackend>` then you know that the NodeJS server comes with one function for communicating with the middleware (:func:`getDataFromMiddleware`).
+If you read the :ref:`back-end server documentation <kvasirbackend>` then you know that Kvasir's NodeJS server comes with one function for communicating with the middleware (:func:`getDataFromMiddleware`).
 
 This function is very simple, all it does is format it's parameters into a POST request with a callback function.
 
@@ -31,15 +34,17 @@ Each resource corresponds with a different endpoint on your middleware.  The *us
 Overall, these are the requirements for the middleware:
     - A server that connects to your internal database
     - Contains a set of endpoints where each endpoint is responsible for returning very specific data back to Kvasir
+    - These endpoints only accept POST requests
+    - These endpoints validate the *Authorization* header contained in each request to validate that the request actually came from Kvasir
 
 .. note::
-    Many of the middleware endpoints have names that match endpoints on the Kvasir server, and the WePay API.  There is not a 1 to 1 map between all of these different APIs.  Middleware endpoints will have *(middleware)* in front of all of them in order to seperate them from the Kvasir server endpoints.
+    Many of the middleware endpoints have names that match endpoints on the Kvasir server (and the WePay API).  There is not a 1 to 1 map between all of these different APIs.  Middleware endpoints will have *(middleware)* in front of all of them in order to separate them from the Kvasir server endpoints.
 
 Authorization
 ~~~~~~~~~~~~~~~~~
 Security was a concern when developing the specifications for the middleware.  Exposing your database to another application posses some risk.
 
-In order to help mitigate the security concerns, all requests to the middleware will have an *Authoirzation* header similar to the way the *Authorization* header is required when sending a request to WePay.  This header will contain a shared secret between your middleware and Kvasir.  If the Authorization header is not present in a request, or does not match the secret, you **should not process the request**.
+In order to help mitigate the security concerns, all requests to the middleware will have an *Authorization* header similar to the way the *Authorization* header is required when sending a request to WePay.  This header will contain a shared secret between your middleware and Kvasir.  If the Authorization header is not present in a request, or does not match the secret, you **should not process the request**.
 
 User Resource
 ~~~~~~~~~~~~~~~~~~
@@ -90,6 +95,30 @@ The payer reosurce should be accessed via the *(middleware)/payer* endpoint.
 The checkouts contained in *payer_checkouts* are very particular about the information they need to include.  Again, you can include more information, but this is the **minimum** information.
 
 The response is meant to look like what the WePay API sends back in its :wepay:`checkout` endpoint.  It's a subset of the data, but the naming convention is the same and that's intentional in order to keep some level of consistency between the two.
+
+Error Reporting
+~~~~~~~~~~~~~~~~~~~
+In the event of an error, you should return an error message back to Kvasir.  That way we can pass that error to the end user to notify them of what happened.
+
+Kvasir does not try and standardize the error messages, but it does expect errors to be reported in a standard format.
+
+This is an example of an error message for when a user cannot be found:
+    .. code-block:: javascript
+
+        {
+            "error": "user not found",
+            "error_message": "Cannot find user that matches search parameters"
+        }
+
+Kvasir expects two fields in any error message package:
+    - *error*:  a technical description of the error
+    - *error_message*: the error message that is displayed to the end user
+
+When Kvasir receives a package, it first checks to see if the "error" field is present in the response.  If that field is present, then it will send the error to the front end and let it display it to the end user.  It uses whatever string you place in "error_message".
+
+The reason that Kvasir doesn't try and standardize the error messages is because depending on how you build you middleware, there could be a number of places where an error could occur.  If searching for an access_token takes you across three different tables, then you may want to let the end user know which table caused the error.
+
+You can include more information in your error packages if you want.  Kvasir will log the entire package in it's logs, so it may be beneficial to include more information, but make sure to do it in a field other than "error" or "error_message".  The middleware we developed during this process included additional information in the "error_description" field.  It included an low level exception information that occurred in our Python middleware which gave us more visibility as we developed.  Again, it is up to each platform to decide what they want to include.  You own the middleware and should use error messages and logging in a way that makes the most sense for your team.
 
 What If I don't have all this data?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
