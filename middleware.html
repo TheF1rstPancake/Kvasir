@@ -90,6 +90,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#authorization">Authorization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#user-resource">User Resource</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#payer-resource">Payer Resource</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-reporting">Error Reporting</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#what-if-i-don-t-have-all-this-data">What If I don&#8217;t have all this data?</a></li>
 </ul>
 </li>
@@ -140,7 +141,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="the-middleware-whatever-language-you-want">
-<h1>The Middleware: Whatever Language You Want<a class="headerlink" href="#the-middleware-whatever-language-you-want" title="Permalink to this headline">¶</a></h1>
+<span id="kvasirmiddleware"></span><h1>The Middleware: Whatever Language You Want<a class="headerlink" href="#the-middleware-whatever-language-you-want" title="Permalink to this headline">¶</a></h1>
 <p>The purpose of the middleware is to provide Kvasir access to a platform&#8217;s database.  It is up to each platform to develop their middleware in a way that meets the specifications that Kvasir expects.</p>
 <p>The middleware is meant to be lightweight and rather uncomplicated.  Kvasir takes care of a brunt of the work, all it needs is a little extra help from the platform to fill in some of the blanks.</p>
 <p>This document details what those specifications are.</p>
@@ -151,7 +152,7 @@
 </div>
 <div class="section" id="middleware-specifications">
 <h2>Middleware Specifications<a class="headerlink" href="#middleware-specifications" title="Permalink to this headline">¶</a></h2>
-<p>If you read the :ref`back-end server documentation &lt;kvasirbackend&gt;` then you know that the NodeJS server comes with one function for communicating with the middleware (<a class="reference internal" href="backend.html#getDataFromMiddleware" title="getDataFromMiddleware"><code class="xref js js-func docutils literal"><span class="pre">getDataFromMiddleware()</span></code></a>).</p>
+<p>If you read the <a class="reference internal" href="backend.html#kvasirbackend"><span>back-end server documentation</span></a> then you know that Kvasir&#8217;s NodeJS server comes with one function for communicating with the middleware (<a class="reference internal" href="backend.html#getDataFromMiddleware" title="getDataFromMiddleware"><code class="xref js js-func docutils literal"><span class="pre">getDataFromMiddleware()</span></code></a>).</p>
 <p>This function is very simple, all it does is format it&#8217;s parameters into a POST request with a callback function.</p>
 <p>The idea is that the middleware gives Kvasir access to different <em>resources</em> in the partner&#8217;s database.  Those resources are queried via a set of data included in the body of the request, and then the response is sent to a callback function which then decides what to do with the data.</p>
 <dl class="docutils">
@@ -178,17 +179,19 @@
 <dd><ul class="first last simple">
 <li>A server that connects to your internal database</li>
 <li>Contains a set of endpoints where each endpoint is responsible for returning very specific data back to Kvasir</li>
+<li>These endpoints only accept POST requests</li>
+<li>These endpoints validate the <em>Authorization</em> header contained in each request to validate that the request actually came from Kvasir</li>
 </ul>
 </dd>
 </dl>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Many of the middleware endpoints have names that match endpoints on the Kvasir server, and the WePay API.  There is not a 1 to 1 map between all of these different APIs.  Middleware endpoints will have <em>(middleware)</em> in front of all of them in order to seperate them from the Kvasir server endpoints.</p>
+<p class="last">Many of the middleware endpoints have names that match endpoints on the Kvasir server (and the WePay API).  There is not a 1 to 1 map between all of these different APIs.  Middleware endpoints will have <em>(middleware)</em> in front of all of them in order to separate them from the Kvasir server endpoints.</p>
 </div>
 <div class="section" id="authorization">
 <h3>Authorization<a class="headerlink" href="#authorization" title="Permalink to this headline">¶</a></h3>
 <p>Security was a concern when developing the specifications for the middleware.  Exposing your database to another application posses some risk.</p>
-<p>In order to help mitigate the security concerns, all requests to the middleware will have an <em>Authoirzation</em> header similar to the way the <em>Authorization</em> header is required when sending a request to WePay.  This header will contain a shared secret between your middleware and Kvasir.  If the Authorization header is not present in a request, or does not match the secret, you <strong>should not process the request</strong>.</p>
+<p>In order to help mitigate the security concerns, all requests to the middleware will have an <em>Authorization</em> header similar to the way the <em>Authorization</em> header is required when sending a request to WePay.  This header will contain a shared secret between your middleware and Kvasir.  If the Authorization header is not present in a request, or does not match the secret, you <strong>should not process the request</strong>.</p>
 </div>
 <div class="section" id="user-resource">
 <h3>User Resource<a class="headerlink" href="#user-resource" title="Permalink to this headline">¶</a></h3>
@@ -285,6 +288,30 @@
 
 <p>The checkouts contained in <em>payer_checkouts</em> are very particular about the information they need to include.  Again, you can include more information, but this is the <strong>minimum</strong> information.</p>
 <p>The response is meant to look like what the WePay API sends back in its <a class="reference external" href="https://stage.wepay.com/developer/reference/checkout#lookup">/checkout</a> endpoint.  It&#8217;s a subset of the data, but the naming convention is the same and that&#8217;s intentional in order to keep some level of consistency between the two.</p>
+</div>
+<div class="section" id="error-reporting">
+<h3>Error Reporting<a class="headerlink" href="#error-reporting" title="Permalink to this headline">¶</a></h3>
+<p>In the event of an error, you should return an error message back to Kvasir.  That way we can pass that error to the end user to notify them of what happened.</p>
+<p>Kvasir does not try and standardize the error messages, but it does expect errors to be reported in a standard format.</p>
+<dl class="docutils">
+<dt>This is an example of an error message for when a user cannot be found:</dt>
+<dd><div class="first last highlight-javascript"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s2">&quot;error&quot;</span><span class="o">:</span> <span class="s2">&quot;user not found&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;error_message&quot;</span><span class="o">:</span> <span class="s2">&quot;Cannot find user that matches search parameters&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd>
+<dt>Kvasir expects two fields in any error message package:</dt>
+<dd><ul class="first last simple">
+<li><em>error</em>:  a technical description of the error</li>
+<li><em>error_message</em>: the error message that is displayed to the end user</li>
+</ul>
+</dd>
+</dl>
+<p>When Kvasir receives a package, it first checks to see if the &#8220;error&#8221; field is present in the response.  If that field is present, then it will send the error to the front end and let it display it to the end user.  It uses whatever string you place in &#8220;error_message&#8221;.</p>
+<p>The reason that Kvasir doesn&#8217;t try and standardize the error messages is because depending on how you build you middleware, there could be a number of places where an error could occur.  If searching for an access_token takes you across three different tables, then you may want to let the end user know which table caused the error.</p>
+<p>You can include more information in your error packages if you want.  Kvasir will log the entire package in it&#8217;s logs, so it may be beneficial to include more information, but make sure to do it in a field other than &#8220;error&#8221; or &#8220;error_message&#8221;.  The middleware we developed during this process included additional information in the &#8220;error_description&#8221; field.  It included an low level exception information that occurred in our Python middleware which gave us more visibility as we developed.  Again, it is up to each platform to decide what they want to include.  You own the middleware and should use error messages and logging in a way that makes the most sense for your team.</p>
 </div>
 <div class="section" id="what-if-i-don-t-have-all-this-data">
 <h3>What If I don&#8217;t have all this data?<a class="headerlink" href="#what-if-i-don-t-have-all-this-data" title="Permalink to this headline">¶</a></h3>

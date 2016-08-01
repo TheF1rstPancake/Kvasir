@@ -164,20 +164,20 @@
 </div>
 <div class="section" id="structure">
 <h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
-<p>The underlying structure is pretty simple.  Requests come in from the front end, some of those requests will require the server to communicate with the platform&#8217;s database, while others require requests to the WePay API.</p>
+<p>The underlying structure is pretty simple.  Requests come in from the front end, and some of those requests will require the server to communicate with the platform&#8217;s database, while others require requests to the WePay API, and then there are requests that will require both.</p>
 <p>Each object built in the front-end app receives it&#8217;s own endpoint on the server.  For example, the <a class="reference internal" href="frontend.html#user-object"><span>user object</span></a> makes all of it&#8217;s requests to the <em>/user</em> endpoint on the server.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">While many of the endpoints on Kvasir&#8217;s server mirror the endpoint names of WePay, it is not a 1 to 1 relationship.</p>
 </div>
 <p>When the front end makes a request, the back end is responsible for formatting it into something the partner middleware or WePay will understand.  This provides a useful layer of abstraction should something change in either of those two systems.</p>
-<p>The server is also responsible for packaging responses back to the client, including error messages.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front end.  Typically, valid data is simply sent to the front end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.</p>
-<p>Kvasir&#8217;s node server also manages a small cookie based session for users.  We don&#8217;t want to expose access_tokens to the front end, but we also don&#8217;t want to have to request the access token from the partner&#8217;s database on each request.  After the server gets an access_token, it will set a hashed cookie based on a secret key in the client&#8217;s browser.  The cookie cannot be accessed by the front end, and the only the server can unhash it into something readable.</p>
+<p>The server is also responsible for <a class="reference internal" href="#backend-sendingdatabacktoclient"><span>packaging responses back to the client, including error messages</span></a>.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front end.  Typically, valid data is simply sent to the front end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.</p>
+<p>Kvasir&#8217;s node server also manages a small cookie based session for users.  We don&#8217;t want to expose access tokens to the front end, but we also don&#8217;t want to have to request the access token from the partner&#8217;s database on each request.  After the server gets an access token, it will set a hashed cookie based on a secret key provided in Kvasir&#8217;s configuration file.  The cookie cannot be accessed by the front end, and the only the server can unhash it into something readable.</p>
 </div>
 <div class="section" id="endpoints">
 <h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this headline">¶</a></h2>
 <p>Each front end object has an associated endpoint on the server.  An object <em>could</em> call another endpoint if it wanted to, but it is more likely to do that indirectly by dispatching that other object&#8217;s actions.</p>
-<p>All endpoints only accept POST requests and for all information to be sent as a JSON object.</p>
+<p>All endpoints <em>only</em> accept POST requests with a JSON structured body.</p>
 <div class="section" id="user-endpoint">
 <h3>User Endpoint<a class="headerlink" href="#user-endpoint" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
@@ -188,7 +188,7 @@
 </ol>
 </dd>
 </dl>
-<p>Aquiring an access token is actually the first step to most operations that Kvasir completes, but it requires going to the partner&#8217;s database first to get it.  After receiving an access token back from the middleware, the server will set it as a secure, hashed cookie in the browser.  This allows it to persist between calls so that we don&#8217;t have to fetch the access_token on each request.</p>
+<p>Aquiring an access token is actually the first step to most operations that Kvasir completes, but it requires going to the partner&#8217;s database first to get it.  After receiving an access token back from the <a class="reference internal" href="middleware.html#kvasirmiddleware"><span>middleware</span></a>, the server will set it as a secure, hashed cookie in the browser.  This allows it to persist between calls so that we don&#8217;t have to fetch the access token on each request.</p>
 <dl class="post">
 <dt id="post--user">
 <code class="descname">POST </code><code class="descname">/user</code><a class="headerlink" href="#post--user" title="Permalink to this definition">¶</a></dt>
@@ -197,7 +197,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
 <li><strong>email</strong> &#8211; <em>(optional)</em> the merchants email</li>
 <li><strong>account_id</strong> &#8211; <em>(optional)</em> a valid account_id associated with the partner</li>
@@ -226,7 +226,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
 <li><strong>account_id</strong> &#8211; <em>(optional)</em> the account_id assoicated with the account that you want more info for.</li>
 </ul>
@@ -248,7 +248,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
 <li><strong>checkout_id</strong> &#8211; <em>(optional)</em> the unique id of the checkout you want to search</li>
 <li><strong>acccount_id</strong> &#8211; <em>(optional)</em> the unique id of the account that you want a list of checkouts for</li>
@@ -275,7 +275,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
 <li><strong>account_id</strong> &#8211; the unique id of the account you want to gather withdrawals from</li>
 </ul>
@@ -298,7 +298,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
 <li><strong>checkout_id</strong> &#8211; the id of the checkout you want to refund</li>
 <li><strong>refund_reason</strong> &#8211; the reason you are refunding the checkout</li>
@@ -323,7 +323,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
 <li><strong>account_id</strong> &#8211; the id of the account you want reserve information for.</li>
 </ul>
@@ -345,7 +345,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
 <li><strong>email</strong> &#8211; the email of the payer that we are searching for</li>
 </ul>
@@ -367,7 +367,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name" colspan="2">Form Parameters:</th></tr>
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
 <li><strong>credit_card_id</strong> &#8211; the tokenzied id of the credit_card</li>
 </ul>
@@ -381,18 +381,18 @@
 </div>
 <div class="section" id="getting-data-from-wepay">
 <h2>Getting Data From WePay<a class="headerlink" href="#getting-data-from-wepay" title="Permalink to this headline">¶</a></h2>
-<p>Kvasir&#8217;s NodeJS server facilitates communication with the WePay API and the partner middleware.  WePay has several pre-made SDKs for communicating with their API.  Kvasir uses the <a class="reference external" href="https://github.com/wepay/NodeJS-SDK">NodeJS SDK</a>.</p>
+<p>Kvasir&#8217;s NodeJS server facilitates communication with the WePay API and the partner middleware.  WePay has several pre-made SDKs for communicating with their API.  Kvasir uses the <a class="reference external" href="nodejssdk">NodeJS SDK</a>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">If you want to use the SDK, download it from GitHub and not from npm.  The npm version is not up to date.</p>
 </div>
-<p>The NodeJS SDK will format all of our requests so that they match what the WePay API expects.  The two biggest parts of that are setting the <em>Authorization</em> and <em>Content-Type</em> headers.</p>
-<p>The <em>Authorization</em> header is where a user&#8217;s access_token is placed, and the <em>Content-Type</em> is always &#8220;application/json&#8221;.</p>
-<p>Kvasir provides a single function for communicating with the NodeJS WePay SDK.</p>
+<p>The <a class="reference external" href="nodejssdk">NodeJS SDK</a> will format all of our requests so that they match what the WePay API expects.  The two biggest parts of that are setting the <em>Authorization</em> and <em>Content-Type</em> headers.</p>
+<p>The <em>Authorization</em> header is where a user&#8217;s access token is placed, and the <em>Content-Type</em> is always &#8220;application/json&#8221;.</p>
+<p>Kvasir provides a single function for communicating with <a class="reference external" href="nodejssdk">WePay&#8217;s NodeJS SDK</a>.</p>
 <dl class="function">
 <dt id="getWePayData">
-<code class="descname">getWePayData</code><span class="sig-paren">(</span><em>res</em>, <em>wepay_endpoint</em>, <em>access_token</em>, <em>package</em><span class="sig-paren">)</span><a class="headerlink" href="#getWePayData" title="Permalink to this definition">¶</a></dt>
-<dd><p>Request data from the given wepay_endpoint, using the specified access_token and package.  This function will immediately send the response back to the client</p>
+<code class="descname">getWePayData</code><span class="sig-paren">(</span><em>res</em>, <em>wepay_endpoint</em>, <em>access token</em>, <em>package</em><span class="sig-paren">)</span><a class="headerlink" href="#getWePayData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request data from the given wepay_endpoint, using the specified access token and package.  This function will immediately send the response back to the client</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -400,7 +400,7 @@
 <tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
 <li><strong>res</strong> &#8211; ExpressJS response object</li>
 <li><strong>wepay_endpoint</strong> &#8211; the wepay endpoint that we want to get data from</li>
-<li><strong>access_token</strong> &#8211; the user&#8217;s access_token that we want to use to request data. <strong>NOTE</strong>: This value can be null if the endpoint does not require an access_token</li>
+<li><strong>token</strong> (<em>access</em>) &#8211; the user&#8217;s access token that we want to use to request data. <strong>NOTE</strong>: This value can be null if the endpoint does not require an access token</li>
 <li><strong>pacakge</strong> &#8211; the package of data we want to send to the wepay_endpoint.  This can be an empty object if the endpoint does not require any additional parameters.</li>
 </ul>
 </td>
@@ -417,7 +417,7 @@
 <p>Kvasir uses Express&#8217;s <a class="reference external" href="https://github.com/expressjs/cookie-session">cookie_session</a> library to securely store a user&#8217;s access token as a cookie in the client&#8217;s browser.  The cookies are hashed with a secret key and set with the <em>secure</em> and <em>httpOnly</em> flags.  These force the cookies to be sent only over an HTTPS connection, and prevent JavaScript functions in the browser from being able to access the cookie information.</p>
 <dl class="docutils">
 <dt>From within Kvasir&#8217;s ExpressJS server, the cookie is accessed via:</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">req</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">access_token</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">req</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">access</span> <span class="n">token</span>
 </pre></div>
 </div>
 </dd>
@@ -481,7 +481,7 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 <p>The other option for a callback is to just pass the information we receive from the middleware directly back to the client.  This is what <a class="reference internal" href="#post--payer" title="POST /payer"><code class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/payer</span></code></a> does.  It passes <a class="reference internal" href="#sendResponse" title="sendResponse"><code class="xref js js-func docutils literal"><span class="pre">sendResponse()</span></code></a> has the callback function in order to pass the response from the middleware directly back to the client.</p>
 </div>
 <div class="section" id="sending-data-back-to-the-client">
-<h2>Sending Data Back to the Client<a class="headerlink" href="#sending-data-back-to-the-client" title="Permalink to this headline">¶</a></h2>
+<span id="backend-sendingdatabacktoclient"></span><h2>Sending Data Back to the Client<a class="headerlink" href="#sending-data-back-to-the-client" title="Permalink to this headline">¶</a></h2>
 <p>The final step to any request is to send the data back to the client.  Kvasir provides a single function for this operation as well.</p>
 <dl class="function">
 <dt id="sendResponse">
@@ -576,7 +576,7 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 </div>
 </dd>
 </dl>
-<p>Copy the output and paste it into the config file.  It is important that you <strong>do not share your secret key</strong>.</p>
+<p>Copy the output and paste it into the config file.  It is important that you <strong>do not share your secret key</strong>.  You also shouldn&#8217;t use that key there, because it&#8217;s not secret if it&#8217;s published somewhere.</p>
 </div>
 </div>
 </div>
