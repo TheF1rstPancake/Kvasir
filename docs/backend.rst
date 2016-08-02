@@ -269,6 +269,11 @@ A sample configuration file looks like this:
         config.client_id = "<YOUR_WEPAY_CLIENT_ID>";
         config.client_secret = "<YOUR_WEPAY_CLIENT_SECRET>";
 
+        config.ssl = {
+            privateKey:     "<PATH_TO_KEY>/<KEY_FILE>",
+            certificate:    "<PATH_TO_KEY>/<CERTIFICATE_FILE>"
+        };
+
         module.exports = config;
 
 It must be saved in the root directory of Kvasir and be named **config.js**.
@@ -281,13 +286,23 @@ The *middleware_secret* should be shared with your middleware so that it can val
 
 It also needs the address of your middleware.  This provides it some flexibility in the event that the address changes.  This way you don't have to manipulate the source code.
 
-The configuration also requires your WePay client_id and client_secret.  There are certain WePay API requests that require this info in place of an access token.  Providing it in the config file lets Kvasir access it when necessary.
+The configuration also requires your WePay *client_id* and *client_secret*.  There are certain WePay API requests that require this info in place of an access token.  Providing it in the config file lets Kvasir access it when necessary.
+
+The total list of configuration options is:
+    - **cookie_secret**:        the secret key used to hash cookies set in the browser
+    - **middleware_uri**:       the uri to the middleware which connects to your database
+    - **middleware_secret**:    the secret key used in the `Authorization` header when making requests to the middleware
+    - **client_id**:            your WePay client id
+    - **client_secret**:        your WePay client secret
+    - **ssl**:                  the ssl configuration which includes
+        * *privateKey*:         the name of the file that contains your SSL private key
+        * *certificate*:        the name of the file that contains your SSL certificate
 
 Generating Secret Keys
 ~~~~~~~~~~~~~~~~~~~~~~~~
 There are a lot of different methods for generating secret keys.
 
-`Random Key Generator <http://randomkeygen.com/>`_ will do it for you, or you can use Python to quickly genreate key.
+`Random Key Generator <http://randomkeygen.com/>`_ will do it for you, or you can use Python to quickly genreate a key.
 
 The Python code is:
     >>> import binascii
@@ -296,3 +311,16 @@ The Python code is:
     >>> '0ccd512f8c3493797a23557c32db38e7d51ed74f14fa7580'
 
 Copy the output and paste it into the config file.  It is important that you **do not share your secret key**.  You also shouldn't use that key there, because it's not secret if it's published somewhere.
+
+Serving Over HTTPS
+~~~~~~~~~~~~~~~~~~~~~~
+In order to securely pass data around this system, we require that the server use HTTPS.  You can do it with any existing SSL certificates that you have or you can generate a self signed certificate.
+
+.. note::
+    If you use a self signed certificate, your users will get a warning from the browser saying that the site is not trusted.  They can ignore the error and enter.
+
+The config file allows you to specify where the certificate and key are stored.  The path should be **relative to the server.js file**.
+
+If you need help creating a self-signed SSL certificate, you can follow this tutorial:
+    https://devcenter.heroku.com/articles/ssl-certificate-self
+

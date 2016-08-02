@@ -105,7 +105,7 @@ var UserInfo = React.createClass({
             </BootstrapTable>
             );
             
-            return (<div id="user_table">{userInfoSection}</div>);
+            return (<div id="user_table"><h4>Merchant Info</h4>{userInfoSection}<hr></hr></div>);
         }   
     }
 });

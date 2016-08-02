@@ -13,7 +13,9 @@ import {Row, Col, Grid} from "react-bootstrap"
 const App = () => (
   <Grid fluid={true}>
     <Row>
-        <SearchBar />
+        <Col lg={12}>
+            <SearchBar />
+        </Col>
     </Row>
     <hr></hr>
     <Row>

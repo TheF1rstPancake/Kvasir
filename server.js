@@ -4,12 +4,20 @@ var webpackHotMiddleware = require('webpack-hot-middleware')
 var config = require('./webpack.config')
 var bodyParser = require('body-parser')
 var request = require("request")
+var url = require("url");
 
 // library for securely handeling hashed cookie objects
 var cookieSession = require("cookie-session")
 
 // WePay library
 var WePay = require("wepay").WEPAY;
+
+// HTTPS server
+var https = require("https")
+var http = require("http")
+
+// file reader
+var fs = require("fs")
 
 // express library for defining routes
 var express = require("express");
@@ -18,14 +26,14 @@ var express = require("express");
 var app_config = require('./config')
 
 // create the express app and define what port this is open on
-var app = new (express)()
-var port = app_config.port
+var app = new (express)();
+var port = app_config.port;
 
 
 // load webpack compiler
-var compiler = webpack(config)
-app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: config.output.publicPath }))
-app.use(webpackHotMiddleware(compiler))
+var compiler = webpack(config);
+app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: config.output.publicPath }));
+app.use(webpackHotMiddleware(compiler));
 
 // support JSON and url encoded bodies
 app.use(bodyParser.json());
@@ -34,10 +42,59 @@ app.use(bodyParser.urlencoded({extended:true}));
 // setup cookie based sessions
 app.use(cookieSession({
     name:"session",
-    secret: app_config.cookie_secret
-}))
+    secret: app_config.cookie_secret,
+    secure: true
+}));
 
+// load ssl certificate
+// for more information refer to this StackOverflow post:
+//      http://stackoverflow.com/questions/11744975/enabling-https-on-express-js
+//
+// For help with generating an SSL certificate and key:
+//      https://devcenter.heroku.com/articles/ssl-certificate-self
+var privateKey = fs.readFileSync(app_config.ssl.privateKey, "utf8");
+var certificate = fs.readFileSync(app_config.ssl.certificate, "utf8");
+var credentials = {key: privateKey, cert: certificate};
+
+
+// point the app to the static folder
 app.use('/static', express.static('static'));
+
+/**
+ * Send main application page
+ *
+ * This will also invalidate any previously held session on the site.
+ * So refreshing the page effectively kills all session information.
+ */
+app.get("/", function(req, res) {
+    // make sure the session is null each time we reload the page
+    // dont want things persisting when people come back
+    req.session = null
+    res.sendFile(__dirname + '/index.html')
+})
+
+/**
+ * Verify that everything in the app configuration is going to work
+ *
+ * It checks to make sure that:
+ *      - middleware_uri is set to use HTTPS
+ *      - the private key and certificates are defined
+ */
+function verifyConfig(conf) {
+    console.log("Checking middleware uri protocol: ", url.parse(conf.middleware_uri).protocol)
+    var middleware_protocol = url.parse(conf.middleware_uri).protocol;
+    if (middleware_protocol != "https" && middleware_protocol != "https:") {
+        throw(new Error("Middleware URI is not HTTPS."));
+    }
+
+    if (!privateKey) {
+        throw(new Error("Private key is not defined.  Check to make sure that the file actually exists and contains information"));
+    }
+    if(!certificate) {
+        throw(new Error("Private key is not defined.  Check to make sure that the file actually exists and contains information"));
+    }
+    return true;
+}
 
 /**
  * Send a response back to the client.
@@ -50,7 +107,11 @@ app.use('/static', express.static('static'));
 function sendResponse(package, res) {
     res.setHeader('Content-Type', 'application/json');
     if ("error_code" in package) {
-        var error_package = {"error_code":500, "error_description":"wepay call died. Check server logs for more details.", "error_message":package.error_description, "original_error":package}
+        var error_package = {
+            "error_code":500, 
+            "error_description":"wepay call died. Check server logs for more details.", 
+            "error_message":package.error_description, 
+            "original_error":package}
         console.log("Sending error!\t", error_package);
         return res.status(500).send(JSON.stringify(error_package));
     }
@@ -108,11 +169,12 @@ function getDataFromMiddleware(resource, data, callback) {
 
     return request.post(
         {
-            "url":uri, 
-            "json":data,
+            url:    uri, 
+            json:   data,
             headers: {
                 "Authorization":app_config.middleware_secret
             }
+
         }, 
         callback
     );
@@ -148,12 +210,6 @@ function parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint
         return sendResponse(body, res);
     }
 }
-
-
-/*send main file*/
-app.get("/", function(req, res) {
-    res.sendFile(__dirname + '/index.html')
-})
 
 /*send a request to /v2/user and return the response*/
 app.post("/user", function(req, res) {
@@ -323,13 +379,19 @@ app.post("/credit_card", function(req, res){
     getWePayData(res, "/credit_card", null, {"credit_card_id":credit_card_id, "client_id":app_config.client_id, "client_secret":app_config.client_secret});
 })
 
+
 /**
  * Start the application
+ *
+ * Before we start, make sure that the app configuration meets the requirements
  */
-app.listen(port, function(error) {
+verifyConfig(app_config);
+
+var httpsServer = https.createServer(credentials, app);
+httpsServer.listen(port, function(error) {
     if (error) {
         console.error(error)
     } else {
-        console.info("==> 🌎  Listening on port %s. Open up http://localhost:%s/ in your browser.", port, port)
+        console.info("==> 🌎  Listening on port %s. Open up https://localhost:%s/ in your browser.", port, port)
     }
-})
+});

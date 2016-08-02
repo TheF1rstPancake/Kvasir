@@ -10,7 +10,7 @@ This document details what those specifications are.
 
 A Quick Note about Languages
 ----------------------------------
-When developing Kvasir, we constructed a middleware that connected to a set of fake data.  Our middleware is developed in Python, so most of the code examples show here will also be in Python
+When developing Kvasir, we constructed a middleware that connected to a set of fake data.  Our middleware is developed in Python, so most of the code examples in this documentation will also be shown in Python.
 
 **You do not have to use Python.**  You may use any language that you feel comfortable in.  There is really no one language that would be better than any other.  As long as it can receive and respond to POST requests and communicate with your underlying database, then it will work for this application.
 
@@ -36,15 +36,18 @@ Overall, these are the requirements for the middleware:
     - Contains a set of endpoints where each endpoint is responsible for returning very specific data back to Kvasir
     - These endpoints only accept POST requests
     - These endpoints validate the *Authorization* header contained in each request to validate that the request actually came from Kvasir
+    - Uses HTTPS for handling incoming requests
 
 .. note::
-    Many of the middleware endpoints have names that match endpoints on the Kvasir server (and the WePay API).  There is not a 1 to 1 map between all of these different APIs.  Middleware endpoints will have *(middleware)* in front of all of them in order to separate them from the Kvasir server endpoints.
+    Many of the middleware endpoints have names that match endpoints on the Kvasir server (and the WePay API).  There is not a 1 to 1 map between all of these different APIs.  Middleware endpoints will have *"(middleware)"* in front of all of them in order to separate them from the Kvasir server endpoints.
 
 Authorization
 ~~~~~~~~~~~~~~~~~
 Security was a concern when developing the specifications for the middleware.  Exposing your database to another application posses some risk.
 
 In order to help mitigate the security concerns, all requests to the middleware will have an *Authorization* header similar to the way the *Authorization* header is required when sending a request to WePay.  This header will contain a shared secret between your middleware and Kvasir.  If the Authorization header is not present in a request, or does not match the secret, you **should not process the request**.
+
+You should also make sure that your middleware uses HTTPS for all incoming requests.  Otherwise you expose yourself to man in the middle attacks where someone could sniff out the shared secret.
 
 User Resource
 ~~~~~~~~~~~~~~~~~~
@@ -129,5 +132,5 @@ If the field is not marked with *(optional)*, the it is a required field for Kva
 
 If you do not have a required field, you will likely need to add it into your database.  You can likely do that by making requests to the WePay API with the limited information that you have and expanding your tables to include new information.
 
-What our development database did was actually include the WePay responses as blobs in a column.  We pulled out data that we wanted to be able to index and search on (like emails, account_ids, account names and checkout_ids) and gave them dedicated columns.  While this increases the size of your database, it does give you all of the information regarding actions completed on your platform with regards to the WePay API.  Not all of the information contained in the WePay API responses are completely necessary, but they could become useful at some point.  Simply storing the original responses as blobs gives you the opportunity to pull them out and get more detailed information when appropriate.
+Our development database actually includes the WePay responses as blobs in a column.  We pulled out data that we wanted to be able to index and search on (like emails, account_ids, account names and checkout_ids) and gave them dedicated columns.  While this increases the size of your database, it does give you all of the information regarding actions completed on your platform with regards to the WePay API.  Not all of the information contained in the WePay API responses are completely necessary, but they could become useful at some point.  Simply storing the original responses as blobs gives you the opportunity to pull them out and get more detailed information when appropriate.
 

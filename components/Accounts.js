@@ -11,6 +11,7 @@ import { connect } from 'react-redux'
 import {addCheckouts, clearCheckouts, fetchCheckoutIfNeeded} from "../actions/checkouts"
 import {addWithdrawals, clearWithdrawals, fetchWithdrawalIfNeeded} from "../actions/withdrawals"
 import {clearPayer} from "../actions/payer"
+import {clearCard} from "../actions/credit_card"
 import {addError} from "../actions/errors"
 import {BootstrapTable} from "react-bootstrap-table"
 
@@ -51,6 +52,7 @@ var AccountBlock= React.createClass({
         this.props.dispatch(clearWithdrawals());
         this.props.dispatch(clearCheckouts());
         this.props.dispatch(clearPayer());
+        this.props.dispatch(clearCard());
 
         // fetch the checkouts
         this.props.dispatch(fetchCheckoutIfNeeded(account_id));
@@ -121,6 +123,7 @@ var AccountBlock= React.createClass({
                             Bank
                         </TableHeaderColumn>
                     </BootstrapTable>
+                    <hr></hr>
                 </div>
             );
         }

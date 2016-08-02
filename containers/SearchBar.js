@@ -8,7 +8,7 @@
 
 import { connect } from 'react-redux'
 import React from 'react'
-import {FormGroup, FormControl, DropdownButton, Col, MenuItem} from "react-bootstrap"
+import {FormGroup, FormControl, DropdownButton, Col, Row} from "react-bootstrap"
 import UserInfo from "../components/User"
 
 import {searchUser, fetchUserIfNeeded, clearUser} from "../actions/user"

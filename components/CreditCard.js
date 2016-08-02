@@ -87,6 +87,7 @@ var CreditCardBlock= React.createClass({
                             Expiration Date
                         </TableHeaderColumn>
                     </BootstrapTable>
+                    <hr></hr>
                 </div>
             );
         }

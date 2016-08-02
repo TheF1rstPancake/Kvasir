@@ -140,8 +140,8 @@ var Withdrawals= React.createClass({
                             >
                             Bank
                         </TableHeaderColumn>
-
                     </BootstrapTable>
+                    <hr></hr>
                 </div>
             );
         }
@@ -184,6 +184,7 @@ var Withdrawals= React.createClass({
                             Next Withdrawal Date
                         </TableHeaderColumn>
                     </BootstrapTable>
+                    <hr></hr>
                 </div>
             )
         }

@@ -427,6 +427,7 @@ var Checkouts = React.createClass({
                         </div>
                     </Row>
                     {this.buildModal()}
+                    <hr></hr>
                 </div>
             );
         }
@@ -478,6 +479,7 @@ var Checkouts = React.createClass({
                         </TableHeaderColumn>
                     </BootstrapTable>
                     </Row>
+                    <hr></hr>
             </div>);
         }
         
