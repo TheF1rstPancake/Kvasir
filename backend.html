@@ -401,7 +401,7 @@
 <tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
 <li><strong>res</strong> &#8211; ExpressJS response object</li>
 <li><strong>wepay_endpoint</strong> &#8211; the wepay endpoint that we want to get data from</li>
-<li><strong>token</strong> (<em>access</em>) &#8211; the user&#8217;s access token that we want to use to request data. <strong>NOTE</strong>: This value can be null if the endpoint does not require an access token</li>
+<li><strong>access_token</strong> &#8211; the user&#8217;s access token that we want to use to request data.</li>
 <li><strong>pacakge</strong> &#8211; the package of data we want to send to the wepay_endpoint.  This can be an empty object if the endpoint does not require any additional parameters.</li>
 </ul>
 </td>
@@ -410,6 +410,10 @@
 </table>
 </dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal"><span class="pre">access_token</span></code> field can be null if the WePAy endpoint doesn&#8217;t require an access token.</p>
+</div>
 <p>We talk a lot about retrieving access tokens from the middleware as a critical component of accessing data from the WePay API.  While many of the endpoints require an access token, not all of them do.  For example, the <a class="reference external" href="https://stage.wepay.com/developer/reference/credit_card#lookup">/credit_card</a> endpoint does not require an acces token.  Instead, it wants the platform&#8217;s client_id and client_secret in the body of the request.</p>
 <p>Each endpoint on Kvasir&#8217;s server is responsible for creating the call to <a class="reference internal" href="#getWePayData" title="getWePayData"><code class="xref js js-func docutils literal"><span class="pre">getWePayData()</span></code></a> including formatting the package that it sends.</p>
 <div class="section" id="managing-access-tokens">
@@ -418,7 +422,7 @@
 <p>Kvasir uses Express&#8217;s <a class="reference external" href="https://github.com/expressjs/cookie-session">cookie_session</a> library to securely store a user&#8217;s access token as a cookie in the client&#8217;s browser.  The cookies are hashed with a secret key and set with the <em>secure</em> and <em>httpOnly</em> flags.  These force the cookies to be sent only over an HTTPS connection, and prevent JavaScript functions in the browser from being able to access the cookie information.</p>
 <dl class="docutils">
 <dt>From within Kvasir&#8217;s ExpressJS server, the cookie is accessed via:</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">req</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">access</span> <span class="n">token</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">req</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">access_token</span>
 </pre></div>
 </div>
 </dd>

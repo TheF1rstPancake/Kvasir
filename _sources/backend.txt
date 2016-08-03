@@ -155,8 +155,11 @@ Kvasir provides a single function for communicating with `WePay's NodeJS SDK <no
 
     :param res:                 ExpressJS response object
     :param wepay_endpoint:      the wepay endpoint that we want to get data from
-    :param access token:        the user's access token that we want to use to request data. **NOTE**: This value can be null if the endpoint does not require an access token
+    :param access_token:        the user's access token that we want to use to request data. 
     :param pacakge:             the package of data we want to send to the wepay_endpoint.  This can be an empty object if the endpoint does not require any additional parameters.
+
+.. note::
+    The ``access_token`` field can be null if the WePAy endpoint doesn't require an access token.
 
 We talk a lot about retrieving access tokens from the middleware as a critical component of accessing data from the WePay API.  While many of the endpoints require an access token, not all of them do.  For example, the :wepay:`credit_card` endpoint does not require an acces token.  Instead, it wants the platform's client_id and client_secret in the body of the request.
 
@@ -169,7 +172,7 @@ We wanted to avoid a system that had to make a request to the partner's database
 Kvasir uses Express's `cookie_session <https://github.com/expressjs/cookie-session>`_ library to securely store a user's access token as a cookie in the client's browser.  The cookies are hashed with a secret key and set with the *secure* and *httpOnly* flags.  These force the cookies to be sent only over an HTTPS connection, and prevent JavaScript functions in the browser from being able to access the cookie information.  
 
 From within Kvasir's ExpressJS server, the cookie is accessed via:
-    >>> req.session.access token
+    >>> req.session.access_token
 
 Most of the endpoints will check if this value is set before making any requests to WePay.  If the access token is not present, Kvasir will raise an error back to the client saying that it cannot perform the request because it does not have all of the required info.
 
