@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>The Back End: NodeJS and ExpressJS &mdash; Kvasir 0.0.1 documentation</title>
+  <title>The Back-End: NodeJS and ExpressJS &mdash; Kvasir 0.0.1 documentation</title>
   
 
   
@@ -84,7 +84,7 @@
                 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="">The Back End: NodeJS and ExpressJS</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="">The Back-End: NodeJS and ExpressJS</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#endpoints">Endpoints</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#user-endpoint">User Endpoint</a></li>
@@ -105,6 +105,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#sending-data-back-to-the-client">Sending Data Back to the Client</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#server-configuration">Server Configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#generating-secret-keys">Generating Secret Keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#serving-over-https">Serving Over HTTPS</a></li>
 </ul>
 </li>
 </ul>
@@ -140,7 +141,7 @@
   <ul class="wy-breadcrumbs">
     <li><a href="index.html">Docs</a> &raquo;</li>
       
-    <li>The Back End: NodeJS and ExpressJS</li>
+    <li>The Back-End: NodeJS and ExpressJS</li>
       <li class="wy-breadcrumbs-aside">
         
           
@@ -155,28 +156,28 @@
            <div itemprop="articleBody">
             
   <div class="section" id="the-back-end-nodejs-and-expressjs">
-<span id="kvasirbackend"></span><h1>The Back End: NodeJS and ExpressJS<a class="headerlink" href="#the-back-end-nodejs-and-expressjs" title="Permalink to this headline">¶</a></h1>
-<p>The backend infrastructure is meant to support the front end and address the security concerns that prevented us from making a full SPA.</p>
-<p>The back-end is built using Node and ExpressJS.  While we personally prefer Python for our servers, bundling the resources and libraries necessary to run the front end part of the application was easier in Node.</p>
+<span id="kvasirbackend"></span><h1>The Back-End: NodeJS and ExpressJS<a class="headerlink" href="#the-back-end-nodejs-and-expressjs" title="Permalink to this headline">¶</a></h1>
+<p>The back-end infrastructure is meant to support the front-end and address the security concerns that prevented us from making a full SPA.</p>
+<p>The back-end is built using Node and ExpressJS.  While we personally prefer Python for our servers, bundling the resources and libraries necessary to run the front-end part of the application was easier in Node.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">This is documentation on the current behavior of the back end server.  Many of the endpoints will likely change over time, and this is not meant to be a roadmap of the functionality they aim to provide.</p>
+<p class="last">This is documentation on the current behavior of the back-end server.  Many of the endpoints will likely change over time, and this is not meant to be a roadmap of the functionality they aim to provide.</p>
 </div>
 <div class="section" id="structure">
 <h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
-<p>The underlying structure is pretty simple.  Requests come in from the front end, and some of those requests will require the server to communicate with the platform&#8217;s database, while others require requests to the WePay API, and then there are requests that will require both.</p>
+<p>The underlying structure is pretty simple.  Requests come in from the front-end, and some of those requests will require the server to communicate with the platform&#8217;s database, while others require requests to the WePay API, and then there are requests that will require both.</p>
 <p>Each object built in the front-end app receives it&#8217;s own endpoint on the server.  For example, the <a class="reference internal" href="frontend.html#user-object"><span>user object</span></a> makes all of it&#8217;s requests to the <em>/user</em> endpoint on the server.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">While many of the endpoints on Kvasir&#8217;s server mirror the endpoint names of WePay, it is not a 1 to 1 relationship.</p>
 </div>
-<p>When the front end makes a request, the back end is responsible for formatting it into something the partner middleware or WePay will understand.  This provides a useful layer of abstraction should something change in either of those two systems.</p>
-<p>The server is also responsible for <a class="reference internal" href="#backend-sendingdatabacktoclient"><span>packaging responses back to the client, including error messages</span></a>.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front end.  Typically, valid data is simply sent to the front end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.</p>
-<p>Kvasir&#8217;s node server also manages a small cookie based session for users.  We don&#8217;t want to expose access tokens to the front end, but we also don&#8217;t want to have to request the access token from the partner&#8217;s database on each request.  After the server gets an access token, it will set a hashed cookie based on a secret key provided in Kvasir&#8217;s configuration file.  The cookie cannot be accessed by the front end, and the only the server can unhash it into something readable.</p>
+<p>When the front-end makes a request, the back-end is responsible for formatting it into something the partner middleware or WePay will understand.  This provides a useful layer of abstraction should something change in either of those two systems.</p>
+<p>The server is also responsible for <a class="reference internal" href="#back-end-sendingdatabacktoclient"><span>packaging responses back to the client, including error messages</span></a>.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front-end.  Typically, valid data is simply sent to the front-end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.</p>
+<p>Kvasir&#8217;s node server also manages a small cookie based session for users.  We don&#8217;t want to expose access tokens to the front-end, but we also don&#8217;t want to have to request the access token from the partner&#8217;s database on each request.  After the server gets an access token, it will set a hashed cookie based on a secret key provided in Kvasir&#8217;s configuration file.  The cookie cannot be accessed by the front-end, and the only the server can unhash it into something readable.</p>
 </div>
 <div class="section" id="endpoints">
 <h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this headline">¶</a></h2>
-<p>Each front end object has an associated endpoint on the server.  An object <em>could</em> call another endpoint if it wanted to, but it is more likely to do that indirectly by dispatching that other object&#8217;s actions.</p>
+<p>Each front-end object has an associated endpoint on the server.  An object <em>could</em> call another endpoint if it wanted to, but it is more likely to do that indirectly by dispatching that other object&#8217;s actions.</p>
 <p>All endpoints <em>only</em> accept POST requests with a JSON structured body.</p>
 <div class="section" id="user-endpoint">
 <h3>User Endpoint<a class="headerlink" href="#user-endpoint" title="Permalink to this headline">¶</a></h3>
@@ -481,7 +482,7 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 <p>The other option for a callback is to just pass the information we receive from the middleware directly back to the client.  This is what <a class="reference internal" href="#post--payer" title="POST /payer"><code class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/payer</span></code></a> does.  It passes <a class="reference internal" href="#sendResponse" title="sendResponse"><code class="xref js js-func docutils literal"><span class="pre">sendResponse()</span></code></a> has the callback function in order to pass the response from the middleware directly back to the client.</p>
 </div>
 <div class="section" id="sending-data-back-to-the-client">
-<span id="backend-sendingdatabacktoclient"></span><h2>Sending Data Back to the Client<a class="headerlink" href="#sending-data-back-to-the-client" title="Permalink to this headline">¶</a></h2>
+<span id="back-end-sendingdatabacktoclient"></span><h2>Sending Data Back to the Client<a class="headerlink" href="#sending-data-back-to-the-client" title="Permalink to this headline">¶</a></h2>
 <p>The final step to any request is to send the data back to the client.  Kvasir provides a single function for this operation as well.</p>
 <dl class="function">
 <dt id="sendResponse">
@@ -528,7 +529,7 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 <p>The &#8220;error_message&#8221; field is intended to be a string that you can display to the end user so that they know what went wrong.  We include the original error package sent by either the middleware or WePay API for greater transparceny.  We don&#8217;t want to accidently truncate errors and lead developers down the wrong path.</p>
 </div>
 <div class="section" id="server-configuration">
-<h2>Server Configuration<a class="headerlink" href="#server-configuration" title="Permalink to this headline">¶</a></h2>
+<span id="serverconfiguration"></span><h2>Server Configuration<a class="headerlink" href="#server-configuration" title="Permalink to this headline">¶</a></h2>
 <p>There is some information that Kvasir needs in order to function outside of information that it could access from the middleware.</p>
 <p>The configuration file is small, but contains necessary information for Kvasir to run properly.</p>
 <dl class="docutils">
@@ -544,6 +545,11 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 <span class="c1">// wepay client_id and client_secret are needed for certain calls</span>
 <span class="nx">config</span><span class="p">.</span><span class="nx">client_id</span> <span class="o">=</span> <span class="s2">&quot;&lt;YOUR_WEPAY_CLIENT_ID&gt;&quot;</span><span class="p">;</span>
 <span class="nx">config</span><span class="p">.</span><span class="nx">client_secret</span> <span class="o">=</span> <span class="s2">&quot;&lt;YOUR_WEPAY_CLIENT_SECRET&gt;&quot;</span><span class="p">;</span>
+
+<span class="nx">config</span><span class="p">.</span><span class="nx">ssl</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">privateKey</span><span class="o">:</span>     <span class="s2">&quot;&lt;PATH_TO_KEY&gt;/&lt;KEY_FILE&gt;&quot;</span><span class="p">,</span>
+    <span class="nx">certificate</span><span class="o">:</span>    <span class="s2">&quot;&lt;PATH_TO_KEY&gt;/&lt;CERTIFICATE_FILE&gt;&quot;</span>
+<span class="p">};</span>
 
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">config</span><span class="p">;</span>
 </pre></div>
@@ -561,11 +567,36 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 </dl>
 <p>The <em>middleware_secret</em> should be shared with your middleware so that it can validate that the requests it is receiving are actually from Kvasir and not from someone else.</p>
 <p>It also needs the address of your middleware.  This provides it some flexibility in the event that the address changes.  This way you don&#8217;t have to manipulate the source code.</p>
-<p>The configuration also requires your WePay client_id and client_secret.  There are certain WePay API requests that require this info in place of an access token.  Providing it in the config file lets Kvasir access it when necessary.</p>
+<p>The configuration also requires your WePay <em>client_id</em> and <em>client_secret</em>.  There are certain WePay API requests that require this info in place of an access token.  Providing it in the config file lets Kvasir access it when necessary.</p>
+<dl class="docutils">
+<dt>The total list of configuration options is:</dt>
+<dd><ul class="first last">
+<li><p class="first"><strong>cookie_secret</strong>:        the secret key used to hash cookies set in the browser</p>
+</li>
+<li><p class="first"><strong>middleware_uri</strong>:       the uri to the middleware which connects to your database</p>
+</li>
+<li><p class="first"><strong>middleware_secret</strong>:    the secret key used in the <cite>Authorization</cite> header when making requests to the middleware</p>
+</li>
+<li><p class="first"><strong>client_id</strong>:            your WePay client id</p>
+</li>
+<li><p class="first"><strong>client_secret</strong>:        your WePay client secret</p>
+</li>
+<li><dl class="first docutils">
+<dt><strong>ssl</strong>:                  the ssl configuration which includes</dt>
+<dd><ul class="first last simple">
+<li><em>privateKey</em>:         the name of the file that contains your SSL private key</li>
+<li><em>certificate</em>:        the name of the file that contains your SSL certificate</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
 <div class="section" id="generating-secret-keys">
 <h3>Generating Secret Keys<a class="headerlink" href="#generating-secret-keys" title="Permalink to this headline">¶</a></h3>
 <p>There are a lot of different methods for generating secret keys.</p>
-<p><a class="reference external" href="http://randomkeygen.com/">Random Key Generator</a> will do it for you, or you can use Python to quickly genreate key.</p>
+<p><a class="reference external" href="http://randomkeygen.com/">Random Key Generator</a> will do it for you, or you can use Python to quickly genreate a key.</p>
 <dl class="docutils">
 <dt>The Python code is:</dt>
 <dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">binascii</span>
@@ -577,6 +608,19 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 </dd>
 </dl>
 <p>Copy the output and paste it into the config file.  It is important that you <strong>do not share your secret key</strong>.  You also shouldn&#8217;t use that key there, because it&#8217;s not secret if it&#8217;s published somewhere.</p>
+</div>
+<div class="section" id="serving-over-https">
+<h3>Serving Over HTTPS<a class="headerlink" href="#serving-over-https" title="Permalink to this headline">¶</a></h3>
+<p>In order to securely pass data around this system, we require that the server use HTTPS.  You can do it with any existing SSL certificates that you have or you can generate a self signed certificate.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you use a self signed certificate, your users will get a warning from the browser saying that the site is not trusted.  They can ignore the error and enter.</p>
+</div>
+<p>The config file allows you to specify where the certificate and key are stored.  The path should be <strong>relative to the server.js file</strong>.</p>
+<dl class="docutils">
+<dt>If you need help creating a self-signed SSL certificate, you can follow this tutorial:</dt>
+<dd><a class="reference external" href="https://devcenter.heroku.com/articles/ssl-certificate-self">https://devcenter.heroku.com/articles/ssl-certificate-self</a></dd>
+</dl>
 </div>
 </div>
 </div>

@@ -83,7 +83,7 @@
                 <ul>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a></li>
 <li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a></li>
-<li class="toctree-l1"><a class="reference internal" href="backend.html">The Back End: NodeJS and ExpressJS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backend.html">The Back-End: NodeJS and ExpressJS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">The Middleware: Whatever Language You Want</a></li>
 </ul>
 
@@ -197,13 +197,14 @@ It provides most of the essential functionality that a support teams needs to ha
 </div>
 <div class="section" id="tech-stack">
 <h2>Tech Stack<a class="headerlink" href="#tech-stack" title="Permalink to this headline">¶</a></h2>
-<p>Kvasir is comprised of two major components - a back end server running on <a class="reference external" href="http://https://nodejs.org/en/">NodeJS</a> and a set of front-end JavaScript files built on top of <a class="reference external" href="https://facebook.github.io/react/">ReactJS</a> and <a class="reference external" href="http://redux.js.org/">Redux</a>.</p>
-<p>You are free to pick and choose what parts of the application you want to use.  ReactJS is designed to be back end agnostic - it doesn&#8217;t care what technology you use on the back end, as long as it receives the information it needs and in the format that it expects.  You could chose to scrape the NodeJS server and rebuild it in your own language of choice.  The reverse is true as well - if you want to work your support dashboard within an existing infrastructure, then you can throw away the front end component and build your own on top of our NodeJS server.</p>
+<p>Kvasir is comprised of two major components - a back-end server running on <a class="reference external" href="http://https://nodejs.org/en/">NodeJS</a> and a set of front-end JavaScript files built on top of <a class="reference external" href="https://facebook.github.io/react/">ReactJS</a> and <a class="reference external" href="http://redux.js.org/">Redux</a>.</p>
+<p>You are free to pick and choose what parts of the application you want to use.  ReactJS is designed to be back-end agnostic - it doesn&#8217;t care what technology you use on the back-end, as long as it receives the information it needs and in the format that it expects.  You could chose to scrape the NodeJS server and rebuild it in your own language of choice.  The reverse is true as well - if you want to work your support dashboard within an existing infrastructure, then you can throw away the front-end component and build your own on top of our NodeJS server.</p>
 <p>In order to be fully functional, Kvasir requires a connection to your database.
-Since no two database configurations are the same, there is no realistic way for Kvasir to come with a way to pull information from every possible configuration.
-The solution is to have you (the dear developer) create a middleware component that connects Kvasir to your database.  Kvasir asks for very specific information in a very specific format and expects data to be returned in similarly specific format.  This allows Kvasir to pull data from your database and make corresponding WePay API calls to gather more information.  The benefit is that you likely do not have to change your database configuration to work with Kvasir, but rather, you make up for shortcomings programmaticly in the middleware.</p>
-<p>It is <strong>recommended</strong> that you keep the front and back end components together.
-NodeJS comes with some nice functions that make compiling our front end JavaScript much easier.</p>
+Since no two database configurations are the same, there is no realistic way for Kvasir to come with a way to pull information from every possible configuration.</p>
+<p>The solution is to have you (the dear developer) <a class="reference internal" href="middleware.html#kvasirmiddleware"><span>create a middleware component</span></a> that connects Kvasir to your database.  Kvasir asks for very specific information in a very specific format and expects data to be returned in similarly specific format.  This allows Kvasir to pull data from your database and make corresponding WePay API calls to gather more information.  The benefit is that you likely do not have to change your database configuration to work with Kvasir, but rather, you make up for shortcomings programmaticly in the middleware.</p>
+<p>It is <strong>recommended</strong> that you keep the front and back-end components together.
+NodeJS comes with some nice functions that make compiling our front-end JavaScript much easier.
+However, you are free to take the application apart and use just Kvasir&#8217;s NodeJS server for communication and data-fetching and build your own front-end on top of that.</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
@@ -216,21 +217,24 @@ NodeJS comes with some nice functions that make compiling our front end JavaScri
 </dd>
 </dl>
 <p>This will install all necessary packages and dependencies.</p>
-<p>Before you can launch the server though, there are several other configuration steps that you have to complete.</p>
-<p>Contents:</p>
+<p>We are also assuming that this application is being installed on your company&#8217;s internal network.  Kvasir&#8217;s <a class="reference internal" href="architecture.html#kvasirarch"><span>entire architecture</span></a> is built around the idea that it is only visible to your employees and not the greater internet.</p>
+<p>Before you can launch the server though, there are <a class="reference internal" href="backend.html#serverconfiguration"><span>several other configuration</span></a> steps that you have to complete.</p>
+</div>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="architecture.html#a-brief-history">A Brief History</a></li>
 <li class="toctree-l2"><a class="reference internal" href="architecture.html#architecture">Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture.html#integrating-with-kvasir">Integrating with Kvasir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#integration-environment-with-kvasir">Integration Environment with Kvasir</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="frontend.html#actions-components-and-reducers">Actions, Components, and Reducers</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="backend.html">The Back End: NodeJS and ExpressJS</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="backend.html">The Back-End: NodeJS and ExpressJS</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="backend.html#structure">Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="backend.html#endpoints">Endpoints</a></li>
 <li class="toctree-l2"><a class="reference internal" href="backend.html#getting-data-from-wepay">Getting Data From WePay</a></li>

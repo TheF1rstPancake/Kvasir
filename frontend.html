@@ -31,7 +31,7 @@
 
   
     <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="The Back End: NodeJS and ExpressJS" href="backend.html"/>
+        <link rel="next" title="The Back-End: NodeJS and ExpressJS" href="backend.html"/>
         <link rel="prev" title="Kvasir’s Architecture" href="architecture.html"/> 
 
   
@@ -96,7 +96,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="backend.html">The Back End: NodeJS and ExpressJS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backend.html">The Back-End: NodeJS and ExpressJS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">The Middleware: Whatever Language You Want</a></li>
 </ul>
 
@@ -143,11 +143,11 @@
            <div itemprop="articleBody">
             
   <div class="section" id="the-front-end-reactjs-and-redux">
-<h1>The Front End: ReactJS and Redux<a class="headerlink" href="#the-front-end-reactjs-and-redux" title="Permalink to this headline">¶</a></h1>
+<span id="kvasirfrontend"></span><h1>The Front End: ReactJS and Redux<a class="headerlink" href="#the-front-end-reactjs-and-redux" title="Permalink to this headline">¶</a></h1>
 <p>After <a class="reference internal" href="architecture.html#kvasirarch"><span>completing the architecture</span></a> we began to look at what technologies were available to help us meet our end goal.  Again, we wanted to retain many of the benefits that come with a single page app (SPA) so we began looking at the available SPA frameworks and libraries.</p>
-<p>We saw the user-interface being composed of a set of components.  Each componenet had a tie to another component, and an update to the first component would impact the second, but not necessarily all other components.  For example, searching a user should impact the information displayed about that user, or the <em>user component</em> and the available account information directly stems from the information we have on the user.  Selecting a particular account would allow us to render <em>checkout</em> information about that account, but it shouldn&#8217;t impact the account component itself or the user component.</p>
+<p>We saw the user-interface being composed of a set of components.  Each componenet had a tie to another component, and an update to the first component would impact the second, but not necessarily all other components.  For example, searching a user should impact the information displayed about that user (the <em>user component</em>) and the since the available account information stems from the user, then this action should also affect what account information is displayed.  Selecting a particular account would allow us to render <em>checkout</em> information about that account, but it shouldn&#8217;t impact the account component itself or the user component.  I can change between a merchant&#8217;s accounts and load the related checkouts for each account without having to reload the entire page.</p>
 <p>Essentially, our application should allow a user to walk through their internal database, in combination with WePay lookup calls and other actions, to gather information about a particular merchant or payer and complete tasks for them.</p>
-<p><a class="reference external" href="https://facebook.github.io/react/">ReactJS</a> gave us exactly what we were looking for.  The entire philosophy behind React is the idea that a user interface should be composed of a set of independent components.  In our initial prototypes, we had trouble passing around information between components. <a class="reference external" href="http://redux.js.org/">Redux</a> solved the problem for us by making it easier to share information across the application.  We likely could have developed everything purely in React, but Redux made it easier.</p>
+<p><a class="reference external" href="https://facebook.github.io/react/">ReactJS</a> gives us exactly what we were looking for.  The entire philosophy behind React is the idea that a user interface should be composed of a set of independent components.  In our initial prototypes, we had trouble passing around information between components. <a class="reference external" href="http://redux.js.org/">Redux</a> solved the problem for us by making it easier to share information across the application.  We likely could have developed everything purely in React, but Redux made it easier to get off the ground.</p>
 <div class="section" id="actions-components-and-reducers">
 <h2>Actions, Components, and Reducers<a class="headerlink" href="#actions-components-and-reducers" title="Permalink to this headline">¶</a></h2>
 <dl class="docutils">
@@ -157,7 +157,7 @@
 <dt>Actions</dt>
 <dd><ul class="first last simple">
 <li>events that should manipulate the state of the application in some way</li>
-<li>also responsible for making POST requests to the back end and dispatching other actions as a result of those requests</li>
+<li>also responsible for making POST requests to the back-end and dispatching other actions as a result of those requests</li>
 </ul>
 </dd>
 </dl>
@@ -165,7 +165,7 @@
 <li><dl class="first docutils">
 <dt>Reducers</dt>
 <dd><ul class="first last simple">
-<li>given an action, manipulate the state</li>
+<li>given an action, manipulate the state of the application</li>
 </ul>
 </dd>
 </dl>
@@ -173,7 +173,8 @@
 <li><dl class="first docutils">
 <dt>Components</dt>
 <dd><ul class="first last simple">
-<li>the front end views.  When a component&#8217;s state changes due to a reducer, it re-renders itself</li>
+<li>the front-end blocks of dynamic HTML</li>
+<li>Take information from different parts of the Redux state object to render on the page.</li>
 </ul>
 </dd>
 </dl>
@@ -188,7 +189,8 @@
 <li><dl class="first docutils">
 <dt><a class="reference internal" href="#user-object"><span>User</span></a></dt>
 <dd><ul class="first last simple">
-<li>represents a given merchant.  A merchant can have multiple accounts.</li>
+<li>represents a given <em>merchant</em>.</li>
+<li>A merchant can have multiple accounts.</li>
 </ul>
 </dd>
 </dl>
@@ -199,7 +201,8 @@
 <li><dl class="first docutils">
 <dt><a class="reference internal" href="#account-object"><span>Accounts</span></a></dt>
 <dd><ul class="first last simple">
-<li>represents a merchant account.</li>
+<li>represents a merchant account</li>
+<li>One account can belong to multiple users, but this is not common</li>
 </ul>
 </dd>
 </dl>
@@ -208,6 +211,7 @@
 <dt><a class="reference internal" href="#checkouts-object"><span>Checkouts</span></a></dt>
 <dd><ul class="first last simple">
 <li>represents the checkouts tied to a given merchant account (Accounts object)</li>
+<li>Accounts should have multiple checkouts, but each checkout only belongs to one account.</li>
 </ul>
 </dd>
 </dl>
@@ -225,6 +229,7 @@
 <dt><a class="reference internal" href="#credit-card-object"><span>Credit Card</span></a></dt>
 <dd><ul class="first last simple">
 <li>represents the credit card information associated with a given tokenized credit card ID used for a checkout</li>
+<li>Tokenized cards can be used for multiple checkouts on the same app, but the information tied to a tokenized card does not change from checkout to checkout</li>
 </ul>
 </dd>
 </dl>
@@ -244,7 +249,7 @@
 <p>If you look at these objects, you might recognize that all of these <em>except for the Payer object</em> directly tie back to a WePay API endpoint.  That&#8217;s intentional.  We assumed that many platforms would have developed their database configurations around the different WePay endpoints.  Since you generally have to interact with these endpoints in a certain order (/user endpoint, then /account endpoint, then /checkout endpoint), it makes sense that a partner&#8217;s database would grow around that.  Regardless of how a partner&#8217;s database is configured, Kvasir needs to interact with each of these endpoints to gather the information it needs.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The front end objects do not make any calls directly to the WePay API.  All of those are done by the back-end server.</p>
+<p class="last">The front-end objects do not make any calls directly to the WePay API.  All of those are done by the back-end server.</p>
 </div>
 <p>The <em>components</em> are responsible for handling user actions and then dispatching the associated actions.  The are also responsible for subscribing to all of the necessary state information and formatting that data.  While all actions are globally published, not every component relies on all of that info (and they shouldn&#8217;t).</p>
 <p>For example, when an account is clicked in the account component, the account component registers that the click happened, manipulates the table, and then dispatches the <em>searchedAccounts</em>, <em>fetchWithdrawalsIfNeeded</em> and <em>fetchCheckoutsIfNeeded</em> actions.  Some of these actions will directly impact the action component causing it to re-render with new info, while others will impact other components forcing them to re-render with the new information.</p>
@@ -253,7 +258,7 @@
 <p>All of the objects are different in the sense that they require different search requirements (user_id, account_id, etc.); however, they are all implemented in very similar ways.</p>
 <dl class="docutils">
 <dt>Really, what all of the objects require a handful of actions:</dt>
-<dd><ol class="first arabic">
+<dd><ol class="first last arabic">
 <li><dl class="first docutils">
 <dt>Search</dt>
 <dd><ul class="first last simple">
@@ -271,20 +276,23 @@
 </dd>
 </dl>
 </li>
-</ol>
-<dl class="docutils">
-<dt>3a) Receive</dt>
-<dd><ul class="first last simple">
-<li>If the POST request completes successfully, then we notify all components that new information has been received</li>
-</ul>
-</dd>
-<dt>3b) Error</dt>
+<li><dl class="first docutils">
+<dt>Receive</dt>
+<dd><ol class="first last loweralpha">
+<li><p class="first">If the POST request completes successfully, then we notify all components that new information has been received</p>
+</li>
+<li><dl class="first docutils">
+<dt>Error</dt>
 <dd><ul class="first last simple">
 <li>If the POST request did complete successfully, then we notify all components of the error</li>
 </ul>
 </dd>
 </dl>
-<ol class="last arabic" start="4">
+</li>
+</ol>
+</dd>
+</dl>
+</li>
 <li><dl class="first docutils">
 <dt>Clear</dt>
 <dd><ul class="first last simple">
@@ -299,26 +307,46 @@
 <p>But not all of these actions are directly accessible.  For example, request and receive are always bundled together.</p>
 <dl class="docutils">
 <dt>In general, these are the public functions that each object has for dispatching actions:</dt>
-<dd><ul class="first last">
-<li><dl class="first docutils">
-<dt><code class="docutils literal"><span class="pre">search(id)</span></code></dt>
-<dd><ul class="first last simple">
-<li>Will cause the associated reducer to update its state with the information the user passed in order to search the object.</li>
+<dd><ol class="first last arabic">
+<li><dl class="function">
+<dt id="search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Will cause the associated reducer to update its state with the information the user passed in order to search the object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> &#8211; some unique id of the object that we just looked up.  For example, for user&#8217;s this is an email address; accounts use an account_id</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal"><span class="pre">fetchIfNeeded(id)</span></code></dt>
-<dd><ul class="first last simple">
-<li>First checks to make sure that we have all the information that we need in order to fetch information</li>
-<li>Then calls the <code class="docutils literal"><span class="pre">fetch()</span></code> function which will make the call to the back-end for more info</li>
-<li>this will result in the dispatching of the <em>request</em> action along with <em>receive</em> or <em>error</em> depending on the result</li>
+<li><dl class="function">
+<dt id="fetchIfNeeded">
+<code class="descname">fetchIfNeeded</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#fetchIfNeeded" title="Permalink to this definition">¶</a></dt>
+<dd><p>First checks to make sure that we have all the information that we need in order to fetch information.
+Then calls the <code class="docutils literal"><span class="pre">fetch()</span></code> function which will make the call to the back-end for more info.
+This will result in the dispatching of the <em>request</em> action along with <em>receive</em> or <em>error</em> depending on the result</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> &#8211; some unique id of the object that we just looked up.  For example, for user&#8217;s this is an email address; accounts use an account_id</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </li>
-</ul>
+</ol>
 </dd>
 </dl>
 <p>The reducers that take these actions are also very similar.
@@ -327,45 +355,60 @@ We do this because of the asynchronous nature of Redux actions mixed with the PO
 <dl class="docutils">
 <dt>These two reducers are:</dt>
 <dd><ol class="first last arabic">
-<li><dl class="first docutils">
-<dt><code class="docutils literal"><span class="pre">searched(state</span> <span class="pre">={},</span> <span class="pre">action)</span></code></dt>
-<dd><ul class="first last simple">
-<li>When a search action fires, update the object&#8217;s state with the information we used to search (account_id, user&#8217;s email, etc).</li>
-<li>The initial state is an empty object</li>
+<li><dl class="function">
+<dt id="searched">
+<code class="descname">searched</code><span class="sig-paren">(</span><em>state ={}</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#searched" title="Permalink to this definition">¶</a></dt>
+<dd><p>When a search action fires, update the object&#8217;s state with the information we used to search (account_id, user&#8217;s email, etc).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>state</strong> &#8211; The current state of searches made for the object.  The initial state is an empty object because we haven&#8217;t looked anything up yet</li>
+<li><strong>action</strong> &#8211; the action that was fired and contains information about the search</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </li>
-<li><dl class="first docutils">
-<dt><code class="docutils literal"><span class="pre">base(state=defaultState,</span> <span class="pre">action)</span></code></dt>
-<dd><ul class="first last">
-<li><p class="first">For all other actions other than searching, they are sent to the base reducer</p>
-</li>
-<li><p class="first">Responsibly for modifying the information that we maintain for a given searched object</p>
-</li>
-<li><dl class="first docutils">
-<dt>The initial state is defined by each object but generally they all look this</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">defaultState</span> <span class="o">=</span> <span class="p">{</span>
+<li><dl class="function">
+<dt id="base">
+<code class="descname">base</code><span class="sig-paren">(</span><em>state=defaultState</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#base" title="Permalink to this definition">¶</a></dt>
+<dd><p>For all other actions other than searching, they are sent to the base reducer.
+Responsibly for modifying the information that we maintain for a given searched object
+The initial state is defined by each object but generally they all look this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">defaultState</span> <span class="o">=</span> <span class="p">{</span>
 <span class="gp">&gt;&gt;&gt; </span>   <span class="n">isFetching</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>   <span class="n">info</span><span class="p">:</span> <span class="p">[]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">}</span>
 </pre></div>
 </div>
-</dd>
-</dl>
-</li>
-<li><p class="first"><em>isFetching</em> tells us if we are waiting for a response</p>
-</li>
-<li><p class="first"><em>info</em> is where the response data is stored</p>
-</li>
+<ul class="simple">
+<li><em>isFetching</em> tells us if we are waiting for a response</li>
+<li><em>info</em> is where the response data is stored</li>
 </ul>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>state</strong> &#8211; the current state of the object.  This includes the information that we requested from the Kvasir&#8217;s back-end.</li>
+<li><strong>action</strong> &#8211; the action that was fired that contains information about the object</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </li>
 </ol>
 </dd>
 </dl>
-<p>Going back to the early example, if someone were to search a user with one email and immediately change the search parameters, there is no way for them to cancel the original request.  It has likely already been sent to the back-end to be processed.  There is also no guarantee that the first request will finish before the second request.  So, the user may be handed information from the original request, despite the fact that they didn&#8217;t want to.  Separating the search information from the object&#8217;s information that we receive allows to validate that the information we received is actually the info we wanted.  If it&#8217;s not, we can ignore it and prevent the state from being updated with inaccurate info.</p>
+<p>Going back to the early example, if someone were to search a user with one email and immediately change the search parameters, there is no way for them to cancel the original request.  It has likely already been sent to the back-end to be processed.  There is also no guarantee that the first request will finish before the second request.  So, the user may be handed information from the original request, despite the fact that they didn&#8217;t want to.  Separating the search information from the object&#8217;s information that we receive allows Kvasir to validate that the information we received is actually the info we wanted.  If it&#8217;s not, we can ignore it and prevent the state from being updated with unwanted info.</p>
 </div>
 <div class="section" id="user-object">
 <span id="id1"></span><h3>User Object<a class="headerlink" href="#user-object" title="Permalink to this headline">¶</a></h3>
@@ -457,7 +500,7 @@ This includes information about where a merchant&#8217;s money is being withdraw
 <li><dl class="first docutils">
 <dt>Gross Amount</dt>
 <dd><ul class="first last simple">
-<li>the amount + any additional fees that they <em>payer</em> had to pay</li>
+<li>the amount + any additional fees that the <em>payer</em> had to pay</li>
 </ul>
 </dd>
 </dl>
@@ -478,7 +521,7 @@ This includes information about where a merchant&#8217;s money is being withdraw
 <p class="last">Refunds can fail for several reasons.  These errors are displayed in the overlay, but do not prevent the user from retrying.</p>
 </div>
 <p>The checkout action and reducer files contain all of the logic for handling refunds, which could likely be separated completely if we wanted to.  However, since a refund requires so much information from the associated checkout, and the visual components are tightly coupled, it made sense to keep them together.</p>
-<p>The checkout component is also currently responsible for rendering the information for the Payer Object.  The two are closely related, and we were able to leverage the checkout&#8217;s layout for the Payer object.</p>
+<p>The checkout component is also currently responsible for rendering the information for the <a class="reference internal" href="#payer-object"><span>payer object</span></a>.  The two are closely related, and we were able to leverage the checkout&#8217;s layout for the <a class="reference internal" href="#payer-object"><span>payer object</span></a>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">This will likely change in the future.  It made sense at the time, but the payer object has grown into much more than originally intended.</p>
@@ -532,7 +575,7 @@ This includes information about where a merchant&#8217;s money is being withdraw
 </ul>
 </dd>
 </dl>
-<p>This is all the information that our back end expects from the middleware.
+<p>This is all the information that our back-end expects from the middleware.
 Selecting a checkout here will then dispatch actions to gather information about the merchant and the associated account.  A platform can&#8217;t do a refund without the merchant&#8217;s access token, so the account_id serves as a way for us to request that info from the partner&#8217;s middleware.</p>
 <p>Once a checkout has been selected though, it will also dispatch an action to find more information on the WePay API about <em>that specific checkout</em>.  The payer table that had all of the payer&#8217;s checkout on that platform, potentially across multiple accounts, will become a single row with all of the information that you would normally get from the checkout object, but only for this particular checkout.</p>
 <p>Again, the idea behind this application is to take a walk through the platform&#8217;s database in conjunction with information stored by WePay.  No matter what path you take, you should be able to arrive at your destination and it should look familiar to all other paths.</p>
@@ -547,7 +590,7 @@ Selecting a checkout here will then dispatch actions to gather information about
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="backend.html" class="btn btn-neutral float-right" title="The Back End: NodeJS and ExpressJS" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="backend.html" class="btn btn-neutral float-right" title="The Back-End: NodeJS and ExpressJS" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="architecture.html" class="btn btn-neutral" title="Kvasir’s Architecture" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>

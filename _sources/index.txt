@@ -37,16 +37,18 @@ These actions include:
 
 Tech Stack
 -----------
-Kvasir is comprised of two major components - a back end server running on `NodeJS <http://https://nodejs.org/en/>`_ and a set of front-end JavaScript files built on top of `ReactJS <https://facebook.github.io/react/>`_ and `Redux <http://redux.js.org/>`_.
+Kvasir is comprised of two major components - a back-end server running on `NodeJS <http://https://nodejs.org/en/>`_ and a set of front-end JavaScript files built on top of `ReactJS <https://facebook.github.io/react/>`_ and `Redux <http://redux.js.org/>`_.
 
-You are free to pick and choose what parts of the application you want to use.  ReactJS is designed to be back end agnostic - it doesn't care what technology you use on the back end, as long as it receives the information it needs and in the format that it expects.  You could chose to scrape the NodeJS server and rebuild it in your own language of choice.  The reverse is true as well - if you want to work your support dashboard within an existing infrastructure, then you can throw away the front end component and build your own on top of our NodeJS server.
+You are free to pick and choose what parts of the application you want to use.  ReactJS is designed to be back-end agnostic - it doesn't care what technology you use on the back-end, as long as it receives the information it needs and in the format that it expects.  You could chose to scrape the NodeJS server and rebuild it in your own language of choice.  The reverse is true as well - if you want to work your support dashboard within an existing infrastructure, then you can throw away the front-end component and build your own on top of our NodeJS server.
 
 In order to be fully functional, Kvasir requires a connection to your database.  
 Since no two database configurations are the same, there is no realistic way for Kvasir to come with a way to pull information from every possible configuration.  
-The solution is to have you (the dear developer) create a middleware component that connects Kvasir to your database.  Kvasir asks for very specific information in a very specific format and expects data to be returned in similarly specific format.  This allows Kvasir to pull data from your database and make corresponding WePay API calls to gather more information.  The benefit is that you likely do not have to change your database configuration to work with Kvasir, but rather, you make up for shortcomings programmaticly in the middleware.
 
-It is **recommended** that you keep the front and back end components together.  
-NodeJS comes with some nice functions that make compiling our front end JavaScript much easier.
+The solution is to have you (the dear developer) :ref:`create a middleware component <kvasirmiddleware>` that connects Kvasir to your database.  Kvasir asks for very specific information in a very specific format and expects data to be returned in similarly specific format.  This allows Kvasir to pull data from your database and make corresponding WePay API calls to gather more information.  The benefit is that you likely do not have to change your database configuration to work with Kvasir, but rather, you make up for shortcomings programmaticly in the middleware.
+
+It is **recommended** that you keep the front and back-end components together.  
+NodeJS comes with some nice functions that make compiling our front-end JavaScript much easier.
+However, you are free to take the application apart and use just Kvasir's NodeJS server for communication and data-fetching and build your own front-end on top of that.
 
 Installation
 ---------------
@@ -57,10 +59,13 @@ From within the main application directory run:
 
 This will install all necessary packages and dependencies.
 
-Before you can launch the server though, there are several other configuration steps that you have to complete.
+We are also assuming that this application is being installed on your company's internal network.  Kvasir's :ref:`entire architecture <kvasirarch>` is built around the idea that it is only visible to your employees and not the greater internet. 
+
+Before you can launch the server though, there are :ref:`several other configuration <serverconfiguration>` steps that you have to complete.
 
 
-Contents:
+Contents
+------------
 
 .. toctree::
    :maxdepth: 2
@@ -71,7 +76,7 @@ Contents:
    middleware
 
 Indices and tables
-==================
+====================
 
 * :ref:`genindex`
 * :ref:`modindex`

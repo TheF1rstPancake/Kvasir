@@ -1,32 +1,32 @@
 .. _kvasirbackend:
 
-The Back End: NodeJS and ExpressJS
+The Back-End: NodeJS and ExpressJS
 =======================================
-The backend infrastructure is meant to support the front end and address the security concerns that prevented us from making a full SPA.
+The back-end infrastructure is meant to support the front-end and address the security concerns that prevented us from making a full SPA.
 
-The back-end is built using Node and ExpressJS.  While we personally prefer Python for our servers, bundling the resources and libraries necessary to run the front end part of the application was easier in Node.
+The back-end is built using Node and ExpressJS.  While we personally prefer Python for our servers, bundling the resources and libraries necessary to run the front-end part of the application was easier in Node.
 
 .. warning::
-    This is documentation on the current behavior of the back end server.  Many of the endpoints will likely change over time, and this is not meant to be a roadmap of the functionality they aim to provide.
+    This is documentation on the current behavior of the back-end server.  Many of the endpoints will likely change over time, and this is not meant to be a roadmap of the functionality they aim to provide.
 
 Structure
 ----------------
-The underlying structure is pretty simple.  Requests come in from the front end, and some of those requests will require the server to communicate with the platform's database, while others require requests to the WePay API, and then there are requests that will require both.
+The underlying structure is pretty simple.  Requests come in from the front-end, and some of those requests will require the server to communicate with the platform's database, while others require requests to the WePay API, and then there are requests that will require both.
 
 Each object built in the front-end app receives it's own endpoint on the server.  For example, the :ref:`user object <user_object>` makes all of it's requests to the */user* endpoint on the server.
 
 .. note::
     While many of the endpoints on Kvasir's server mirror the endpoint names of WePay, it is not a 1 to 1 relationship.
 
-When the front end makes a request, the back end is responsible for formatting it into something the partner middleware or WePay will understand.  This provides a useful layer of abstraction should something change in either of those two systems.
+When the front-end makes a request, the back-end is responsible for formatting it into something the partner middleware or WePay will understand.  This provides a useful layer of abstraction should something change in either of those two systems.
 
-The server is also responsible for :ref:`packaging responses back to the client, including error messages <backend_sendingdatabacktoclient>`.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front end.  Typically, valid data is simply sent to the front end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.
+The server is also responsible for :ref:`packaging responses back to the client, including error messages <back-end_sendingdatabacktoclient>`.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front-end.  Typically, valid data is simply sent to the front-end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.
 
-Kvasir's node server also manages a small cookie based session for users.  We don't want to expose access tokens to the front end, but we also don't want to have to request the access token from the partner's database on each request.  After the server gets an access token, it will set a hashed cookie based on a secret key provided in Kvasir's configuration file.  The cookie cannot be accessed by the front end, and the only the server can unhash it into something readable.
+Kvasir's node server also manages a small cookie based session for users.  We don't want to expose access tokens to the front-end, but we also don't want to have to request the access token from the partner's database on each request.  After the server gets an access token, it will set a hashed cookie based on a secret key provided in Kvasir's configuration file.  The cookie cannot be accessed by the front-end, and the only the server can unhash it into something readable.
 
 Endpoints
 -----------
-Each front end object has an associated endpoint on the server.  An object *could* call another endpoint if it wanted to, but it is more likely to do that indirectly by dispatching that other object's actions.
+Each front-end object has an associated endpoint on the server.  An object *could* call another endpoint if it wanted to, but it is more likely to do that indirectly by dispatching that other object's actions.
 
 All endpoints *only* accept POST requests with a JSON structured body.
 
@@ -210,7 +210,7 @@ Most of Kvasir's endpoints will use :func:`parseMiddlewareResponse` to do that. 
 
 The other option for a callback is to just pass the information we receive from the middleware directly back to the client.  This is what :http:post:`/payer` does.  It passes :func:`sendResponse` has the callback function in order to pass the response from the middleware directly back to the client.
 
-.. _backend_sendingdatabacktoclient:
+.. _back-end_sendingdatabacktoclient:
 
 Sending Data Back to the Client
 --------------------------------
@@ -247,6 +247,7 @@ An example error can be seen below:
 
 The "error_message" field is intended to be a string that you can display to the end user so that they know what went wrong.  We include the original error package sent by either the middleware or WePay API for greater transparceny.  We don't want to accidently truncate errors and lead developers down the wrong path.
 
+.. _serverconfiguration:
 
 Server Configuration
 -------------------------
@@ -269,6 +270,11 @@ A sample configuration file looks like this:
         config.client_id = "<YOUR_WEPAY_CLIENT_ID>";
         config.client_secret = "<YOUR_WEPAY_CLIENT_SECRET>";
 
+        config.ssl = {
+            privateKey:     "<PATH_TO_KEY>/<KEY_FILE>",
+            certificate:    "<PATH_TO_KEY>/<CERTIFICATE_FILE>"
+        };
+
         module.exports = config;
 
 It must be saved in the root directory of Kvasir and be named **config.js**.
@@ -281,13 +287,23 @@ The *middleware_secret* should be shared with your middleware so that it can val
 
 It also needs the address of your middleware.  This provides it some flexibility in the event that the address changes.  This way you don't have to manipulate the source code.
 
-The configuration also requires your WePay client_id and client_secret.  There are certain WePay API requests that require this info in place of an access token.  Providing it in the config file lets Kvasir access it when necessary.
+The configuration also requires your WePay *client_id* and *client_secret*.  There are certain WePay API requests that require this info in place of an access token.  Providing it in the config file lets Kvasir access it when necessary.
+
+The total list of configuration options is:
+    - **cookie_secret**:        the secret key used to hash cookies set in the browser
+    - **middleware_uri**:       the uri to the middleware which connects to your database
+    - **middleware_secret**:    the secret key used in the `Authorization` header when making requests to the middleware
+    - **client_id**:            your WePay client id
+    - **client_secret**:        your WePay client secret
+    - **ssl**:                  the ssl configuration which includes
+        * *privateKey*:         the name of the file that contains your SSL private key
+        * *certificate*:        the name of the file that contains your SSL certificate
 
 Generating Secret Keys
 ~~~~~~~~~~~~~~~~~~~~~~~~
 There are a lot of different methods for generating secret keys.
 
-`Random Key Generator <http://randomkeygen.com/>`_ will do it for you, or you can use Python to quickly genreate key.
+`Random Key Generator <http://randomkeygen.com/>`_ will do it for you, or you can use Python to quickly genreate a key.
 
 The Python code is:
     >>> import binascii
@@ -296,3 +312,16 @@ The Python code is:
     >>> '0ccd512f8c3493797a23557c32db38e7d51ed74f14fa7580'
 
 Copy the output and paste it into the config file.  It is important that you **do not share your secret key**.  You also shouldn't use that key there, because it's not secret if it's published somewhere.
+
+Serving Over HTTPS
+~~~~~~~~~~~~~~~~~~~~~~
+In order to securely pass data around this system, we require that the server use HTTPS.  You can do it with any existing SSL certificates that you have or you can generate a self signed certificate.
+
+.. note::
+    If you use a self signed certificate, your users will get a warning from the browser saying that the site is not trusted.  They can ignore the error and enter.
+
+The config file allows you to specify where the certificate and key are stored.  The path should be **relative to the server.js file**.
+
+If you need help creating a self-signed SSL certificate, you can follow this tutorial:
+    https://devcenter.heroku.com/articles/ssl-certificate-self
+
