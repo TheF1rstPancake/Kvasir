@@ -22,13 +22,13 @@ When the front-end makes a request, the back-end is responsible for formatting i
 
 The server is also responsible for :ref:`packaging responses back to the client, including error messages <back-end_sendingdatabacktoclient>`.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front-end.  Typically, valid data is simply sent to the front-end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.
 
-Kvasir's node server also manages a small cookie based session for users.  We don't want to expose access tokens to the front-end, but we also don't want to have to request the access token from the partner's database on each request.  After the server gets an access token, it will set a hashed cookie based on a secret key provided in Kvasir's configuration file.  The cookie cannot be accessed by the front-end, and the only the server can unhash it into something readable.
+Kvasir's node server also manages cookies on the client's browser.  Right now, the only cookie is a CSRF cookie used to manage our CSRF protection.  The cookie has the ``secure`` and ``httpOnly`` flags set so that the cookie must be set over HTTPS, and it cannot be accessed by client side JavaScript.  Additionally, the CSRF token is placed in the HTML of the page itself via our templating engine.
 
 Endpoints
 -----------
 Each front-end object has an associated endpoint on the server.  An object *could* call another endpoint if it wanted to, but it is more likely to do that indirectly by dispatching that other object's actions.
 
-All endpoints *only* accept POST requests with a JSON structured body.
+All endpoints *only* accept POST requests with a JSON structured body and will verify that they contain a CSRF token.
 
 User Endpoint
 ~~~~~~~~~~~~~~~
@@ -60,7 +60,12 @@ If no account_id is provided, the endpoint will make a request to :wepay:`accoun
 
     Get information about an account
 
+    :<json email:       *(optional) used to get a merchant's access token from the middleware.  If account_id is not passed, then this endpoint will fetch all accounts registered to this user.
     :<json account_id: *(optional)* the account_id assoicated with the account that you want more info for.
+
+.. note::
+    If the account_id is provided, then this endpoint will use the account_id to gather the merchant's access token.  You can still pass an email, but it is not required.
+
 
 Checkout Endpoint
 ~~~~~~~~~~~~~~~~~~~~
@@ -71,7 +76,7 @@ Very similar to the :http:post:`/account`, except it looks at :wepay:`checkout` 
     Get a list of checkouts made for a given account_id, or get information about a single checkout_id
 
     :<json checkout_id:    *(optional)* the unique id of the checkout you want to search
-    :<json acccount_id:     *(optional)* the unique id of the account that you want a list of checkouts for
+    :<json acccount_id:    used to get a merchant's access token.  If the checkout_id is not passed, then this endpoint will fetch all 
 
 .. note::
     While both parameters are optional, you must provide one or the other.
@@ -84,7 +89,7 @@ We could have built the withdrawal endpoint in the same way that we built the :h
 
     Get withdrawal info for a given account_id
 
-    :<json account_id:  the unique id of the account you want to gather withdrawals from
+    :<json account_id:  the unique id of the account you want to gather withdrawals from (also used to fetch a merchant's access token from the middleware)
 
 Refund Endpoint
 ~~~~~~~~~~~~~~~~~
@@ -97,6 +102,7 @@ Refunds are a complicated area.  The refund logic changes depending on who the *
     Do a full or partial refund for a given checkout
 
     :<json checkout_id:     the id of the checkout you want to refund
+    :<json account_id:      the account that we are performing a refund for.  Used to fetch a merchant's access token from the middleware
     :<json refund_reason:   the reason you are refunding the checkout
     :<json amount:          *(optional)* how much you are refunding the checkout for.  If no amount is passed, a full refund is completed
 
@@ -110,7 +116,7 @@ This endpoint will gather the reserve information about an account from :wepay:`
 
     Get reserve information about a particular account
 
-    :<json account_id:  the id of the account you want reserve information for.
+    :<json account_id:  the id of the account you want reserve information for (also used to fetch a merchant's access token from the middleware)
 
 Payer Endpoint
 ~~~~~~~~~~~~~~~~~~
@@ -167,18 +173,13 @@ Each endpoint on Kvasir's server is responsible for creating the call to :func:`
 
 Managing Access Tokens
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-We wanted to avoid a system that had to make a request to the partner's database for a user's access token for each request.  While this would certainly work, it increases the overhead of each request unnecessarily.
+Access tokens are a very sensitive matter.  If someone were to gain access to a merchant's access token, they could do a lot of damage with it.
 
-Kvasir uses Express's `cookie_session <https://github.com/expressjs/cookie-session>`_ library to securely store a user's access token as a cookie in the client's browser.  The cookies are hashed with a secret key and set with the *secure* and *httpOnly* flags.  These force the cookies to be sent only over an HTTPS connection, and prevent JavaScript functions in the browser from being able to access the cookie information.  
-
-From within Kvasir's ExpressJS server, the cookie is accessed via:
-    >>> req.session.access_token
-
-Most of the endpoints will check if this value is set before making any requests to WePay.  If the access token is not present, Kvasir will raise an error back to the client saying that it cannot perform the request because it does not have all of the required info.
+In order to prevent this from occurring, we fetch the access token on each request from the partner's database.  This has small performance issues, but realistically, it's not terrible.  It's really the main function of the middleware, so you should build it with performance in mind.
 
 Getting Data From the Middleware
 -------------------------------------
-In order to be able to get information such as access tokens and a list of all checkouts a payer has completed on a given platform, Kvasir uses the idea of a platform generated middleware that allows it to communicate with a platform's database.
+In order to be able to get information such as access tokens and a list of all checkouts a payer has completed on a given platform, Kvasir uses the idea of a :ref:`platform generated middleware <kvasirmiddleware>` that allows it to communicate with a platform's database.
 
 The ExpressJS server has two functions for communicating with the middleware.
 
@@ -207,7 +208,7 @@ The ExpressJS server has two functions for communicating with the middleware.
     :param wepay_package:   The package to send to the wepay_endpoint
 
 
-First Kvasir will call :func:`getDataFromMiddleware` where necessary.  This will send a associated POST request to the platform's middleware to get the information we need.  Once it receives the response it will pass the information to the callback function provided.
+First Kvasir will call :func:`getDataFromMiddleware` for every endpoint that requires a merchant's access token (which is almost all of them).  This will send a associated POST request to the platform's middleware to get the information we need.  Once it receives the response it will pass the information to the callback function provided.
 
 Most of Kvasir's endpoints will use :func:`parseMiddlewareResponse` to do that.  When we go to the middlware it is likely because we want a user's access token and then be able to do an associated call to the WePay API.  :func:`parseMiddlewareResponse` will do that for us.  It will pull the access token out of the response and format a request to :func:`getWePayData` (which will subsequently send the data to the client).
 
@@ -328,3 +329,6 @@ The config file allows you to specify where the certificate and key are stored. 
 If you need help creating a self-signed SSL certificate, you can follow this tutorial:
     https://devcenter.heroku.com/articles/ssl-certificate-self
 
+Templating Engine
+~~~~~~~~~~~~~~~~~~~~
+Kvasir uses `EJS <https://www.npmjs.com/package/ejs>`_ for our templating engine.  The main purpose of the templating engine is to allow us to embed the server side generated CSRF token in the HTML.

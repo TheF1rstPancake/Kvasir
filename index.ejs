@@ -35,6 +35,7 @@
         <!-- application script -->
         <script src="/static/bundle.js"></script>
         <script>
+            /*make all ajax calls pass the CSRF token via a header back to the client*/
             $.ajaxSetup({
                 headers: {"X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')}
             })

@@ -75,9 +75,7 @@ app.set("view engine", "ejs");
  * So refreshing the page effectively kills all session information.
  */
 app.get("/", csrfProtection, function(req, res) {
-    // make sure the session is null each time we reload the page
-    // dont want things persisting when people come back
-    req.session = null
+    // render the main page with the csrf token
     res.render((__dirname + '/index.ejs'), {csrfToken: req.csrfToken()});
 })
 
