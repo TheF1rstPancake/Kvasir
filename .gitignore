@@ -1,4 +1,5 @@
 # Logs
+!logs/README.rst
 logs
 *.log
 npm-debug.log*

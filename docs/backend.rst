@@ -60,7 +60,7 @@ If no account_id is provided, the endpoint will make a request to :wepay:`accoun
 
     Get information about an account
 
-    :<json email:       *(optional) used to get a merchant's access token from the middleware.  If account_id is not passed, then this endpoint will fetch all accounts registered to this user.
+    :<json email:       *(optional)* used to get a merchant's access token from the middleware.  If account_id is not passed, then this endpoint will fetch all accounts registered to this user.
     :<json account_id: *(optional)* the account_id assoicated with the account that you want more info for.
 
 .. note::

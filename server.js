@@ -65,6 +65,31 @@ var credentials = {key: privateKey, cert: certificate};
 // point the app to the static folder
 app.use('/static', express.static('static'));
 
+var expressWinston = require("express-winston");
+var winston = require("winston");
+// define our logger
+app.use(expressWinston.logger({
+    transports: [
+        new winston.transports.Console({
+            colorize: true,
+            timstamp:true,
+        }),
+        new winston.transports.File({
+            filename:"logs/log.log",
+            level: 'info',
+            json:true,
+            timestamp:true,
+
+        })
+    ],
+    meta: true, // optional: control whether you want to log the meta data about the request (default to true)
+    //msg: "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}",
+    expressFormat: true
+    
+
+}));
+
+
 // use ejs for our template engine
 app.set("view engine", "ejs");
 
@@ -76,6 +101,7 @@ app.set("view engine", "ejs");
  */
 app.get("/", csrfProtection, function(req, res) {
     // render the main page with the csrf token
+    winston.info("Loading page");
     res.render((__dirname + '/index.ejs'), {csrfToken: req.csrfToken()});
 })
 
@@ -87,7 +113,7 @@ app.get("/", csrfProtection, function(req, res) {
  *      - the private key and certificates are defined
  */
 function verifyConfig(conf) {
-    console.log("Checking middleware uri protocol: ", url.parse(conf.middleware_uri).protocol)
+    winston.info("Checking middleware uri protocol: ", url.parse(conf.middleware_uri).protocol)
     var middleware_protocol = url.parse(conf.middleware_uri).protocol;
     if (middleware_protocol != "https" && middleware_protocol != "https:") {
         throw(new Error("Middleware URI is not HTTPS."));
@@ -118,11 +144,11 @@ function sendResponse(package, res) {
             "error_description":"wepay call died. Check server logs for more details.", 
             "error_message":package.error_description, 
             "original_error":package}
-        console.log("Sending error!\t", error_package);
+        winston.warning("Sending error!\t", error_package);
         return res.status(500).send(JSON.stringify(error_package));
     }
     else {
-        console.log("Sending package back to client");
+        winston.info("Sending package back to client");
         return res.send(JSON.stringify(package));
     }
 }
@@ -140,14 +166,14 @@ function getWePayData(res, wepay_endpoint, access_token, package) {
     var wepay_settings = {}
 
     if (access_token) {
-        console.log("Aquired access_token: ", access_token);
+        winston.info("Aquired access_token: ", access_token);
         wepay_settings.access_token = access_token;
     }
 
     var wepay = new WePay(wepay_settings);
     wepay.use_staging();
 
-    console.log("Making request to wepay: ", wepay_endpoint, package);
+    winston.info("Making request to wepay: ", wepay_endpoint, package);
 
     try {
         wepay.call(wepay_endpoint, package, function(response) {
@@ -156,7 +182,7 @@ function getWePayData(res, wepay_endpoint, access_token, package) {
     }
     catch(error) {
         //res.setHeader('Content-Type', 'application/json');
-        console.log("ERROR WITH WEPAY: ", error);
+        winston.error("ERROR WITH WEPAY: ", error);
         res.status(500).send(JSON.stringify(error));
     }
 }
@@ -173,7 +199,7 @@ function getWePayData(res, wepay_endpoint, access_token, package) {
  */
 function getDataFromMiddleware(resource, data, callback) {
     var uri = app_config.middleware_uri+"/"+resource;
-    console.log("Requesting data from middleware: ", uri, data);
+    winston.info("Requesting data from middleware: ", uri, data);
     return request.post(
         {
             url:    uri, 
@@ -206,12 +232,12 @@ function parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint
         // send error
         body.error_code = 500;
         body.error_description = body.error_message;
+        res = res.status(500);
         return sendResponse(body, res);
     }
     else {
         if (body.access_token) {
-            console.log("Setting access token cookie:\t", body.access_token);
-            //req.session.access_token = body.access_token;
+            winston.info("Setting access token cookie:\t", body.access_token);
             return getWePayData(res, wepay_endpoint, body.access_token, wepay_package);
         }
         return sendResponse(body, res);
@@ -228,7 +254,7 @@ function parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint
  * Given either of these fields, the middleware should be able to handle it and give us back an access token.
  */
 app.post("/user", csrfProtection, function(req, res) {
-    console.log('Incoming user request: ', req.body);
+    winston.info('Incoming user request: ', req.body);
     var package = {};
     
     // get the email from the search
@@ -258,13 +284,13 @@ app.post("/user", csrfProtection, function(req, res) {
  * If it is not present, we fetch all accounts owned by the user who owns the access token via the v2/account/find endpoint
  */
 app.post('/account', csrfProtection, function(req, res){
-    console.log("Received request for account info: ", req.body);
+    winston.info("Received request for account info: ", req.body);
     var package = {};
     var wepay_endpoint = "";
 
     // if we have an account_id, then just look up that particular account
     if (req.body.account_id) {
-        console.log("Received account_id, looking only for account: ", req.body.account_id);
+        winston.info("Received account_id, looking only for account: ", req.body.account_id);
         package['account_id'] = req.body.account_id;
         wepay_endpoint = "/account";
         return getDataFromMiddleware(
@@ -276,7 +302,7 @@ app.post('/account', csrfProtection, function(req, res){
     }
 
     // otherwise lookup all accounts associated with the provided email
-    console.log("No account_id.  Looking for all accounts belonging to: ", req.body.email);
+    winston.info("No account_id.  Looking for all accounts belonging to: ", req.body.email);
     wepay_endpoint = "/account/find";
     return getDataFromMiddleware("user", {"account_owner_email": req.body.email}, function(error, response, body){
         parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint, package);
@@ -291,7 +317,7 @@ app.post('/account', csrfProtection, function(req, res){
  */
 app.post("/checkout", csrfProtection, function(req, res) {
     // prep the package and wepay_endpoint we want to hit
-    console.log("Received request for checkout");
+    winston.info("Received request for checkout");
     var package = {};
     var wepay_endpoint = "";
     if (req.body.checkout_id) {
@@ -322,7 +348,7 @@ app.post("/user/resend_confirmation", csrfProtection, function(req, res){
  * Get a list of the 50 most recent withdrawals for the given account_id
  */
 app.post("/withdrawal", csrfProtection, function(req, res){
-    console.log("Received request for withdrawals");
+    winston.info("Received request for withdrawals");
     var package = {"account_id":req.body.account_id};
     return getDataFromMiddleware(
         "user", 
@@ -346,7 +372,7 @@ app.post("/withdrawal", csrfProtection, function(req, res){
  * If no amount is passed, this will do a full refund
  */
 app.post("/refund", csrfProtection, function(req, res) {
-    console.log("Received request for refund");
+    winston.info("Received request for refund");
     var package = {"checkout_id":req.body.checkout_id, "refund_reason":req.body.refund_reason};
     if (req.body.amount != null || req.body.app_fee != null) {
         if (req.body.amount) {
@@ -372,7 +398,7 @@ app.post("/refund", csrfProtection, function(req, res) {
  *
  */
 app.post("/reserve", csrfProtection, function(req, res) {
-    console.log("Received request for reserve");
+    winston.info("Received request for reserve");
     return getDataFromMiddleware(
         "user",
         {"account_id": req.body.account_id},
@@ -386,7 +412,7 @@ app.post("/reserve", csrfProtection, function(req, res) {
  * Given a payer's unique identifying information (such as their email), get a list of all of their checkouts from the middleware
  */
 app.post("/payer", csrfProtection, function(req, res) {   
-    console.log("Received request for payer"); 
+    winston.info("Received request for payer"); 
     // get the email from the search
     var email = req.body.email;
     // get the necessary data from our middleware function and then make the corresponding request to WePay
@@ -403,7 +429,7 @@ app.post("/payer", csrfProtection, function(req, res) {
  * Given a credit_card_id (tokenized card) get more information about the card from the v2/credit_card WePay API endpoint
  */
 app.post("/credit_card", csrfProtection, function(req, res){
-    console.log("Received request for credit_card");
+    winston.info("Received request for credit_card");
     var credit_card_id = parseInt(req.body.credit_card_id);
 
     getWePayData(res, "/credit_card", null, {"credit_card_id":credit_card_id, "client_id":app_config.client_id, "client_secret":app_config.client_secret});
