@@ -6,8 +6,6 @@ var bodyParser = require('body-parser')
 var request = require("request")
 var url = require("url");
 
-// library for securely handeling hashed cookie objects
-var cookieSession = require("cookie-session")
 
 // WePay library
 var WePay = require("wepay").WEPAY;
@@ -35,16 +33,23 @@ var compiler = webpack(config);
 app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: config.output.publicPath }));
 app.use(webpackHotMiddleware(compiler));
 
+// setup cookie parser and csrf protection
+var cookieParser = require("cookie-parser")
+var csrf = require("csurf");
+var csrfProtection = csrf(
+    {cookie:{
+            secure:true, 
+            httpOnly:true
+        }
+    }
+);
+app.use(cookieParser(app_config.cookie_secret))
+
+
 // support JSON and url encoded bodies
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.urlencoded({extended:false}));
 
-// setup cookie based sessions
-app.use(cookieSession({
-    name:"session",
-    secret: app_config.cookie_secret,
-    secure: true
-}));
 
 // load ssl certificate
 // for more information refer to this StackOverflow post:
@@ -60,17 +65,20 @@ var credentials = {key: privateKey, cert: certificate};
 // point the app to the static folder
 app.use('/static', express.static('static'));
 
+// use ejs for our template engine
+app.set("view engine", "ejs");
+
 /**
  * Send main application page
  *
  * This will also invalidate any previously held session on the site.
  * So refreshing the page effectively kills all session information.
  */
-app.get("/", function(req, res) {
+app.get("/", csrfProtection, function(req, res) {
     // make sure the session is null each time we reload the page
     // dont want things persisting when people come back
     req.session = null
-    res.sendFile(__dirname + '/index.html')
+    res.render((__dirname + '/index.ejs'), {csrfToken: req.csrfToken()});
 })
 
 /**
@@ -221,7 +229,7 @@ function parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint
  *
  * Given either of these fields, the middleware should be able to handle it and give us back an access token.
  */
-app.post("/user", function(req, res) {
+app.post("/user", csrfProtection, function(req, res) {
     console.log('Incoming user request: ', req.body);
     var package = {};
     
@@ -251,7 +259,7 @@ app.post("/user", function(req, res) {
  * The account_id field is optional.  If it is present, we fetch only that accounts information via v2/account
  * If it is not present, we fetch all accounts owned by the user who owns the access token via the v2/account/find endpoint
  */
-app.post('/account', function(req, res){
+app.post('/account', csrfProtection, function(req, res){
     console.log("Received request for account info: ", req.body);
     var package = {};
     var wepay_endpoint = "";
@@ -283,7 +291,7 @@ app.post('/account', function(req, res){
  * If a checkout_id is given, then this will fetch information for that checkout specifically.
  * Passing the checkout_id is useful for updating a checkout's info after performing an action with the dashboard. 
  */
-app.post("/checkout", function(req, res) {
+app.post("/checkout", csrfProtection, function(req, res) {
     // prep the package and wepay_endpoint we want to hit
     console.log("Received request for checkout");
     var package = {};
@@ -308,14 +316,14 @@ app.post("/checkout", function(req, res) {
 /**
  * Resend the confirmation email to a user
  */
-app.post("/user/resend_confirmation", function(req, res){
+app.post("/user/resend_confirmation", csrfProtection, function(req, res){
     getDataWithPackage(req, res, "/user/resend_confirmation", {});
 })
 
 /**
  * Get a list of the 50 most recent withdrawals for the given account_id
  */
-app.post("/withdrawal", function(req, res){
+app.post("/withdrawal", csrfProtection, function(req, res){
     console.log("Received request for withdrawals");
     var package = {"account_id":req.body.account_id};
     return getDataFromMiddleware(
@@ -339,7 +347,7 @@ app.post("/withdrawal", function(req, res){
  * 
  * If no amount is passed, this will do a full refund
  */
-app.post("/refund", function(req, res) {
+app.post("/refund", csrfProtection, function(req, res) {
     console.log("Received request for refund");
     var package = {"checkout_id":req.body.checkout_id, "refund_reason":req.body.refund_reason};
     if (req.body.amount != null || req.body.app_fee != null) {
@@ -365,7 +373,7 @@ app.post("/refund", function(req, res) {
  * Requires an access token and an account_id
  *
  */
-app.post("/reserve", function(req, res) {
+app.post("/reserve", csrfProtection, function(req, res) {
     console.log("Received request for reserve");
     return getDataFromMiddleware(
         "user",
@@ -379,7 +387,7 @@ app.post("/reserve", function(req, res) {
 /**
  * Given a payer's unique identifying information (such as their email), get a list of all of their checkouts from the middleware
  */
-app.post("/payer", function(req, res) {   
+app.post("/payer", csrfProtection, function(req, res) {   
     console.log("Received request for payer"); 
     // get the email from the search
     var email = req.body.email;
@@ -396,7 +404,7 @@ app.post("/payer", function(req, res) {
 /*
  * Given a credit_card_id (tokenized card) get more information about the card from the v2/credit_card WePay API endpoint
  */
-app.post("/credit_card", function(req, res){
+app.post("/credit_card", csrfProtection, function(req, res){
     console.log("Received request for credit_card");
     var credit_card_id = parseInt(req.body.credit_card_id);
 

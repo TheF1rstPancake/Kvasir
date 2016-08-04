@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>WePay Support Dashboard</title>
+        <meta name="csrf-token" content="<%= csrfToken %>">
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -33,5 +34,10 @@
 
         <!-- application script -->
         <script src="/static/bundle.js"></script>
+        <script>
+            $.ajaxSetup({
+                headers: {"X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content')}
+            })
+        </script>
     </body>
 </html>
