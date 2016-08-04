@@ -106,6 +106,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#server-configuration">Server Configuration</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#generating-secret-keys">Generating Secret Keys</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#serving-over-https">Serving Over HTTPS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#templating-engine">Templating Engine</a></li>
 </ul>
 </li>
 </ul>
@@ -173,12 +174,12 @@
 </div>
 <p>When the front-end makes a request, the back-end is responsible for formatting it into something the partner middleware or WePay will understand.  This provides a useful layer of abstraction should something change in either of those two systems.</p>
 <p>The server is also responsible for <a class="reference internal" href="#back-end-sendingdatabacktoclient"><span>packaging responses back to the client, including error messages</span></a>.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front-end.  Typically, valid data is simply sent to the front-end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.</p>
-<p>Kvasir&#8217;s node server also manages a small cookie based session for users.  We don&#8217;t want to expose access tokens to the front-end, but we also don&#8217;t want to have to request the access token from the partner&#8217;s database on each request.  After the server gets an access token, it will set a hashed cookie based on a secret key provided in Kvasir&#8217;s configuration file.  The cookie cannot be accessed by the front-end, and the only the server can unhash it into something readable.</p>
+<p>Kvasir&#8217;s node server also manages cookies on the client&#8217;s browser.  Right now, the only cookie is a CSRF cookie used to manage our CSRF protection.  The cookie has the <code class="docutils literal"><span class="pre">secure</span></code> and <code class="docutils literal"><span class="pre">httpOnly</span></code> flags set so that the cookie must be set over HTTPS, and it cannot be accessed by client side JavaScript.  Additionally, the CSRF token is placed in the HTML of the page itself via our templating engine.</p>
 </div>
 <div class="section" id="endpoints">
 <h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this headline">¶</a></h2>
 <p>Each front-end object has an associated endpoint on the server.  An object <em>could</em> call another endpoint if it wanted to, but it is more likely to do that indirectly by dispatching that other object&#8217;s actions.</p>
-<p>All endpoints <em>only</em> accept POST requests with a JSON structured body.</p>
+<p>All endpoints <em>only</em> accept POST requests with a JSON structured body and will verify that they contain a CSRF token.</p>
 <div class="section" id="user-endpoint">
 <h3>User Endpoint<a class="headerlink" href="#user-endpoint" title="Permalink to this headline">¶</a></h3>
 <dl class="docutils">
@@ -229,6 +230,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>email</strong> &#8211; <em>(optional)</em> used to get a merchant&#8217;s access token from the middleware.  If account_id is not passed, then this endpoint will fetch all accounts registered to this user.</li>
 <li><strong>account_id</strong> &#8211; <em>(optional)</em> the account_id assoicated with the account that you want more info for.</li>
 </ul>
 </td>
@@ -237,6 +239,10 @@
 </table>
 </dd></dl>
 
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the account_id is provided, then this endpoint will use the account_id to gather the merchant&#8217;s access token.  You can still pass an email, but it is not required.</p>
+</div>
 </div>
 <div class="section" id="checkout-endpoint">
 <h3>Checkout Endpoint<a class="headerlink" href="#checkout-endpoint" title="Permalink to this headline">¶</a></h3>
@@ -252,7 +258,7 @@
 <tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
 <li><strong>checkout_id</strong> &#8211; <em>(optional)</em> the unique id of the checkout you want to search</li>
-<li><strong>acccount_id</strong> &#8211; <em>(optional)</em> the unique id of the account that you want a list of checkouts for</li>
+<li><strong>acccount_id</strong> &#8211; used to get a merchant&#8217;s access token.  If the checkout_id is not passed, then this endpoint will fetch all</li>
 </ul>
 </td>
 </tr>
@@ -278,7 +284,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
-<li><strong>account_id</strong> &#8211; the unique id of the account you want to gather withdrawals from</li>
+<li><strong>account_id</strong> &#8211; the unique id of the account you want to gather withdrawals from (also used to fetch a merchant&#8217;s access token from the middleware)</li>
 </ul>
 </td>
 </tr>
@@ -302,6 +308,7 @@
 <tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
 <li><strong>checkout_id</strong> &#8211; the id of the checkout you want to refund</li>
+<li><strong>account_id</strong> &#8211; the account that we are performing a refund for.  Used to fetch a merchant&#8217;s access token from the middleware</li>
 <li><strong>refund_reason</strong> &#8211; the reason you are refunding the checkout</li>
 <li><strong>amount</strong> &#8211; <em>(optional)</em> how much you are refunding the checkout for.  If no amount is passed, a full refund is completed</li>
 </ul>
@@ -326,7 +333,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
 <tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
-<li><strong>account_id</strong> &#8211; the id of the account you want reserve information for.</li>
+<li><strong>account_id</strong> &#8211; the id of the account you want reserve information for (also used to fetch a merchant&#8217;s access token from the middleware)</li>
 </ul>
 </td>
 </tr>
@@ -418,21 +425,13 @@
 <p>Each endpoint on Kvasir&#8217;s server is responsible for creating the call to <a class="reference internal" href="#getWePayData" title="getWePayData"><code class="xref js js-func docutils literal"><span class="pre">getWePayData()</span></code></a> including formatting the package that it sends.</p>
 <div class="section" id="managing-access-tokens">
 <h3>Managing Access Tokens<a class="headerlink" href="#managing-access-tokens" title="Permalink to this headline">¶</a></h3>
-<p>We wanted to avoid a system that had to make a request to the partner&#8217;s database for a user&#8217;s access token for each request.  While this would certainly work, it increases the overhead of each request unnecessarily.</p>
-<p>Kvasir uses Express&#8217;s <a class="reference external" href="https://github.com/expressjs/cookie-session">cookie_session</a> library to securely store a user&#8217;s access token as a cookie in the client&#8217;s browser.  The cookies are hashed with a secret key and set with the <em>secure</em> and <em>httpOnly</em> flags.  These force the cookies to be sent only over an HTTPS connection, and prevent JavaScript functions in the browser from being able to access the cookie information.</p>
-<dl class="docutils">
-<dt>From within Kvasir&#8217;s ExpressJS server, the cookie is accessed via:</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">req</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">access_token</span>
-</pre></div>
-</div>
-</dd>
-</dl>
-<p>Most of the endpoints will check if this value is set before making any requests to WePay.  If the access token is not present, Kvasir will raise an error back to the client saying that it cannot perform the request because it does not have all of the required info.</p>
+<p>Access tokens are a very sensitive matter.  If someone were to gain access to a merchant&#8217;s access token, they could do a lot of damage with it.</p>
+<p>In order to prevent this from occurring, we fetch the access token on each request from the partner&#8217;s database.  This has small performance issues, but realistically, it&#8217;s not terrible.  It&#8217;s really the main function of the middleware, so you should build it with performance in mind.</p>
 </div>
 </div>
 <div class="section" id="getting-data-from-the-middleware">
 <h2>Getting Data From the Middleware<a class="headerlink" href="#getting-data-from-the-middleware" title="Permalink to this headline">¶</a></h2>
-<p>In order to be able to get information such as access tokens and a list of all checkouts a payer has completed on a given platform, Kvasir uses the idea of a platform generated middleware that allows it to communicate with a platform&#8217;s database.</p>
+<p>In order to be able to get information such as access tokens and a list of all checkouts a payer has completed on a given platform, Kvasir uses the idea of a <a class="reference internal" href="middleware.html#kvasirmiddleware"><span>platform generated middleware</span></a> that allows it to communicate with a platform&#8217;s database.</p>
 <p>The ExpressJS server has two functions for communicating with the middleware.</p>
 <dl class="function">
 <dt id="getDataFromMiddleware">
@@ -481,7 +480,7 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 </table>
 </dd></dl>
 
-<p>First Kvasir will call <a class="reference internal" href="#getDataFromMiddleware" title="getDataFromMiddleware"><code class="xref js js-func docutils literal"><span class="pre">getDataFromMiddleware()</span></code></a> where necessary.  This will send a associated POST request to the platform&#8217;s middleware to get the information we need.  Once it receives the response it will pass the information to the callback function provided.</p>
+<p>First Kvasir will call <a class="reference internal" href="#getDataFromMiddleware" title="getDataFromMiddleware"><code class="xref js js-func docutils literal"><span class="pre">getDataFromMiddleware()</span></code></a> for every endpoint that requires a merchant&#8217;s access token (which is almost all of them).  This will send a associated POST request to the platform&#8217;s middleware to get the information we need.  Once it receives the response it will pass the information to the callback function provided.</p>
 <p>Most of Kvasir&#8217;s endpoints will use <a class="reference internal" href="#parseMiddlewareResponse" title="parseMiddlewareResponse"><code class="xref js js-func docutils literal"><span class="pre">parseMiddlewareResponse()</span></code></a> to do that.  When we go to the middlware it is likely because we want a user&#8217;s access token and then be able to do an associated call to the WePay API.  <a class="reference internal" href="#parseMiddlewareResponse" title="parseMiddlewareResponse"><code class="xref js js-func docutils literal"><span class="pre">parseMiddlewareResponse()</span></code></a> will do that for us.  It will pull the access token out of the response and format a request to <a class="reference internal" href="#getWePayData" title="getWePayData"><code class="xref js js-func docutils literal"><span class="pre">getWePayData()</span></code></a> (which will subsequently send the data to the client).</p>
 <p>The other option for a callback is to just pass the information we receive from the middleware directly back to the client.  This is what <a class="reference internal" href="#post--payer" title="POST /payer"><code class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/payer</span></code></a> does.  It passes <a class="reference internal" href="#sendResponse" title="sendResponse"><code class="xref js js-func docutils literal"><span class="pre">sendResponse()</span></code></a> has the callback function in order to pass the response from the middleware directly back to the client.</p>
 </div>
@@ -626,6 +625,10 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 <dd><a class="reference external" href="https://devcenter.heroku.com/articles/ssl-certificate-self">https://devcenter.heroku.com/articles/ssl-certificate-self</a></dd>
 </dl>
 </div>
+<div class="section" id="templating-engine">
+<h3>Templating Engine<a class="headerlink" href="#templating-engine" title="Permalink to this headline">¶</a></h3>
+<p>Kvasir uses <a class="reference external" href="https://www.npmjs.com/package/ejs">EJS</a> for our templating engine.  The main purpose of the templating engine is to allow us to embed the server side generated CSRF token in the HTML.</p>
+</div>
 </div>
 </div>
 
@@ -648,7 +651,7 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016, Giovanni Briggs.
+        &copy; Copyright 2016, WePay Inc.
 
     </p>
   </div>

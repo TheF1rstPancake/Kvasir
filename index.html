@@ -204,7 +204,7 @@ Since no two database configurations are the same, there is no realistic way for
 <p>The solution is to have you (the dear developer) <a class="reference internal" href="middleware.html#kvasirmiddleware"><span>create a middleware component</span></a> that connects Kvasir to your database.  Kvasir asks for very specific information in a very specific format and expects data to be returned in similarly specific format.  This allows Kvasir to pull data from your database and make corresponding WePay API calls to gather more information.  The benefit is that you likely do not have to change your database configuration to work with Kvasir, but rather, you make up for shortcomings programmaticly in the middleware.</p>
 <p>It is <strong>recommended</strong> that you keep the front and back-end components together.
 NodeJS comes with some nice functions that make compiling our front-end JavaScript much easier.
-However, you are free to take the application apart and use just Kvasir&#8217;s NodeJS server for communication and data-fetching and build your own front-end on top of that.</p>
+However, you are free to take the application apart and use just Kvasir&#8217;s NodeJS server for communication and data-fetching and build your own front-end on top of that, or leave the front end in one piece and rebuild our back-end in a way that is more to your liking.</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
@@ -278,7 +278,7 @@ However, you are free to take the application apart and use just Kvasir&#8217;s 
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016, Giovanni Briggs.
+        &copy; Copyright 2016, WePay Inc.
 
     </p>
   </div>

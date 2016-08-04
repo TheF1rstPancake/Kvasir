@@ -48,7 +48,7 @@ The solution is to have you (the dear developer) :ref:`create a middleware compo
 
 It is **recommended** that you keep the front and back-end components together.  
 NodeJS comes with some nice functions that make compiling our front-end JavaScript much easier.
-However, you are free to take the application apart and use just Kvasir's NodeJS server for communication and data-fetching and build your own front-end on top of that.
+However, you are free to take the application apart and use just Kvasir's NodeJS server for communication and data-fetching and build your own front-end on top of that, or leave the front end in one piece and rebuild our back-end in a way that is more to your liking.
 
 Installation
 ---------------
