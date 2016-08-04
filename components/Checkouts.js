@@ -13,7 +13,7 @@
  */
 
 import React, { PropTypes } from 'react'
-import {Grid, Form, Label, FormGroup, FormControl, Row, Col, ControlLabel, Table, Button, Modal, Radio} from "react-bootstrap"
+import {Grid, Form, Label, FormGroup, FormControl, Row, Col, ControlLabel, Table, Button, Modal, Radio, Collapse} from "react-bootstrap"
 import { connect } from 'react-redux'
 import {BootstrapTable} from "react-bootstrap-table"
 
@@ -39,6 +39,9 @@ var Checkouts = React.createClass({
                 selectedCheckoutId: null,
                 refundAmount: 0,
                 refundReason: "",
+                refundFee: 0,
+                partial: false,
+                full: false
             },
             selectRowProp: {
                 mode: "radio",
@@ -79,7 +82,7 @@ var Checkouts = React.createClass({
         // fetch the user info and after the user info is fetched, get the account error
         this.props.dispatch(fetchUserIfNeeded(null, account_id,
                 function(){
-                    this2.props.dispatch(fetchAccountIfNeeded(account_id));
+                    this2.props.dispatch(fetchAccountIfNeeded(null, account_id));
                     this2.props.dispatch(fetchCheckoutIfNeeded(account_id, checkout_id));
                 }
         ));
@@ -132,6 +135,15 @@ var Checkouts = React.createClass({
         this.props.dispatch(fetchCardIfNeeded(credit_card_id));
     },
     /**
+     * Format payment_ids
+     *
+     * Turns each payment_id into a clickable link.  Clicking that link will fire `handlePaymentIDSelect`.
+     * That function will go and gather the information about the tokenized id and display it in a table
+     */
+    formatPaymentID: function(cell, row) {
+        return (<a href="#credit_card_table" id={cell} onClick={this.handlePaymentIDSelect}>{cell}</a>)
+    },
+    /**
      * Refund a checkout
      *
      * It's a little more complicated than that.
@@ -150,29 +162,40 @@ var Checkouts = React.createClass({
         var checkout_id = this.state.refund.selectedCheckoutId;
         var refundAmount = $("#refundAmount").val();
         var refundReason = $("#refundReason").val();
+        var refundFee = $("#refundFees").val();
+        var account_id = $("#refundAccountId").val();
+
         var maxRefundableAmount = $("#refundAmount").prop("max");
 
         console.log(refundAmount, maxRefundableAmount);
 
-        if (refundAmount - maxRefundableAmount == 0) {
-            console.log("Full refund!");
+        if (refundAmount == 0) {
             refundAmount = null;
         }
+        if (refundFee == 0) {
+            refundFee = null;
+        }
+
+        /*if (refundAmount - maxRefundableAmount == 0) {
+            console.log("Full refund!");
+            refundAmount = null;
+        }*/
         var current = this.state.refund;
         current['refundAmount'] = refundAmount;
         current['refundReason'] = refundReason;
+        current['refundFee'] = refundFee;
         this.setState({refund:current})
 
-        this.props.dispatch(fetchRefundIfNeeded(checkout_id, refundAmount, refundReason));
+        this.props.dispatch(fetchRefundIfNeeded(account_id, checkout_id, refundAmount, refundFee, refundReason));
     },
-    /**
-     * Format payment_ids
-     *
-     * Turns each payment_id into a clickable link.  Clicking that link will fire `handlePaymentIDSelect`.
-     * That function will go and gather the information about the tokenized id and display it in a table
-     */
-    formatPaymentID: function(cell, row) {
-        return (<a href="#credit_card_table" id={cell} onClick={this.handlePaymentIDSelect}>{cell}</a>)
+    calculateMaxRefund: function(checkout) {
+        return (checkout.amount -  checkout.refund.amount_refunded).toFixed(2);
+    },
+    calculateMaxAppFeeRefund: function(checkout) {
+        if(checkout.fee.fee_payer == "payer" || checkout.fee.fee_payer == "payer_from_app") {
+            return checkout.fee.app_fee.toFixed(2);
+        }
+        return 0;
     },
     /**
      * Format the refund button
@@ -190,7 +213,7 @@ var Checkouts = React.createClass({
         var refundString = (<p><strong>Refunded</strong>: ${cell}<br></br>{row.refund_refund_reason}</p>);
         var refundButton = (<Button bsStyle="primary" bsSize="small" id={row.checkout_id} onClick={this.openModal}>Refund</Button>)
         if (cell > 0) {
-            if (cell >= row.amount) {
+            if (cell >= row.gross) {
                 return (<div>{refundString}</div>)
             }
             else {
@@ -217,6 +240,18 @@ var Checkouts = React.createClass({
             array.push(Base.flatten(info[i]));
         }
         return array;
+    },
+    togglePartialRefund: function() {
+        var current_refund = this.state.refund;
+        current_refund.partial = !current_refund.partial;
+        current_refund.full = false;
+        this.setState({refund:current_refund});
+    },
+    toggleFullRefund: function() {
+        var current_refund = this.state.refund;
+        current_refund.full = !current_refund.full;
+        current_refund.partial = false;
+        this.setState({refund:current_refund});
     },
     /**
      * Open the refund modal
@@ -248,6 +283,8 @@ var Checkouts = React.createClass({
     buildModal: function() {
         var checkout = null;
         var checkout_list = this.props.checkoutInfo;
+    
+        console.log("EMAIL: ", this.props.userInfo.email);
 
         if (checkout_list.length <= 0) {
             return (<div></div>);
@@ -264,9 +301,9 @@ var Checkouts = React.createClass({
         if (checkout == null) {
             return (<div></div>);
         }
-
         // otherwise build it
-        var maxRefundableAmount = (checkout.amount - checkout.refund.amount_refunded);
+        var maxRefundableAmount = this.calculateMaxRefund(checkout);
+        var maxRefundableFess = this.calculateMaxAppFeeRefund(checkout);
         var successful_refund;
         if (this.props.successful_refund) {
             successful_refund = (<h3><Label bsStyle="success">Refund completed!</Label></h3>);
@@ -274,6 +311,13 @@ var Checkouts = React.createClass({
         else if (this.props.refund_error) {
             successful_refund = (<h3><Label bsStyle="warning">{this.props.refund_error.error_message}</Label></h3>);
         }
+
+        // if this is a partial refund, show the fields for setting the different amounts.
+        // otherwise, don't
+        var column_style = {
+            "display":this.state.refund.partial ? "block":"none"
+        }
+
         return (
             <div>
             <Modal show = {this.state.showModal} onHide = {this.closeModal}>
@@ -281,52 +325,110 @@ var Checkouts = React.createClass({
                     <Modal.Title>Refund Checkout</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                <p><strong>Max Refundable Amount:</strong> ${maxRefundableAmount}</p>
+               
+                <Row>
+                    <Col lg={6}>
+                     <p><strong>Max Refundable Amount:</strong> ${maxRefundableAmount}</p>
+                     <p className={"text-success"}><strong>Original Amount: </strong>${checkout.amount}</p>
+                     <p className={checkout.refund.amount_refunded > 0 ? "text-danger":""}><strong>Refunded: </strong>${checkout.refund.amount_refunded}</p>
+                    </Col>
+                    <Col lg={6}>
+                        <p><strong>Max Refundable Fees: </strong>${maxRefundableFess}</p>
+                        <p><strong>Fee Payer: </strong>{checkout.fee.fee_payer}</p>
+                        <p className={checkout.fee.fee_payer == "payee" || checkout.fee.fee_payer == "payee_from_app"? "text-danger":"text-success"}><strong>App Fee: </strong>${checkout.fee.app_fee}</p>
+                        <p className={checkout.fee.fee_payer != "payer" ? "text-danger":"text-success"}><strong>WePay Processing Fee: </strong>${checkout.fee.processing_fee}</p>
+                    </Col>
+                </Row>
+                <hr></hr>
+                <Row>
+                    <Col lg={6} sm={12}>
+                        <Button onClick={this.togglePartialRefund}>Partial Refund</Button>
+                    </Col>
+                    <Col lg={6} sm={12}>
+                        <Button onClick={this.toggleFullRefund}>Full Refund</Button>
+                    </Col>
+                </Row>
+                <br></br>
+                <Collapse in={this.state.refund.partial || this.state.refund.full}>
                 <Form horizontal onSubmit={this.refundCheckout}>
-                    <FormGroup>
-                        <Col lg={6} ms={12}>
-                            <ControlLabel>Refund Amount</ControlLabel>
-                            <FormControl 
-                                type="number" 
-                                id="refundAmount"
-                                step="0.01"
-                                max={maxRefundableAmount}
-                                ref = "refundAmount"
-                                onChange = {this.handleAmountChange}
-                                required
-                                />
-                        </Col>
-                        <Col lg={6} ms={12}>
-                            <ControlLabel>Refund Percentage</ControlLabel>
-                            <FormControl
-                                type="number"
-                                id="refundPercentage"
-                                step="0.01"
-                                max="100"
-                                onChange={this.handlePercentChange}
-                            />    
-                        </Col>
-                    </FormGroup>
-                    <FormGroup>
-                        <Col lg={12}>
-                            <ControlLabel>Refund Reason</ControlLabel>    
-                            <FormControl
-                                type="text"
-                                id="refundReason"
-                                required/>
-                        </Col>
-                    </FormGroup>
-                    <FormGroup>
-                        <Col lg={12}>
-                        {successful_refund}
-                        </Col>
-                    </FormGroup>
-                    <FormGroup>
-                        <Col lg={12}>
-                        <Button type="submit" bsStyle="success" value="Submit Refund" disabled={this.props.submitted_refund}>Submit Refund</Button>
-                        </Col>
-                    </FormGroup>
+                        <FormGroup style={{"display": this.state.refund.full ? "block":"none"}}>
+                            <Col lg={12}>
+                                    <h4>Full Refund</h4>
+                                    <p><strong>Refunding: </strong>${(checkout.gross - checkout.refund.amount_refunded).toFixed(2)}</p>
+                            </Col>
+                        </FormGroup>
+                        <FormGroup style={column_style}>
+                            <Col lg={12}>
+                                <h4>Partial Refund</h4>
+                                <h5>
+                                    <Label bsStyle="warning"><strong>Warning:</strong> When doing a partial refund, you cannot refund any of the WePay processing fees
+                                    </Label>
+                                </h5>
+                            </Col>
+                        </FormGroup>
+                        <FormGroup style={column_style}>
+                            <Col lg={6} sm={12}>
+                                <ControlLabel>Refund Amount</ControlLabel>
+                                <FormControl 
+                                    type={this.state.refund.partial ? "number" : "hidden"} 
+                                    id="refundAmount"
+                                    step="0.01"
+                                    max={maxRefundableAmount}
+                                    defaultValue="0"
+                                    ref = "refundAmount"
+                                    onChange = {this.handleAmountChange}
+                                    required={this.state.refund.partial}
+                                    
+                                    />
+                                 <ControlLabel>Refund Percentage</ControlLabel>
+                                <FormControl
+                                    type={this.state.refund.partial ? "number" : "hidden"} 
+                                    id="refundPercentage"
+                                    step="0.01"
+                                    defaultValue="0"
+                                    max="100"
+                                    onChange={this.handlePercentChange} 
+                                    hidden={this.state.refund.full}
+                                />    
+                            </Col>
+                            <Col lg={6} sm={12}>
+                                <ControlLabel>Refund Fees</ControlLabel>
+                                <FormControl
+                                    type={this.state.refund.partial ? "number" : "hidden"} 
+                                    id="refundFees"
+                                    step="0.01"
+                                    defaultValue="0"
+                                    max={maxRefundableFess}
+                                    disabled={checkout.fee.fee_payer == "payee" || checkout.fee.fee_payer == "payee_from_app" ? true : false}
+                                    />
+                            </Col>
+                        </FormGroup>
+                        <FormGroup>
+                            <Col lg={12}>
+                                <ControlLabel>Refund Reason</ControlLabel>    
+                                <FormControl
+                                    type="text"
+                                    id="refundReason"
+                                    required/>
+                                <FormControl 
+                                    type="hidden"
+                                    id="refundAccountId"
+                                    value={checkout.account_id}
+                                    />
+                            </Col>
+                        </FormGroup>
+                        <FormGroup>
+                            <Col lg={12}>
+                            {successful_refund}
+                            </Col>
+                        </FormGroup>
+                        <FormGroup>
+                            <Col lg={12}>
+                            <Button type="submit" bsStyle="success" value="Submit Refund" disabled={this.props.submitted_refund}>Submit Refund</Button>
+                            </Col>
+                        </FormGroup>
                 </Form>
+                </Collapse>
                 </Modal.Body>
             </Modal>
             </div>
@@ -408,6 +510,11 @@ var Checkouts = React.createClass({
                             dataFormat = {this.formatPaymentID}
                             >
                             Payment Method
+                        </TableHeaderColumn>
+                        <TableHeaderColumn
+                            dataField = "state"
+                            >
+                            State
                         </TableHeaderColumn>
                         <TableHeaderColumn
                             dataField = "refund_amount_refunded"
@@ -507,7 +614,8 @@ const mapStateToProps = (state) => {
         successful_refund:  state.wepay_checkout.checkout.successful_refund,
         refund_error:       state.errors.refund ? state.errors.refund.info: {},
         payerInfo:          state.wepay_payer.payer.payerInfo,
-        isFetching:         state.wepay_payer.payer.isFetching || state.wepay_checkout.checkout.isFetching
+        isFetching:         state.wepay_payer.payer.isFetching || state.wepay_checkout.checkout.isFetching,
+        userInfo:           state.wepay_user.user.userInfo
 
     }
 }

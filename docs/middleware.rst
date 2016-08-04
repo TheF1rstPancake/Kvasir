@@ -118,7 +118,7 @@ Kvasir expects two fields in any error message package:
     - *error*:  a technical description of the error
     - *error_message*: the error message that is displayed to the end user
 
-When Kvasir receives a package, it first checks to see if the "error" field is present in the response.  If that field is present, then it will send the error to the front end and let it display it to the end user.  It uses whatever string you place in "error_message".
+When Kvasir receives a package, it first checks to see if the "error" field is present in the response.  If that field is present, then it will send the error to the front-end and let it display it to the end user.  It uses whatever string you place in "error_message".
 
 The reason that Kvasir doesn't try and standardize the error messages is because depending on how you build you middleware, there could be a number of places where an error could occur.  If searching for an access_token takes you across three different tables, then you may want to let the end user know which table caused the error.
 
@@ -132,5 +132,5 @@ If the field is not marked with *(optional)*, the it is a required field for Kva
 
 If you do not have a required field, you will likely need to add it into your database.  You can likely do that by making requests to the WePay API with the limited information that you have and expanding your tables to include new information.
 
-Our development database actually includes the WePay responses as blobs in a column.  We pulled out data that we wanted to be able to index and search on (like emails, account_ids, account names and checkout_ids) and gave them dedicated columns.  While this increases the size of your database, it does give you all of the information regarding actions completed on your platform with regards to the WePay API.  Not all of the information contained in the WePay API responses are completely necessary, but they could become useful at some point.  Simply storing the original responses as blobs gives you the opportunity to pull them out and get more detailed information when appropriate.
+Our development database actually includes the WePay responses as blobs in a column.  We pulled out data that we wanted to be able to index and search on (like emails, account_ids, account names and checkout_ids) and gave them dedicated columns.  While this increases the size of your database, it does give you all of the information regarding actions completed on your platform.  Not all of the information contained in the WePay API responses are completely necessary, but they could become useful at some point.  Simply storing the original responses as blobs gives you the opportunity to pull them out and get more detailed information when appropriate.
 

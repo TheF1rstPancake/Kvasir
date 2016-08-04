@@ -35,6 +35,19 @@ var AccountBlock= React.createClass({
             }
         }
     },
+    accountPopover: function(row) {
+        console.log("Rollover!");
+
+        $("#account_table .react-bs-table").attr({
+            "data-placement":   "top", 
+            "data-content":     row.action_reasons_0.toString()
+        });
+        console.log((<p>{row.action_reasons_0}</p>))
+        $("#account_table .react-bs-table").popover("show")
+    },
+    formatBalance: function(cell, row) {
+
+    },
     /**
      * Defines the behavior when a row in the table is selected
      *
@@ -94,12 +107,13 @@ var AccountBlock= React.createClass({
                 <div id="account_table">
                     <h4> Account Details </h4>
                     <BootstrapTable
+                        id="account_data"
                         data = {accounts}
                         striped={true}
                         hover={true}
                         pagination={true}
                         selectRow = {this.state.selectRowProp}
-                        width="99%"
+                        ref="account_data"
                     >
                         <TableHeaderColumn 
                             dataField="name" 
@@ -112,8 +126,15 @@ var AccountBlock= React.createClass({
                             >
                             Account Id
                         </TableHeaderColumn>
+                        <TableHeaderColumn
+                            dataField="create_time"
+                            dataFormat={Base.formatDate}
+                        >
+                            Create Time
+                        </TableHeaderColumn>
                         <TableHeaderColumn 
                             dataField="balances_0_balance" 
+                            dataFormat={this.formatBalance}
                             >
                             Balance ({accounts[0] ? accounts[0].balances_0_currency : "Currency"})
                         </TableHeaderColumn>
@@ -145,7 +166,7 @@ const mapStateToProps = (state) => {
         isFetching:         state.wepay_account.account.isFetching,
         searchedAccount:    state.wepay_account.searchedAccount,
         haveAccessToken:    state.wepay_user.user.haveAccessToken,
-        error:              state.errors.account ? state.errors.account.info : {}
+        error:              state.errors.account ? state.errors.account.info : {},
     }
 }
 

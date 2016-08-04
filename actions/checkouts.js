@@ -60,10 +60,10 @@ function receiveRefund(checkout_id, data) {
     }
 }
 
-function requestRefund(checkout_id, amount=null, refund_reason) {
+function requestRefund(account_id, checkout_id, amount=null, fee_refund = null, refund_reason) {
     return dispatch => {
-        dispatch(refundCheckout(checkout_id, amount, refund_reason))
-        return $.post("/refund", {"checkout_id": checkout_id, "amount":amount, "refund_reason":refund_reason})
+        dispatch(refundCheckout(checkout_id, amount, fee_refund, refund_reason))
+        return $.post("/refund", {"account_id": account_id, "checkout_id": checkout_id, "amount":amount, "app_fee":fee_refund, "refund_reason":refund_reason})
         .fail(function(data){
                 console.log("ERROR: ", data);
                 var error_data = data.responseJSON;
@@ -77,7 +77,7 @@ function requestRefund(checkout_id, amount=null, refund_reason) {
                 dispatch(clearError());
 
                 // update the checkout data for this checkout
-                dispatch(fetchCheckoutIfNeeded(null, checkout_id));
+                dispatch(fetchCheckoutIfNeeded(account_id, checkout_id));
             })
     }
 }
@@ -136,10 +136,10 @@ function shouldRefundCheckout(state, checkout_id, amount) {
         return false;
 }
 
-export function fetchRefundIfNeeded(checkout_id, amount, refund_reason) {
+export function fetchRefundIfNeeded(email, checkout_id, amount, fee_refund, refund_reason) {
     return(dispatch, getState) => {
         if(shouldRefundCheckout(getState(), checkout_id, amount)) {
-            return dispatch(requestRefund(checkout_id, amount, refund_reason))
+            return dispatch(requestRefund(email, checkout_id, amount, fee_refund,refund_reason))
         }
     }
 }

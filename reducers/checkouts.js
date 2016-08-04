@@ -37,6 +37,7 @@ function updateCheckout(state, action) {
     console.log("Updating checkout: ", action);
     for (var i = 0; i < state.checkoutInfo.length; i++) {
         if(state.checkoutInfo[i].checkout_id == action.checkout_id) {
+            console.log("Found checkout! ", action.checkout_id);
             state.checkoutInfo =  [
             ...state.checkoutInfo.slice(0, i),
             updateSingleCheckout(state.checkoutInfo[i], action),
@@ -63,6 +64,7 @@ function checkout_base(state = defaultCheckoutState, action) {
             })
         case RECEIVE:
             if (action.checkout_id && !(state.checkoutInfo === undefined)) {
+                console.log("Updating single checkout in array!");
                 return Object.assign({}, state, updateCheckout(state, action));
             }
             else {

@@ -205,7 +205,8 @@ const mapStateToProps = (state) => {
         withdrawalInfo:     state.wepay_withdrawal.withdrawal.withdrawalInfo,
         reserveInfo:        state.wepay_withdrawal.withdrawal.reserveInfo,
         error:              state.errors.withdrawal ? state.errors.withdrawal.info : {},
-        isFetching:         state.wepay_withdrawal.withdrawal.isFetching
+        isFetching:         state.wepay_withdrawal.withdrawal.isFetching,
+        userInfo:           state.wepay_user.user.userInfo
 
     }
 }

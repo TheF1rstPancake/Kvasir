@@ -110,7 +110,7 @@ var SearchBar = React.createClass({
         // fetch the user info and after the user info is fetched, get the account error
         this.props.dispatch(fetchUserIfNeeded(this.state.value, null,
                 function(){
-                    this2.props.dispatch(fetchAccountIfNeeded())
+                    this2.props.dispatch(fetchAccountIfNeeded(this2.state.value, null))
                 }
         ));
     },

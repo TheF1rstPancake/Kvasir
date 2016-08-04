@@ -116,7 +116,7 @@ function sendResponse(package, res) {
         return res.status(500).send(JSON.stringify(error_package));
     }
     else {
-        console.log("Sending package back to client: ", package);
+        console.log("Sending package back to client");
         return res.send(JSON.stringify(package));
     }
 }
@@ -134,6 +134,7 @@ function getWePayData(res, wepay_endpoint, access_token, package) {
     var wepay_settings = {}
 
     if (access_token) {
+        console.log("Aquired access_token: ", access_token);
         wepay_settings.access_token = access_token;
     }
 
@@ -166,7 +167,7 @@ function getWePayData(res, wepay_endpoint, access_token, package) {
  */
 function getDataFromMiddleware(resource, data, callback) {
     var uri = app_config.middleware_uri+"/"+resource;
-
+    console.log("Requesting data from middleware: ", uri, data);
     return request.post(
         {
             url:    uri, 
@@ -204,14 +205,22 @@ function parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint
     else {
         if (body.access_token) {
             console.log("Setting access token cookie:\t", body.access_token);
-            req.session.access_token = body.access_token;
-            return getWePayData(res, wepay_endpoint, req.session.access_token, wepay_package);
+            //req.session.access_token = body.access_token;
+            return getWePayData(res, wepay_endpoint, body.access_token, wepay_package);
         }
         return sendResponse(body, res);
     }
 }
 
-/*send a request to /v2/user and return the response*/
+/**
+ * Get a user's access token from the middleware and then make the associated v2/user lookup call on the WePay API
+ *
+ * In the request body we expect:
+ *  @param email        -   (optional) the email associated with the user
+ *  @param account_id   -   (optional) an account_id
+ *
+ * Given either of these fields, the middleware should be able to handle it and give us back an access token.
+ */
 app.post("/user", function(req, res) {
     console.log('Incoming user request: ', req.body);
     var package = {};
@@ -233,23 +242,39 @@ app.post("/user", function(req, res) {
     );
 })
 
-/*send a request to /v2/account/find and return the response*/
+/*
+ * Send a request to /v2/account/find and return the response
+ *
+ * In the request body, we expect:
+ *  @param account_id -     (optional) an account_id tied to the access token set in a cookie
+ *
+ * The account_id field is optional.  If it is present, we fetch only that accounts information via v2/account
+ * If it is not present, we fetch all accounts owned by the user who owns the access token via the v2/account/find endpoint
+ */
 app.post('/account', function(req, res){
     console.log("Received request for account info: ", req.body);
-    if (!req.session.access_token) {
-        return sendResponse({
-            "error_message":"Do not have access_token which is required to gather account information",
-            "error": "access token not defined"
-        }, res)
+    var package = {};
+    var wepay_endpoint = "";
+
+    // if we have an account_id, then just look up that particular account
+    if (req.body.account_id) {
+        console.log("Received account_id, looking only for account: ", req.body.account_id);
+        package['account_id'] = req.body.account_id;
+        wepay_endpoint = "/account";
+        return getDataFromMiddleware(
+            "user", 
+            {"account_id":req.body.account_id}, 
+            function(error, response, body){
+                parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint, package)
+        });
     }
-    else {
-        var package = {};
-        if (req.body.account_id) {
-            package['account_id'] = req.body.account_id;
-            return getWePayData(res, "/account", req.session.access_token, package);
-        }
-        return getWePayData(res, "/account/find", req.session.access_token, package);
-    }
+
+    // otherwise lookup all accounts associated with the provided email
+    console.log("No account_id.  Looking for all accounts belonging to: ", req.body.email);
+    wepay_endpoint = "/account/find";
+    return getDataFromMiddleware("user", {"account_owner_email": req.body.email}, function(error, response, body){
+        parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint, package);
+    });
 })
 
 /**
@@ -260,6 +285,7 @@ app.post('/account', function(req, res){
  */
 app.post("/checkout", function(req, res) {
     // prep the package and wepay_endpoint we want to hit
+    console.log("Received request for checkout");
     var package = {};
     var wepay_endpoint = "";
     if (req.body.checkout_id) {
@@ -274,18 +300,9 @@ app.post("/checkout", function(req, res) {
         wepay_endpoint = "/checkout/find";
     }
 
-    // check if an access token has already been set.  
-    // If not, send an error because we can't get checkout info with the token
-    if (!req.session.access_token) {
-        return sendResponse({
-            "error_message":"Do not have access_token which is required to gather account information",
-            "error": "access token not defined"
-        }, res);
-    }
-    else {
-        return getWePayData(res, wepay_endpoint, req.session.access_token, package);
-    }
-    
+    return getDataFromMiddleware("user", {"account_id":req.body.account_id}, function(error, response, body){
+        parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint, package);
+    });    
 })
 
 /**
@@ -299,42 +316,48 @@ app.post("/user/resend_confirmation", function(req, res){
  * Get a list of the 50 most recent withdrawals for the given account_id
  */
 app.post("/withdrawal", function(req, res){
+    console.log("Received request for withdrawals");
     var package = {"account_id":req.body.account_id};
-    if(!req.session.access_token) {
-        return sendResponse({
-            "error_message":"Do not have access_token which is required to gather account information",
-            "error": "access token not defined"
-        }, res);
-    }
-    else {
-        getWePayData(res, "/withdrawal/find", req.session.access_token, package);
-    }
+    return getDataFromMiddleware(
+        "user", 
+        {"account_id":req.body.account_id}, 
+        function(error, response, body) {
+            parseMiddlewareResponse(req, res, error, response, body, "/withdrawal/find", package);
+    });
 })
 
 /**
  * Perform a refund for a given checkout_id.
- * This endpoint requires the checkout_id and a refund_reason.
- * The amount field should be used to perform a partial refund.  
+ * 
+ * This endpoint expects the following fields in the body of the request:
+ *  @param checkout_id     -   the checkout_id
+ *  @param refund_reason   -   the reason that the checkout is being refunded
+ *  @param amount          -   (optional) initates a partial refund for the specified amount
+ *  @param app_fee         -   (optional) initiates a partial refund for the specified app_fee amount
+ * The amount field should be used to perform a partial refund.
+ * When doing a partial refund, you can also pass a app_fee that specifies how much of the app_fee you want to refund
+ * 
  * If no amount is passed, this will do a full refund
  */
 app.post("/refund", function(req, res) {
+    console.log("Received request for refund");
     var package = {"checkout_id":req.body.checkout_id, "refund_reason":req.body.refund_reason};
-    if (req.body.amount) {
-        package['amount'] = req.body.amount;
-    }
-    if(!req.session.access_token) {
-        getDataFromMiddleware(
-            "checkout", 
-            {}, 
-            function(error, response, body) {
-                return parseMiddlewareResponse(req, res, error, response, body, "/checkout/refund", package);
+    if (req.body.amount != null || req.body.app_fee != null) {
+        if (req.body.amount) {
+                package['amount'] = req.body.amount;
             }
-        );
+            if (req.body.app_fee) {
+                package['app_fee'] = req.body.app_fee;
+            }
     }
-    else {
-        getWePayData(res, "/checkout/refund", req.session.access_token, package);
 
-    }
+    return getDataFromMiddleware(
+        "user", 
+        {"account_id":req.body.account_id}, 
+        function(error, response, body){
+            return parseMiddlewareResponse(req, res, error, response, body, "/checkout/refund", package)
+        }
+    );
 })
 
 /**
@@ -343,21 +366,21 @@ app.post("/refund", function(req, res) {
  *
  */
 app.post("/reserve", function(req, res) {
-    if(!req.session.access_token) {
-        return sendResponse({
-            "error_message":"Do not have access_token which is required to gather account information",
-            "error": "access token not defined"
-        }, res)
-    }
-    else {
-        getWePayData(res, "/account/get_reserve_details", req.session.access_token, {"account_id":req.body.account_id});
-    }
+    console.log("Received request for reserve");
+    return getDataFromMiddleware(
+        "user",
+        {"account_id": req.body.account_id},
+        function(error, response, body) {
+            return parseMiddlewareResponse(req, res, error, response, body, "/account/get_reserve_details", {"account_id":req.body.account_id});
+        }
+    );
 });
 
 /**
  * Given a payer's unique identifying information (such as their email), get a list of all of their checkouts from the middleware
  */
-app.post("/payer", function(req, res) {    
+app.post("/payer", function(req, res) {   
+    console.log("Received request for payer"); 
     // get the email from the search
     var email = req.body.email;
     // get the necessary data from our middleware function and then make the corresponding request to WePay
@@ -374,6 +397,7 @@ app.post("/payer", function(req, res) {
  * Given a credit_card_id (tokenized card) get more information about the card from the v2/credit_card WePay API endpoint
  */
 app.post("/credit_card", function(req, res){
+    console.log("Received request for credit_card");
     var credit_card_id = parseInt(req.body.credit_card_id);
 
     getWePayData(res, "/credit_card", null, {"credit_card_id":credit_card_id, "client_id":app_config.client_id, "client_secret":app_config.client_secret});

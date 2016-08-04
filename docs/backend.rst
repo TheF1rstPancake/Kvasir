@@ -1,32 +1,32 @@
 .. _kvasirbackend:
 
-The Back End: NodeJS and ExpressJS
+The Back-End: NodeJS and ExpressJS
 =======================================
-The backend infrastructure is meant to support the front end and address the security concerns that prevented us from making a full SPA.
+The back-end infrastructure is meant to support the front-end and address the security concerns that prevented us from making a full SPA.
 
-The back-end is built using Node and ExpressJS.  While we personally prefer Python for our servers, bundling the resources and libraries necessary to run the front end part of the application was easier in Node.
+The back-end is built using Node and ExpressJS.  While we personally prefer Python for our servers, bundling the resources and libraries necessary to run the front-end part of the application was easier in Node.
 
 .. warning::
-    This is documentation on the current behavior of the back end server.  Many of the endpoints will likely change over time, and this is not meant to be a roadmap of the functionality they aim to provide.
+    This is documentation on the current behavior of the back-end server.  Many of the endpoints will likely change over time, and this is not meant to be a roadmap of the functionality they aim to provide.
 
 Structure
 ----------------
-The underlying structure is pretty simple.  Requests come in from the front end, and some of those requests will require the server to communicate with the platform's database, while others require requests to the WePay API, and then there are requests that will require both.
+The underlying structure is pretty simple.  Requests come in from the front-end, and some of those requests will require the server to communicate with the platform's database, while others require requests to the WePay API, and then there are requests that will require both.
 
 Each object built in the front-end app receives it's own endpoint on the server.  For example, the :ref:`user object <user_object>` makes all of it's requests to the */user* endpoint on the server.
 
 .. note::
     While many of the endpoints on Kvasir's server mirror the endpoint names of WePay, it is not a 1 to 1 relationship.
 
-When the front end makes a request, the back end is responsible for formatting it into something the partner middleware or WePay will understand.  This provides a useful layer of abstraction should something change in either of those two systems.
+When the front-end makes a request, the back-end is responsible for formatting it into something the partner middleware or WePay will understand.  This provides a useful layer of abstraction should something change in either of those two systems.
 
-The server is also responsible for :ref:`packaging responses back to the client, including error messages <backend_sendingdatabacktoclient>`.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front end.  Typically, valid data is simply sent to the front end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.
+The server is also responsible for :ref:`packaging responses back to the client, including error messages <back-end_sendingdatabacktoclient>`.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front-end.  Typically, valid data is simply sent to the front-end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.
 
-Kvasir's node server also manages a small cookie based session for users.  We don't want to expose access tokens to the front end, but we also don't want to have to request the access token from the partner's database on each request.  After the server gets an access token, it will set a hashed cookie based on a secret key provided in Kvasir's configuration file.  The cookie cannot be accessed by the front end, and the only the server can unhash it into something readable.
+Kvasir's node server also manages a small cookie based session for users.  We don't want to expose access tokens to the front-end, but we also don't want to have to request the access token from the partner's database on each request.  After the server gets an access token, it will set a hashed cookie based on a secret key provided in Kvasir's configuration file.  The cookie cannot be accessed by the front-end, and the only the server can unhash it into something readable.
 
 Endpoints
 -----------
-Each front end object has an associated endpoint on the server.  An object *could* call another endpoint if it wanted to, but it is more likely to do that indirectly by dispatching that other object's actions.
+Each front-end object has an associated endpoint on the server.  An object *could* call another endpoint if it wanted to, but it is more likely to do that indirectly by dispatching that other object's actions.
 
 All endpoints *only* accept POST requests with a JSON structured body.
 
@@ -155,8 +155,11 @@ Kvasir provides a single function for communicating with `WePay's NodeJS SDK <no
 
     :param res:                 ExpressJS response object
     :param wepay_endpoint:      the wepay endpoint that we want to get data from
-    :param access token:        the user's access token that we want to use to request data. **NOTE**: This value can be null if the endpoint does not require an access token
+    :param access_token:        the user's access token that we want to use to request data. 
     :param pacakge:             the package of data we want to send to the wepay_endpoint.  This can be an empty object if the endpoint does not require any additional parameters.
+
+.. note::
+    The ``access_token`` field can be null if the WePAy endpoint doesn't require an access token.
 
 We talk a lot about retrieving access tokens from the middleware as a critical component of accessing data from the WePay API.  While many of the endpoints require an access token, not all of them do.  For example, the :wepay:`credit_card` endpoint does not require an acces token.  Instead, it wants the platform's client_id and client_secret in the body of the request.
 
@@ -169,7 +172,7 @@ We wanted to avoid a system that had to make a request to the partner's database
 Kvasir uses Express's `cookie_session <https://github.com/expressjs/cookie-session>`_ library to securely store a user's access token as a cookie in the client's browser.  The cookies are hashed with a secret key and set with the *secure* and *httpOnly* flags.  These force the cookies to be sent only over an HTTPS connection, and prevent JavaScript functions in the browser from being able to access the cookie information.  
 
 From within Kvasir's ExpressJS server, the cookie is accessed via:
-    >>> req.session.access token
+    >>> req.session.access_token
 
 Most of the endpoints will check if this value is set before making any requests to WePay.  If the access token is not present, Kvasir will raise an error back to the client saying that it cannot perform the request because it does not have all of the required info.
 
@@ -210,7 +213,7 @@ Most of Kvasir's endpoints will use :func:`parseMiddlewareResponse` to do that. 
 
 The other option for a callback is to just pass the information we receive from the middleware directly back to the client.  This is what :http:post:`/payer` does.  It passes :func:`sendResponse` has the callback function in order to pass the response from the middleware directly back to the client.
 
-.. _backend_sendingdatabacktoclient:
+.. _back-end_sendingdatabacktoclient:
 
 Sending Data Back to the Client
 --------------------------------
@@ -247,6 +250,7 @@ An example error can be seen below:
 
 The "error_message" field is intended to be a string that you can display to the end user so that they know what went wrong.  We include the original error package sent by either the middleware or WePay API for greater transparceny.  We don't want to accidently truncate errors and lead developers down the wrong path.
 
+.. _serverconfiguration:
 
 Server Configuration
 -------------------------

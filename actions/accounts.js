@@ -36,11 +36,11 @@ function receiveAccount(account_id = null, json) {
     }
 }
 
-function fetchAccount(account_id = null) {
+function fetchAccount(email=null, account_id = null) {
     return dispatch => {
         dispatch(requestAccount(account_id));
         
-        return $.post("/account", {"account_id":account_id})
+        return $.post("/account", {"email":email, "account_id":account_id})
             .fail(function(data){
                 console.log("ERROR: ", data);
                 var error_data = data.responseJSON;
@@ -63,10 +63,10 @@ function shouldFetchAccount(state, account_id = null) {
     return false;
 }
 
-export function fetchAccountIfNeeded(account_id=null) {
+export function fetchAccountIfNeeded(email=null, account_id=null) {
     return (dispatch, getState) => {
         if (shouldFetchAccount(getState(), account_id)) {
-            return dispatch(fetchAccount(account_id))
+            return dispatch(fetchAccount(email, account_id))
         }
     }
 }
