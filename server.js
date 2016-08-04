@@ -83,10 +83,7 @@ app.use(expressWinston.logger({
         })
     ],
     meta: true, // optional: control whether you want to log the meta data about the request (default to true)
-    //msg: "{{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}",
     expressFormat: true
-    
-
 }));
 
 
