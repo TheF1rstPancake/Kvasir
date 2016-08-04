@@ -50,4 +50,7 @@ config.js
 # Sphinx docs
 docs/_build/
 
+# ignore https certificates
 sslcert
+
+*.pyc
