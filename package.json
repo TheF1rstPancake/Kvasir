@@ -8,7 +8,6 @@
   "scripts": {
     "start": "node server.js",
     "postinstall": "webpack --config ./webpack.config.js",
-    "prestart": "npm run bundle",
     "bundle": "webpack --config webpack.config.js",
     "test": "cross-env NODE_ENV=test mocha --recursive --compilers js:babel-register --require ./test/setup.js",
     "test:watch": "npm test -- --watch"
@@ -34,9 +33,11 @@
     "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-alpha.1",
     "csurf": "^1.9.0",
+    "dotenv": "^2.0.0",
     "ejs": "^2.5.1",
     "express": "^4.13.3",
     "express-winston": "^2.0.0",
+    "foreman": "^1.4.1",
     "react": "^15.3.0",
     "react-bootstrap": "^0.29.5",
     "react-bootstrap-table": "^2.3.7",
@@ -51,7 +52,7 @@
     "wepay": "git://github.com/wepay/NodeJS-SDK.git",
     "winston": "^2.2.0"
   },
-  "devDependencies": { 
+  "devDependencies": {
     "react-addons-test-utils": "^0.14.7",
     "webpack-dev-middleware": "^1.6.1",
     "webpack-hot-middleware": "^2.12.2"

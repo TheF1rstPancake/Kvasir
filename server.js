@@ -21,7 +21,20 @@ var fs = require("fs")
 var express = require("express");
 
 // load app configuration settings
-var app_config = require('./config')
+// pull all of the environment variables down into a dictionary
+require("dotenv").config();
+console.log("ENVIROMENT VARIABLES: ", process.env);
+var app_config = {
+    "cookie_secret": process.env.KVASIR_COOKIE_SECRET,
+    "middleware_uri": process.env.KVASIR_MIDDLEWARE_URI,
+    "middleware_secret": process.env.KVASIR_MIDDLEWARE_SECRET,
+    "port": process.env.KVASIR_MIDDLEWARE_PORT ? process.env.KVASIR_MIDDLEWARE_PORT : 8080,
+    "client_id": process.env.KVASIR_CLIENT_ID,
+    "client_secret": process.env.KVASIR_CLIENT_SECRET,
+    "http_override":process.env.KVASIR_HTTP_OVERRIDE
+}
+
+console.log("APP CONFIG: ", app_config);
 
 // create the express app and define what port this is open on
 var app = new (express)();
@@ -33,12 +46,13 @@ var compiler = webpack(config);
 app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: config.output.publicPath }));
 app.use(webpackHotMiddleware(compiler));
 
+
 // setup cookie parser and csrf protection
 var cookieParser = require("cookie-parser")
 var csrf = require("csurf");
 var csrfProtection = csrf(
     {cookie:{
-            secure:app_config.httpOverride ? false : true, 
+            secure: app_config.http_override ? false : true, 
             httpOnly: true
         }
     }
@@ -57,10 +71,12 @@ app.use(bodyParser.urlencoded({extended:false}));
 //
 // For help with generating an SSL certificate and key:
 //      https://devcenter.heroku.com/articles/ssl-certificate-self
-var privateKey = fs.readFileSync(app_config.ssl.privateKey, "utf8");
-var certificate = fs.readFileSync(app_config.ssl.certificate, "utf8");
-var credentials = {key: privateKey, cert: certificate};
-
+var credentials = {};
+if (!app_config.http_override) {
+    var privateKey = fs.readFileSync(app_config.ssl.privateKey, "utf8");
+    var certificate = fs.readFileSync(app_config.ssl.certificate, "utf8");
+    var credentials = {key: privateKey, cert: certificate};
+}
 
 // point the app to the static folder
 app.use('/static', express.static('static'));
@@ -116,10 +132,10 @@ function verifyConfig(conf) {
         throw(new Error("Middleware URI is not HTTPS."));
     }
 
-    if (!privateKey) {
+    if (!privateKey && !conf.http_override) {
         throw(new Error("Private key is not defined.  Check to make sure that the file actually exists and contains information"));
     }
-    if(!certificate) {
+    if(!certificate && !conf.http_override) {
         throw(new Error("Private key is not defined.  Check to make sure that the file actually exists and contains information"));
     }
     return true;
@@ -439,7 +455,7 @@ app.post("/credit_card", csrfProtection, function(req, res){
  * Before we start, make sure that the app configuration meets the requirements
  */
 verifyConfig(app_config);
-if (app_config.httpOverride) {
+if (app_config.http_override) {
     var httpsServer = http.createServer(app);
 }
 else {
