@@ -22,7 +22,6 @@ var express = require("express");
 
 // load app configuration settings
 // pull all of the environment variables down into a dictionary
-console.log("ENVIROMENT VARIABLES: ", process.env);
 var app_config = {
     "cookie_secret": process.env.KVASIR_COOKIE_SECRET,
     "middleware_uri": process.env.KVASIR_MIDDLEWARE_URI,
@@ -30,7 +29,7 @@ var app_config = {
     "port": process.env.KVASIR_MIDDLEWARE_PORT ? process.env.KVASIR_MIDDLEWARE_PORT : 8080,
     "client_id": process.env.KVASIR_CLIENT_ID,
     "client_secret": process.env.KVASIR_CLIENT_SECRET,
-    "http_override":process.env.KVASIR_HTTP_OVERRIDE
+    "http_override":process.env.KVASIR_HTTP_OVERRIDE,
     "ssl": {
         "privateKey": process.env.KVASIR_SSL_PRIVATE_KEY,
         "certificate": process.env.KVASIR_SSL_CERTIFICATE
