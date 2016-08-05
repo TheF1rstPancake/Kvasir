@@ -33,18 +33,11 @@
     "body-parser": "^1.15.2",
     "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-alpha.1",
-    "cross-env": "^1.0.7",
     "csurf": "^1.9.0",
     "ejs": "^2.5.1",
-    "expect": "^1.8.0",
     "express": "^4.13.3",
     "express-winston": "^2.0.0",
-    "graceful-fs": "^4.1.4",
-    "jsdom": "^5.6.1",
-    "mocha": "^2.2.5",
-    "node-libs-browser": "^0.5.2",
     "react": "^15.3.0",
-    "react-addons-test-utils": "^0.14.7",
     "react-bootstrap": "^0.29.5",
     "react-bootstrap-table": "^2.3.7",
     "react-dom": "^0.14.7",
@@ -55,9 +48,12 @@
     "request": "^2.74.0",
     "url": "^0.11.0",
     "webpack": "^1.13.1",
-    "webpack-dev-middleware": "^1.6.1",
-    "webpack-hot-middleware": "^2.12.2",
-    "wepay": "0.0.5",
+    "wepay": "git://github.com/wepay/NodeJS-SDK.git",
     "winston": "^2.2.0"
+  },
+  "devDependencies": { 
+    "react-addons-test-utils": "^0.14.7",
+    "webpack-dev-middleware": "^1.6.1",
+    "webpack-hot-middleware": "^2.12.2"
   }
 }
