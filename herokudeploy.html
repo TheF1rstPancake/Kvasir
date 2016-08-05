@@ -1,0 +1,268 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Deploying to Heroku &mdash; Kvasir 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
+        <link rel="prev" title="The Middleware: Whatever Language You Want" href="middleware.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kvasir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backend.html">The Back-End: NodeJS and ExpressJS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">The Middleware: Whatever Language You Want</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Deploying to Heroku</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#following-the-tutorial">Following the Tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#procfile">Procfile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#setting-environment-variables">Setting Environment Variables</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#scripting-makes-life-easier">Scripting Makes Life Easier</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kvasir</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Deploying to Heroku</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/herokudeploy.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="deploying-to-heroku">
+<h1>Deploying to Heroku<a class="headerlink" href="#deploying-to-heroku" title="Permalink to this headline">¶</a></h1>
+<p>This page explains the process we took to deploy Kvasir on Heroku.
+You can follow a similar approach for any third party hosting service but some of the particulars will be dependent on which service you chose to use.</p>
+<div class="section" id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Permalink to this headline">¶</a></h2>
+<p>The point of deploying on Heroku was to validate that our system could easily be deployed.  We wanted to make sure that all modules were included in our <cite>package.json</cite> file and that Kvasir could function outside the comfort of our development environment.</p>
+<p>Our first attempt was less than glamorous.  There were a lot of changes made in order to get the deployment to work, but we ended up with a better system overall.
+The idea for using environment variables instead of a configuration file came from this process.</p>
+</div>
+<div class="section" id="following-the-tutorial">
+<h2>Following the Tutorial<a class="headerlink" href="#following-the-tutorial" title="Permalink to this headline">¶</a></h2>
+<p>We are not the first people to deploy a NodeJS application to Heroku.  Not even close.</p>
+<p>There is a very good tutorial for <a class="reference external" href="https://devcenter.heroku.com/articles/getting-started-with-nodejs#introduction">deploying a NodeJS app on Heroku</a>.
+This document will be more notes on the pitfalls that we encountered specific to Kvasir and what steps we took to climb out of them.</p>
+<div class="section" id="procfile">
+<h3>Procfile<a class="headerlink" href="#procfile" title="Permalink to this headline">¶</a></h3>
+<p>The Heroku tutorial mentions that you can use a Procfile to specify how to launch the application; however, Heroku will also try and run commands present in the <cite>scripts</cite> section of the <cite>package.json</cite> file.  Kvasir includes the commands for how to start the NodeJS server and build the front-end JavaScript library in the <cite>package.json</cite> file, so the Procfile is not necessary.</p>
+</div>
+<div class="section" id="setting-environment-variables">
+<h3>Setting Environment Variables<a class="headerlink" href="#setting-environment-variables" title="Permalink to this headline">¶</a></h3>
+<p>Heroku will only launch with files include in the git repository that you push to it.  Assuming that you didn&#8217;t make any changes to Kvasir&#8217;s <cite>.gitignore</cite> file, then the <cite>.env</cite> file that includes all of the environment variable configuration, but is hidden from git, will not be included in the source code uploaded to Heroku.  This presents a problem because Kvasir needs those configuration values, but the file that you put them in is no longer accessible.</p>
+<p>The solution is to set environment variables on the Heroku server.</p>
+<p>Depending on what version of Heroku toolbelt that you have installed on your machine you will use either <cite>heroku config:add</cite> or <cite>heroku config:set</cite> followed by the name of the environment variable and it&#8217;s corresponding value.</p>
+<dl class="docutils">
+<dt>For example, to set the cookie secret:</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">herkou</span> <span class="n">config</span><span class="p">:</span><span class="nb">set</span> <span class="n">KVASIR_COOKIE_SECRET</span><span class="o">=</span><span class="n">YOUR_COOKIE_SECRET</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>You have to run this for each environment variable that you want to set, and the Heroku server will restart for each variable that is added or changed.</p>
+<div class="section" id="scripting-makes-life-easier">
+<h4>Scripting Makes Life Easier<a class="headerlink" href="#scripting-makes-life-easier" title="Permalink to this headline">¶</a></h4>
+<p>If you already have a <cite>.env</cite> file defined (which you generally should during development), then you can use this Python script to set all of the environment variables on Heroku for you.</p>
+<blockquote>
+<div><p>..code-block:: python</p>
+<blockquote>
+<div><p>from subprocess import call</p>
+<p>command = [&#8216;heroku&#8217;, &#8216;config:set&#8217;, &#8216;&#8217;]
+with open(&#8221;.env&#8221;, &#8220;r&#8221;) as f:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>for line in f:</dt>
+<dd>command[-1] = line.rstrip().replace(&#8221; &#8221;, &#8216;&#8217;)
+call(command)</dd>
+</dl>
+</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+<p>What this script does is open the <cite>.env</cite> file, and then for each line in that file, it will strip any trailing whitespace (including new lines) and remove any spaces from the line and send the command via the command line to heroku to add the environment variable and value.</p>
+<p>The reason we have to remove any spaces is because spaces will mess up how the command line parses the command.  If your <cite>KVASIR_MIDDLEWARE_URI</cite> has spaces in it, make sure you replace those with <em>%20</em>.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="middleware.html" class="btn btn-neutral" title="The Middleware: Whatever Language You Want" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, WePay Inc.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

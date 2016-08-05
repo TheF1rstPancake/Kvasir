@@ -104,14 +104,20 @@
 <li class="toctree-l2"><a class="reference internal" href="#getting-data-from-the-middleware">Getting Data From the Middleware</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sending-data-back-to-the-client">Sending Data Back to the Client</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#server-configuration">Server Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-file">Environment File</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#generating-secret-keys">Generating Secret Keys</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#serving-over-https">Serving Over HTTPS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#serving-over-https">Serving Over HTTPS</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#load-balancers-and-third-party-hosting">Load Balancers and Third Party Hosting</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#templating-engine">Templating Engine</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">The Middleware: Whatever Language You Want</a></li>
+<li class="toctree-l1"><a class="reference internal" href="herokudeploy.html">Deploying to Heroku</a></li>
 </ul>
 
             
@@ -534,68 +540,51 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 <div class="section" id="server-configuration">
 <span id="serverconfiguration"></span><h2>Server Configuration<a class="headerlink" href="#server-configuration" title="Permalink to this headline">¶</a></h2>
 <p>There is some information that Kvasir needs in order to function outside of information that it could access from the middleware.</p>
-<p>The configuration file is small, but contains necessary information for Kvasir to run properly.</p>
+<p>Originally, Kvasir used a configuration file which was just a JavaScript file that exported an object containing all of the info.  The configuration file is hidden from the git repository because the configuration file contains secret keys that you don&#8217;t want to expose.  The problem with this approach is that for many third-party hosting sites (such as Heroku) use a git repository to pull in the necessary source files for your application.  Every file that you want uploaded has to be contained in the repository, so having a hidden configuration file is not helpful.</p>
+<p>What these sites offer instead is the ability to set environment variables, which still provides us the ability to configure our environment with information that Kvasir needs to run without exposing that information to unwanted parties.</p>
+<div class="section" id="environment-variables">
+<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h3>
+<p>All of the environemtn variables that Kvasir uses start with KVASIR.  This isolates it&#8217;s environment variables from any other applications.</p>
+<p>This is the entire list of environment variables:</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>KVASIR_COOKIE_SECRET</strong>:        the secret key used to &#8220;encrypt&#8221; cookies set in the browser</li>
+<li><strong>KVASIR_MIDDLEWARE_URI</strong>:       the uri to the middleware which connects to your database</li>
+<li><strong>KVASIR_MIDDLEWARE_SECRET</strong>:    the secret key used in the <cite>Authorization</cite> header when making requests to the middleware</li>
+<li><strong>KVASIR_CLIENT_ID</strong>:            your WePay client id</li>
+<li><strong>KVASIR_CLIENT_SECRET</strong>:        your WePay client secret</li>
+<li><strong>KVASIR_SSL_PRIVATE_KEY</strong>:      <em>(optional)</em> the name of the file that contains your SSL private key</li>
+<li><strong>KVASIR_SSL_CERTIFICATE</strong>:      <em>(optional)</em> the name of the file that contains your SSL certificate</li>
+<li><strong>KVASIR_HTTP_OVERRIDE</strong>:        <em>(optional)</em> boolean to tell Kvasir to launch under an HTTP server instead of an HTTPS server</li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You must supply either KVASIR_HTTP_OVERRIDE as <cite>True</cite> <strong>or</strong> supply both KVASIR_SSL_CERTIFICATE and KVASIR_SSL_PRIVATE_KEY.</p>
+</div>
+</div>
+<div class="section" id="environment-file">
+<h3>Environment File<a class="headerlink" href="#environment-file" title="Permalink to this headline">¶</a></h3>
+<p>An environment file can still be defined to set the values of the different environment variables.  Some third party hosting services (such as the Google App Engine) will take all files in your current directory and upload those instead of using a git repository.  These types of services don&#8217;t always provide a way to set environment variables remotely, so the hidden file works in those cases.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you are adding additional functionality into Kvasir (in other words, you are actively developing Kvasir), then you should define use the <cite>.env</cite> file.  It makes testing and manipulating the environment variables a little easier.</p>
+</div>
+<p>Kvasir will check for the presence of the environment file using the <a class="reference external" href="https://www.npmjs.com/package/dotenv">dotenv</a> package which will then set all of the environment variables accordingly.  This way, the other parts of Kvasir don&#8217;t have to worry about where the configuration values are coming from.  It will check the enviornment variables and pull them into an object that all of it&#8217;s routes and functions are free to reference.</p>
+<p>The file should be named <cite>.env</cite> and be placed in the same directory as <cite>server.js</cite>.</p>
 <dl class="docutils">
-<dt>A sample configuration file looks like this:</dt>
-<dd><div class="first last highlight-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">config</span> <span class="o">=</span><span class="p">{};</span>
-
-<span class="nx">config</span><span class="p">.</span><span class="nx">cookie_secret</span> <span class="o">=</span> <span class="s2">&quot;&lt;SOME_RANDOM_JUMBLE_OF_LETTERS_AND_NUMBERS&gt;&quot;</span><span class="p">;</span>
-<span class="nx">config</span><span class="p">.</span><span class="nx">middleware_uri</span><span class="o">=</span> <span class="s2">&quot;https://&lt;address_to_your_middleware&gt;&quot;</span><span class="p">;</span>
-<span class="nx">config</span><span class="p">.</span><span class="nx">middleware_secret</span> <span class="o">=</span> <span class="s2">&quot;&lt;SOME_RANDOM_JUMBLE_OF_LETTERS_AND_NUMBERS&gt;&quot;</span><span class="p">;</span>
-
-<span class="nx">config</span><span class="p">.</span><span class="nx">port</span> <span class="o">=</span> <span class="mi">3000</span><span class="p">;</span>
-
-<span class="c1">// wepay client_id and client_secret are needed for certain calls</span>
-<span class="nx">config</span><span class="p">.</span><span class="nx">client_id</span> <span class="o">=</span> <span class="s2">&quot;&lt;YOUR_WEPAY_CLIENT_ID&gt;&quot;</span><span class="p">;</span>
-<span class="nx">config</span><span class="p">.</span><span class="nx">client_secret</span> <span class="o">=</span> <span class="s2">&quot;&lt;YOUR_WEPAY_CLIENT_SECRET&gt;&quot;</span><span class="p">;</span>
-
-<span class="nx">config</span><span class="p">.</span><span class="nx">ssl</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="nx">privateKey</span><span class="o">:</span>     <span class="s2">&quot;&lt;PATH_TO_KEY&gt;/&lt;KEY_FILE&gt;&quot;</span><span class="p">,</span>
-    <span class="nx">certificate</span><span class="o">:</span>    <span class="s2">&quot;&lt;PATH_TO_KEY&gt;/&lt;CERTIFICATE_FILE&gt;&quot;</span>
-<span class="p">};</span>
-
-<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">config</span><span class="p">;</span>
+<dt>A sample environment file looks like this:</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="n">KVASIR_COOKIE_SECRET</span> <span class="o">=</span> <span class="n">YOUR_COOKIE_SECRET</span>
+<span class="n">KVASIR_MIDDLEWARE_URI</span> <span class="o">=</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">your</span><span class="o">.</span><span class="n">middle</span><span class="o">.</span><span class="n">ware</span><span class="o">/</span>
+<span class="n">KVASIR_MIDDLEWARE_SECRET</span> <span class="o">=</span> <span class="n">YOU_MIDDLEWARE_SECRET</span>
+<span class="n">KVASIR_CLIENT_ID</span> <span class="o">=</span> <span class="n">YOUR_WEPAY_CLIENT_ID</span>
+<span class="n">KVASIR_CLIENT_SECRET</span> <span class="o">=</span> <span class="n">YOUR_WEPAY_CLIENT_SECRET</span>
+<span class="n">KVASIR_HTTP_OVERRIDE</span> <span class="o">=</span>  <span class="n">TRUE_OR_FALSE</span>
 </pre></div>
 </div>
 </dd>
 </dl>
-<p>It must be saved in the root directory of Kvasir and be named <strong>config.js</strong>.</p>
-<dl class="docutils">
-<dt>The configuration contains two secret keys:</dt>
-<dd><ul class="first last simple">
-<li>cookie_secret:        a secret key to hash your cookie session with</li>
-<li>middleware_secret:    a secret key to use when making requests to your middleware.  It is placed in an <em>Authorization</em> header with each request.</li>
-</ul>
-</dd>
-</dl>
-<p>The <em>middleware_secret</em> should be shared with your middleware so that it can validate that the requests it is receiving are actually from Kvasir and not from someone else.</p>
-<p>It also needs the address of your middleware.  This provides it some flexibility in the event that the address changes.  This way you don&#8217;t have to manipulate the source code.</p>
-<p>The configuration also requires your WePay <em>client_id</em> and <em>client_secret</em>.  There are certain WePay API requests that require this info in place of an access token.  Providing it in the config file lets Kvasir access it when necessary.</p>
-<dl class="docutils">
-<dt>The total list of configuration options is:</dt>
-<dd><ul class="first last">
-<li><p class="first"><strong>cookie_secret</strong>:        the secret key used to hash cookies set in the browser</p>
-</li>
-<li><p class="first"><strong>middleware_uri</strong>:       the uri to the middleware which connects to your database</p>
-</li>
-<li><p class="first"><strong>middleware_secret</strong>:    the secret key used in the <cite>Authorization</cite> header when making requests to the middleware</p>
-</li>
-<li><p class="first"><strong>client_id</strong>:            your WePay client id</p>
-</li>
-<li><p class="first"><strong>client_secret</strong>:        your WePay client secret</p>
-</li>
-<li><dl class="first docutils">
-<dt><strong>ssl</strong>:                  the ssl configuration which includes</dt>
-<dd><ul class="first last simple">
-<li><em>privateKey</em>:         the name of the file that contains your SSL private key</li>
-<li><em>certificate</em>:        the name of the file that contains your SSL certificate</li>
-</ul>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
+</div>
 <div class="section" id="generating-secret-keys">
 <h3>Generating Secret Keys<a class="headerlink" href="#generating-secret-keys" title="Permalink to this headline">¶</a></h3>
 <p>There are a lot of different methods for generating secret keys.</p>
@@ -617,13 +606,21 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 <p>In order to securely pass data around this system, we require that the server use HTTPS.  You can do it with any existing SSL certificates that you have or you can generate a self signed certificate.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If you use a self signed certificate, your users will get a warning from the browser saying that the site is not trusted.  They can ignore the error and enter.</p>
+<p class="last">If you use a self signed certificate, your users will get a warning from the browser saying that the site is not trusted.  They can ignore the error and enter.
+But we <strong>highly</strong> recommend you use a certificate signed by a certificate authority.</p>
 </div>
-<p>The config file allows you to specify where the certificate and key are stored.  The path should be <strong>relative to the server.js file</strong>.</p>
+<p>The enviroment variables allow you to specify where the certificate and key are stored.  The path should be <strong>relative to the server.js file</strong>.</p>
 <dl class="docutils">
 <dt>If you need help creating a self-signed SSL certificate, you can follow this tutorial:</dt>
 <dd><a class="reference external" href="https://devcenter.heroku.com/articles/ssl-certificate-self">https://devcenter.heroku.com/articles/ssl-certificate-self</a></dd>
 </dl>
+<div class="section" id="load-balancers-and-third-party-hosting">
+<h4>Load Balancers and Third Party Hosting<a class="headerlink" href="#load-balancers-and-third-party-hosting" title="Permalink to this headline">¶</a></h4>
+<p>Some load balancers (such as nginx) and third party hosting services (such as Google App Engine) can implement the HTTPS connection for you and sometimes have difficulty communicating with their underlying processes if they require HTTPS.  For example, when we tried to do a test deployment to the Google App Engine, it was having trouble communicating with the underlying NodeJs server.  We were able to trace the issue back to the fact that the GAE was not expecting the underlying processes to be running on HTTPS so it was unable to communicate with it and there are no apparent configuration options to allow us to force it to expect that.</p>
+<p>But the GAE (and even Heroku) implement HTTPS by default.  All communication with the client is done over HTTPS, but communication to it&#8217;s underlying processes (since they often fire off multiple instances of your application) is done via HTTP.  It is important to make sure that the connection to the end user is done over HTTPS to make sure the information you are sending to them cannot be intercepted and used by another party.</p>
+<p>The <cite>KVASIR_HTTP_OVERRIDE</cite> environment variable is used to tell Kvasir to run using HTTP instead of HTTPS.  This is meant to be used in conjuction with a load balancer or thrid party hosting site that can make sure the connection to the end user is done over HTTPS.</p>
+<p>If you are not using a load balancer or third party hosting site, then make sure you are providing <cite>KVASIR_SSL_PRIVATE_KEY</cite> and <cite>KVASIR_SSL_CERTIFICATE</cite> so that Kvasir can enable HTTPS.</p>
+</div>
 </div>
 <div class="section" id="templating-engine">
 <h3>Templating Engine<a class="headerlink" href="#templating-engine" title="Permalink to this headline">¶</a></h3>
