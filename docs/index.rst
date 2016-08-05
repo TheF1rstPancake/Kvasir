@@ -74,6 +74,7 @@ Contents
    frontend
    backend
    middleware
+   herokudeploy
 
 Indices and tables
 ====================

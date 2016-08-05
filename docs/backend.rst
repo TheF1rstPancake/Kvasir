@@ -257,51 +257,46 @@ Server Configuration
 -------------------------
 There is some information that Kvasir needs in order to function outside of information that it could access from the middleware.
 
-The configuration file is small, but contains necessary information for Kvasir to run properly.
+Originally, Kvasir used a configuration file which was just a JavaScript file that exported an object containing all of the info.  The configuration file is hidden from the git repository because the configuration file contains secret keys that you don't want to expose.  The problem with this approach is that for many third-party hosting sites (such as Heroku) use a git repository to pull in the necessary source files for your application.  Every file that you want uploaded has to be contained in the repository, so having a hidden configuration file is not helpful.
 
-A sample configuration file looks like this:
-    .. code-block:: javascript
-        
-        var config ={};
+What these sites offer instead is the ability to set environment variables, which still provides us the ability to configure our environment with information that Kvasir needs to run without exposing that information to unwanted parties.
 
-        config.cookie_secret = "<SOME_RANDOM_JUMBLE_OF_LETTERS_AND_NUMBERS>";
-        config.middleware_uri= "https://<address_to_your_middleware>";
-        config.middleware_secret = "<SOME_RANDOM_JUMBLE_OF_LETTERS_AND_NUMBERS>";
+Environment Variables
+~~~~~~~~~~~~~~~~~~~~~~~
+All of the environemtn variables that Kvasir uses start with KVASIR.  This isolates it's environment variables from any other applications.
 
-        config.port = 3000;
+This is the entire list of environment variables:
+    - **KVASIR_COOKIE_SECRET**:        the secret key used to "encrypt" cookies set in the browser
+    - **KVASIR_MIDDLEWARE_URI**:       the uri to the middleware which connects to your database
+    - **KVASIR_MIDDLEWARE_SECRET**:    the secret key used in the `Authorization` header when making requests to the middleware
+    - **KVASIR_CLIENT_ID**:            your WePay client id
+    - **KVASIR_CLIENT_SECRET**:        your WePay client secret
+    - **KVASIR_SSL_PRIVATE_KEY**:      *(optional)* the name of the file that contains your SSL private key
+    - **KVASIR_SSL_CERTIFICATE**:      *(optional)* the name of the file that contains your SSL certificate
+    - **KVASIR_HTTP_OVERRIDE**:        *(optional)* boolean to tell Kvasir to launch under an HTTP server instead of an HTTPS server
 
-        // wepay client_id and client_secret are needed for certain calls
-        config.client_id = "<YOUR_WEPAY_CLIENT_ID>";
-        config.client_secret = "<YOUR_WEPAY_CLIENT_SECRET>";
+.. note::
+    You must supply either KVASIR_HTTP_OVERRIDE as `True` **or** supply both KVASIR_SSL_CERTIFICATE and KVASIR_SSL_PRIVATE_KEY.  
 
-        config.ssl = {
-            privateKey:     "<PATH_TO_KEY>/<KEY_FILE>",
-            certificate:    "<PATH_TO_KEY>/<CERTIFICATE_FILE>"
-        };
+Environment File
+~~~~~~~~~~~~~~~~~~~
+An environment file can still be defined to set the values of the different environment variables.  Some third party hosting services (such as the Google App Engine) will take all files in your current directory and upload those instead of using a git repository.  These types of services don't always provide a way to set environment variables remotely, so the hidden file works in those cases.
 
-        module.exports = config;
+.. note::
+    If you are adding additional functionality into Kvasir (in other words, you are actively developing Kvasir), then you should define use the `.env` file.  It makes testing and manipulating the environment variables a little easier.
 
-It must be saved in the root directory of Kvasir and be named **config.js**.
+Kvasir will check for the presence of the environment file using the `dotenv <https://www.npmjs.com/package/dotenv>`_ package which will then set all of the environment variables accordingly.  This way, the other parts of Kvasir don't have to worry about where the configuration values are coming from.  It will check the enviornment variables and pull them into an object that all of it's routes and functions are free to reference.
 
-The configuration contains two secret keys:
-    - cookie_secret:        a secret key to hash your cookie session with
-    - middleware_secret:    a secret key to use when making requests to your middleware.  It is placed in an *Authorization* header with each request.
+The file should be named `.env` and be placed in the same directory as `server.js`.
 
-The *middleware_secret* should be shared with your middleware so that it can validate that the requests it is receiving are actually from Kvasir and not from someone else.
-
-It also needs the address of your middleware.  This provides it some flexibility in the event that the address changes.  This way you don't have to manipulate the source code.
-
-The configuration also requires your WePay *client_id* and *client_secret*.  There are certain WePay API requests that require this info in place of an access token.  Providing it in the config file lets Kvasir access it when necessary.
-
-The total list of configuration options is:
-    - **cookie_secret**:        the secret key used to hash cookies set in the browser
-    - **middleware_uri**:       the uri to the middleware which connects to your database
-    - **middleware_secret**:    the secret key used in the `Authorization` header when making requests to the middleware
-    - **client_id**:            your WePay client id
-    - **client_secret**:        your WePay client secret
-    - **ssl**:                  the ssl configuration which includes
-        * *privateKey*:         the name of the file that contains your SSL private key
-        * *certificate*:        the name of the file that contains your SSL certificate
+A sample environment file looks like this:
+    .. code-block::
+        KVASIR_COOKIE_SECRET = YOUR_COOKIE_SECRET
+        KVASIR_MIDDLEWARE_URI = https://your.middle.ware/
+        KVASIR_MIDDLEWARE_SECRET = YOU_MIDDLEWARE_SECRET
+        KVASIR_CLIENT_ID = YOUR_WEPAY_CLIENT_ID
+        KVASIR_CLIENT_SECRET = YOUR_WEPAY_CLIENT_SECRET
+        KVASIR_HTTP_OVERRIDE =  TRUE_OR_FALSE
 
 Generating Secret Keys
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -319,15 +314,26 @@ Copy the output and paste it into the config file.  It is important that you **d
 
 Serving Over HTTPS
 ~~~~~~~~~~~~~~~~~~~~~~
-In order to securely pass data around this system, we require that the server use HTTPS.  You can do it with any existing SSL certificates that you have or you can generate a self signed certificate.
+In order to securely pass data around this system, we require that the server use HTTPS.  You can do it with any existing SSL certificates that you have or you can generate a self signed certificate.  
 
 .. note::
     If you use a self signed certificate, your users will get a warning from the browser saying that the site is not trusted.  They can ignore the error and enter.
+    But we **highly** recommend you use a certificate signed by a certificate authority.
 
-The config file allows you to specify where the certificate and key are stored.  The path should be **relative to the server.js file**.
+The enviroment variables allow you to specify where the certificate and key are stored.  The path should be **relative to the server.js file**.
 
 If you need help creating a self-signed SSL certificate, you can follow this tutorial:
     https://devcenter.heroku.com/articles/ssl-certificate-self
+
+Load Balancers and Third Party Hosting
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Some load balancers (such as nginx) and third party hosting services (such as Google App Engine) can implement the HTTPS connection for you and sometimes have difficulty communicating with their underlying processes if they require HTTPS.  For example, when we tried to do a test deployment to the Google App Engine, it was having trouble communicating with the underlying NodeJs server.  We were able to trace the issue back to the fact that the GAE was not expecting the underlying processes to be running on HTTPS so it was unable to communicate with it and there are no apparent configuration options to allow us to force it to expect that.
+
+But the GAE (and even Heroku) implement HTTPS by default.  All communication with the client is done over HTTPS, but communication to it's underlying processes (since they often fire off multiple instances of your application) is done via HTTP.  It is important to make sure that the connection to the end user is done over HTTPS to make sure the information you are sending to them cannot be intercepted and used by another party.
+
+The `KVASIR_HTTP_OVERRIDE` environment variable is used to tell Kvasir to run using HTTP instead of HTTPS.  This is meant to be used in conjuction with a load balancer or thrid party hosting site that can make sure the connection to the end user is done over HTTPS.
+
+If you are not using a load balancer or third party hosting site, then make sure you are providing `KVASIR_SSL_PRIVATE_KEY` and `KVASIR_SSL_CERTIFICATE` so that Kvasir can enable HTTPS.
 
 Templating Engine
 ~~~~~~~~~~~~~~~~~~~~

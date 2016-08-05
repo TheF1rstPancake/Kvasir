@@ -22,7 +22,6 @@ var express = require("express");
 
 // load app configuration settings
 // pull all of the environment variables down into a dictionary
-require("dotenv").config();
 console.log("ENVIROMENT VARIABLES: ", process.env);
 var app_config = {
     "cookie_secret": process.env.KVASIR_COOKIE_SECRET,
@@ -32,9 +31,11 @@ var app_config = {
     "client_id": process.env.KVASIR_CLIENT_ID,
     "client_secret": process.env.KVASIR_CLIENT_SECRET,
     "http_override":process.env.KVASIR_HTTP_OVERRIDE
+    "ssl": {
+        "privateKey": process.env.KVASIR_SSL_PRIVATE_KEY,
+        "certificate": process.env.KVASIR_SSL_CERTIFICATE
+    }
 }
-
-console.log("APP CONFIG: ", app_config);
 
 // create the express app and define what port this is open on
 var app = new (express)();
