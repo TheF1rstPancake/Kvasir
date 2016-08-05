@@ -266,6 +266,7 @@ Environment Variables
 All of the environemtn variables that Kvasir uses start with KVASIR.  This isolates it's environment variables from any other applications.
 
 This is the entire list of environment variables:
+
     - **KVASIR_COOKIE_SECRET**:        the secret key used to "encrypt" cookies set in the browser
     - **KVASIR_MIDDLEWARE_URI**:       the uri to the middleware which connects to your database
     - **KVASIR_MIDDLEWARE_SECRET**:    the secret key used in the `Authorization` header when making requests to the middleware
@@ -290,7 +291,8 @@ Kvasir will check for the presence of the environment file using the `dotenv <ht
 The file should be named `.env` and be placed in the same directory as `server.js`.
 
 A sample environment file looks like this:
-    .. code-block::
+    .. code-block:: python
+
         KVASIR_COOKIE_SECRET = YOUR_COOKIE_SECRET
         KVASIR_MIDDLEWARE_URI = https://your.middle.ware/
         KVASIR_MIDDLEWARE_SECRET = YOU_MIDDLEWARE_SECRET
