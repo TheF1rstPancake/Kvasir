@@ -23,7 +23,8 @@
   },
   "homepage": "http://redux.js.org",
   "dependencies": {
-    "babel": "^6.5.2",
+    "babel-core": "^6.13.2",
+    "babel-loader": "^6.2.4",
     "babel-polyfill": "^6.3.14",
     "body-parser": "^1.15.2",
     "cookie-parser": "^1.4.3",
