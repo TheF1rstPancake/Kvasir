@@ -2,8 +2,14 @@
   "name": "redux-todos-example",
   "version": "0.0.0",
   "description": "Redux Todos example",
+  "engines": {
+    "node": "6.0.0"
+  },
   "scripts": {
     "start": "node server.js",
+    "prestart": "npm run bundle",
+    "postinstall": "webpack --config webpack.config.js",
+    "bundle": "webpack --config webpack.config.js",
     "test": "cross-env NODE_ENV=test mocha --recursive --compilers js:babel-register --require ./test/setup.js",
     "test:watch": "npm test -- --watch"
   },
@@ -17,12 +23,15 @@
   },
   "homepage": "http://redux.js.org",
   "dependencies": {
+    "babel": "^6.5.2",
     "babel-polyfill": "^6.3.14",
     "body-parser": "^1.15.2",
     "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-alpha.1",
     "csurf": "^1.9.0",
     "ejs": "^2.5.1",
+    "express": "^4.14.0",
+    "express-winston": "^2.0.0",
     "graceful-fs": "^4.1.4",
     "react-bootstrap": "^0.29.5",
     "react-bootstrap-table": "^2.3.7",
@@ -31,7 +40,13 @@
     "redux": "^3.1.2",
     "redux-logger": "^2.6.1",
     "redux-thunk": "^2.1.0",
-    "wepay": "0.0.5"
+    "request": "^2.74.0",
+    "url": "^0.11.0",
+    "webpack": "^1.13.1",
+    "webpack-dev-middleware": "^1.6.1",
+    "webpack-hot-middleware": "^2.12.2",
+    "wepay": "0.0.5",
+    "winston": "^2.2.0"
   },
   "devDependencies": {
     "babel-core": "^6.3.15",

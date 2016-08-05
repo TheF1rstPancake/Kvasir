@@ -12,7 +12,7 @@ var WePay = require("wepay").WEPAY;
 
 // HTTPS server
 var https = require("https")
-var http = require("http")
+var http = require("http");
 
 // file reader
 var fs = require("fs")
@@ -38,8 +38,8 @@ var cookieParser = require("cookie-parser")
 var csrf = require("csurf");
 var csrfProtection = csrf(
     {cookie:{
-            secure:true, 
-            httpOnly:true
+            secure:app_config.httpOverride ? false : true, 
+            httpOnly: true
         }
     }
 );
@@ -439,12 +439,16 @@ app.post("/credit_card", csrfProtection, function(req, res){
  * Before we start, make sure that the app configuration meets the requirements
  */
 verifyConfig(app_config);
-
-var httpsServer = https.createServer(credentials, app);
-httpsServer.listen(port, function(error) {
+if (app_config.httpOverride) {
+    var httpsServer = http.createServer(app);
+}
+else {
+    var httpsServer = https.createServer(credentials, app);
+}
+httpsServer.listen(process.env.PORT || '8080', function(error) {
     if (error) {
         console.error(error)
     } else {
-        console.info("==> 🌎  Listening on port %s. Open up https://localhost:%s/ in your browser.", port, port)
+        console.info("==> 🌎  Listening on port %s. Open up https://localhost:%s/ in your browser.", process.env.PORT || '8080', process.env.PORT || '8080')
     }
 });
