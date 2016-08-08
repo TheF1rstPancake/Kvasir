@@ -1,3 +1,5 @@
+.. _herokudeploy:
+
 Deploying to Heroku
 ====================
 This page explains the process we took to deploy Kvasir on Heroku.  
@@ -52,3 +54,11 @@ What this script does is open the `.env` file, and then for each line in that fi
 
 The reason we have to remove any spaces is because spaces will mess up how the command line parses the command.  If your `KVASIR_MIDDLEWARE_URI` has spaces in it, make sure you replace those with *%20*.
 
+Testing Locally
+~~~~~~~~~~~~~~~~~~~
+Before deploying to Heroku, you should verify that everything works locally.
+
+To do this, you go ahead and run:
+    >>> heroku local
+
+This will emulate how the application will run on Heroku. If you are able to connect and perform actions on the local version, chances are very good that it will work when deployed to Heroku.

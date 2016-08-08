@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Deploying to Google App Engine &mdash; Kvasir 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
+        <link rel="prev" title="Deploying to Heroku" href="herokudeploy.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kvasir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backend.html">The Back-End: NodeJS and ExpressJS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">The Middleware: Whatever Language You Want</a></li>
+<li class="toctree-l1"><a class="reference internal" href="herokudeploy.html">Deploying to Heroku</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Deploying to Google App Engine</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#google-app-engine-and-nodejs">Google App Engine and NodeJS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-google-app-engine">Setting up Google App Engine</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-one-install-google-cloud-sdk">Step One: Install Google Cloud SDK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-two-start-a-project-and-enable-billing">Step Two: Start a Project and Enable Billing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-three-define-app-yaml">Step Three: Define app.yaml</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-four-add-users">Step Four: Add Users</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-five-deploy">Step Five: Deploy</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-your-middleware-to-gae">Adding Your Middleware to GAE</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kvasir</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Deploying to Google App Engine</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/googleappengine.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="deploying-to-google-app-engine">
+<h1>Deploying to Google App Engine<a class="headerlink" href="#deploying-to-google-app-engine" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference internal" href="herokudeploy.html#herokudeploy"><span>Deploying to heroku</span></a> is one way to host Kvasir on a third party hosting service, but Heroku isn&#8217;t everyone&#8217;s first choice.</p>
+<p>Many people also chose to use the <a class="reference external" href="https://cloud.google.com/appengine/docs">Google App Engine</a> for deploying their applications.  The Google App Engine (GAE) handles a lot of production level concerns for you, such as scaling and health monitoring.  The nice part about the GAE is that you can configure your applications with a simple YAML file to define a lot of behaviors and gain a lot of extra functionality without putting in a lot of work.</p>
+<p>This document explains the steps we took to deploy Kvasir to the GAE.</p>
+<div class="section" id="google-app-engine-and-nodejs">
+<h2>Google App Engine and NodeJS<a class="headerlink" href="#google-app-engine-and-nodejs" title="Permalink to this headline">¶</a></h2>
+<p>Originally, the Google App Engine only support Python, Java, PHP and Go, but they have begun to support many other popular languages and web frameworks including NodeJS.  NodeJS is still considered in &#8220;beta&#8221; for the Google App Engine, but we were able to deploy it without a lot of problems.</p>
+<p>One issue to identify right off the bat is that NodeJS requires what the GAE refers to as a &#8220;Flexible&#8221; environment.  All this really means is that the GAE will launch your NodeJS application using Docker containers on the <a class="reference external" href="https://cloud.google.com/compute/">Google Compute Engine</a>.  This is important because the <a class="reference external" href="https://cloud.google.com/appengine/pricing">pricing</a> for the GAE and the Google Compute Engine are different.</p>
+<p>The cost is not too high.  During our development period, we only had about $100 a month in charges, but the pricing will vary greatly depending on how often you use the system.</p>
+</div>
+<div class="section" id="setting-up-google-app-engine">
+<h2>Setting up Google App Engine<a class="headerlink" href="#setting-up-google-app-engine" title="Permalink to this headline">¶</a></h2>
+<p>Setting up the Google App Engine is well documented process.</p>
+<dl class="docutils">
+<dt>You can follow this tutorial here to get your feet wet:</dt>
+<dd><a class="reference external" href="https://cloud.google.com/nodejs/getting-started/hello-world">https://cloud.google.com/nodejs/getting-started/hello-world</a></dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We reiterate many of those steps here, but not all of the steps in that link are necessary for our deployment.</p>
+</div>
+<div class="section" id="step-one-install-google-cloud-sdk">
+<h3>Step One: Install Google Cloud SDK<a class="headerlink" href="#step-one-install-google-cloud-sdk" title="Permalink to this headline">¶</a></h3>
+<p>Step one to any Google App Engine project is to install the Google Cloud SDK.</p>
+<dl class="docutils">
+<dt>The installation can be found here:</dt>
+<dd><a class="reference external" href="https://cloud.google.com/sdk/docs/">https://cloud.google.com/sdk/docs/</a></dd>
+</dl>
+</div>
+<div class="section" id="step-two-start-a-project-and-enable-billing">
+<h3>Step Two: Start a Project and Enable Billing<a class="headerlink" href="#step-two-start-a-project-and-enable-billing" title="Permalink to this headline">¶</a></h3>
+<p>The second step is to actually create a project and set up your billing information on it.</p>
+<dl class="docutils">
+<dt>To create a project:</dt>
+<dd><a class="reference external" href="https://console.cloud.google.com/project">https://console.cloud.google.com/project</a></dd>
+</dl>
+<p>After creating your project, you&#8217;ll want to take down the <em>Project ID</em>.  We will need this for several upcoming steps.</p>
+<dl class="docutils">
+<dt>To enable billing:</dt>
+<dd><a class="reference external" href="https://support.google.com/cloud/answer/6293499#enable-billing">https://support.google.com/cloud/answer/6293499#enable-billing</a></dd>
+</dl>
+</div>
+<div class="section" id="step-three-define-app-yaml">
+<h3>Step Three: Define app.yaml<a class="headerlink" href="#step-three-define-app-yaml" title="Permalink to this headline">¶</a></h3>
+<p>The magic of the Google App Engine comes in the <em>app.yaml</em> file that it uses to set up and configure your environment.  Google&#8217;s documentation is a little confused on what <a class="reference external" href="https://cloud.google.com/appengine/docs/flexible/nodejs/configuring-your-app-with-app-yaml">is and isn&#8217;t allowed</a> in the <em>app.yaml</em> file for a NodeJS application.  For example, that document says that the <em>login</em> setting is not allowed for NodeJS apps, but we successfully deployed with it.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Your app.yaml file <strong>must</strong> be placed in the root directory of your code.
+So after you download Kvasir, it goes right in that directory at the same level as <em>server.js</em> and <em>package.json</em></p>
+</div>
+<p>Our app.yaml file looks like this:</p>
+<blockquote>
+<div><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># configuration file for GAE with NodeJS</span>
+<span class="c1">#</span>
+
+<span class="l-Scalar-Plain">runtime</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">nodejs</span>
+<span class="l-Scalar-Plain">vm</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+<span class="l-Scalar-Plain">threadsafe</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+<span class="l-Scalar-Plain">service</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">kvasir</span>
+
+<span class="l-Scalar-Plain">vm_health_check</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">enable_health_check</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">False</span>
+
+<span class="l-Scalar-Plain">handlers</span><span class="p-Indicator">:</span>
+ <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">url</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">/.*</span>
+   <span class="l-Scalar-Plain">script</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">server.js</span>
+   <span class="l-Scalar-Plain">secure</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">always</span>
+   <span class="l-Scalar-Plain">login</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">admin</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>In this file, we tell the GAE that we want to use nodejs, and we are using a flexible environment (<em>vm: true</em>).  We also specify a <em>service</em> name.  The GAE readily supports a <a class="reference external" href="https://cloud.google.com/appengine/docs/python/microservices-on-app-engine">microservice architecture</a> which we can use to our advantage.  Even if this is the only service deployed on your application, that&#8217;s fine.  Giving it a name makes future updates easier.</p>
+<p>Under the <em>handlers</em> section we tell the GAE where to send relevant traffic.  We want all traffic to go to our <em>server.js</em> server, and all requests should be done with HTTPS and all requests need to have a login associated with them.</p>
+<p>The <em>login</em> component here is key.  There are a few different login options but <em>login: admin</em> means that only people registered with your application are allowed entry.  <strong>This allows you to setup authentication with Google outside of Kvasir.</strong>  All users who enter the application are first vetted by the GAE and only authorized users are allowed entrance into the actual application.</p>
+<p>You can tweak and add more settings to your application as you see fit.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The NodeJS &#8220;login&#8221; option is still in beta so we may have launched during a time where this was allowed, but it could be removed at a later point.  Still, it seems likely that Google will chose to give all possible environments the opportunity to use a form of login.</p>
+</div>
+</div>
+<div class="section" id="step-four-add-users">
+<h3>Step Four: Add Users<a class="headerlink" href="#step-four-add-users" title="Permalink to this headline">¶</a></h3>
+<p>You can invite users using their Google emails under the <em>IAM &amp; Admin</em> section in your app&#8217;s console.</p>
+<p>In order for them to be considered <em>admin</em> they only need to have <em>Viewer</em> privileges.  You do not need to make everyone who needs access to Kvasir an owner of the entire GAE project.  This allows you to maintain access control over the workings of the GAE project but still give everyone access to Kvasir.</p>
+</div>
+<div class="section" id="step-five-deploy">
+<h3>Step Five: Deploy<a class="headerlink" href="#step-five-deploy" title="Permalink to this headline">¶</a></h3>
+<p>Deploying the application can be a little messy, but the general idea with Docker containers is that, if it runs in your local environment, it should run just fine in the deployed environment.</p>
+<p>The main issues we had with deploying were with the <em>package.json</em> file.  Some of our packages had been installed locally but were not contained in the <em>package.json</em> file, so not all packages were installed and the application could not start.</p>
+<dl class="docutils">
+<dt>To deploy the application, you must run the following command from the root directory of Kvasir:</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gcloud</span> <span class="n">app</span> <span class="n">deploy</span> <span class="o">--</span><span class="n">project</span><span class="o">=&lt;</span><span class="n">YOUR_PROJECT_NAME</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can also specify a version by adding <em>&#8211;version=&lt;YOUR_VERSION&gt;</em>.  During our development, we kept two versions, <em>dev</em> and <em>master</em>.  But this is optional.  If you do not include a version GAE will default to using the date and time of deployment as the version name.</p>
+</div>
+<p>After deploying, you will see a lot of text on your screen as the Docker container downloads its environment and installs the application.  Deploying took us anywhere from 5-10 minutes.  Once the console says that deployment is done, you can go to the link for your project and you should be live!</p>
+</div>
+</div>
+<div class="section" id="adding-your-middleware-to-gae">
+<h2>Adding Your Middleware to GAE<a class="headerlink" href="#adding-your-middleware-to-gae" title="Permalink to this headline">¶</a></h2>
+<p>Our Kvasir middleware is actually contained on the Google App Engine as another service following Google&#8217;s <a class="reference external" href="https://cloud.google.com/appengine/docs/python/microservices-on-app-engine">microservice architecture</a>.  This way the entire application is nicely housed in one environment.</p>
+<p>We wrote our middleware in Python, but you would basically follow the same steps as above, but just for the language that you wrote your middleware in.</p>
+<p>This is the recommended approach.  Because NodeJS is still in Beta, using an already fully supported language such as Python, Java, PHP or Go seems to give you more functionality.  However, it is up to you to decide where everything will live.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="herokudeploy.html" class="btn btn-neutral" title="Deploying to Heroku" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, WePay Inc.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

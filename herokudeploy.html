@@ -31,6 +31,7 @@
 
   
     <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
+        <link rel="next" title="Deploying to Google App Engine" href="googleappengine.html"/>
         <link rel="prev" title="The Middleware: Whatever Language You Want" href="middleware.html"/> 
 
   
@@ -93,10 +94,12 @@
 <li class="toctree-l4"><a class="reference internal" href="#scripting-makes-life-easier">Scripting Makes Life Easier</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-locally">Testing Locally</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="googleappengine.html">Deploying to Google App Engine</a></li>
 </ul>
 
             
@@ -142,7 +145,7 @@
            <div itemprop="articleBody">
             
   <div class="section" id="deploying-to-heroku">
-<h1>Deploying to Heroku<a class="headerlink" href="#deploying-to-heroku" title="Permalink to this headline">¶</a></h1>
+<span id="herokudeploy"></span><h1>Deploying to Heroku<a class="headerlink" href="#deploying-to-heroku" title="Permalink to this headline">¶</a></h1>
 <p>This page explains the process we took to deploy Kvasir on Heroku.
 You can follow a similar approach for any third party hosting service but some of the particulars will be dependent on which service you chose to use.</p>
 <div class="section" id="purpose">
@@ -195,6 +198,18 @@ call(command)</dd>
 <p>The reason we have to remove any spaces is because spaces will mess up how the command line parses the command.  If your <cite>KVASIR_MIDDLEWARE_URI</cite> has spaces in it, make sure you replace those with <em>%20</em>.</p>
 </div>
 </div>
+<div class="section" id="testing-locally">
+<h3>Testing Locally<a class="headerlink" href="#testing-locally" title="Permalink to this headline">¶</a></h3>
+<p>Before deploying to Heroku, you should verify that everything works locally.</p>
+<dl class="docutils">
+<dt>To do this, you go ahead and run:</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">heroku</span> <span class="n">local</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>This will emulate how the application will run on Heroku. If you are able to connect and perform actions on the local version, chances are very good that it will work when deployed to Heroku.</p>
+</div>
 </div>
 </div>
 
@@ -204,6 +219,8 @@ call(command)</dd>
           <footer>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="googleappengine.html" class="btn btn-neutral float-right" title="Deploying to Google App Engine" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="middleware.html" class="btn btn-neutral" title="The Middleware: Whatever Language You Want" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
