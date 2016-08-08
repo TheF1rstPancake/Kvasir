@@ -20,6 +20,12 @@ var fs = require("fs")
 // express library for defining routes
 var express = require("express");
 
+// try and load a .env file.  
+// This will put out a warning if one does not exist but that's fine
+// if it doesn't exist, you should be setting the environment variables manually.
+require("dotenv").config();
+
+
 // load app configuration settings
 // pull all of the environment variables down into a dictionary
 var app_config = {
