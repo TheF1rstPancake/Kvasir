@@ -174,7 +174,7 @@
 </div>
 <div class="section" id="structure">
 <h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
-<p>The underlying structure is pretty simple.  Requests come in from the front-end, and some of those requests will require the server to communicate with the platform&#8217;s database, while others require requests to the WePay API, and then there are requests that will require both.</p>
+<p>The underlying structure is pretty simple.  Requests come in from the front-end, and some of those requests will require the server to communicate with the your database, while others require requests to the WePay API, and then there are requests that will require both.</p>
 <p>Each object built in the front-end app receives it&#8217;s own endpoint on the server.  For example, the <a class="reference internal" href="frontend.html#user-object"><span>user object</span></a> makes all of it&#8217;s requests to the <em>/user</em> endpoint on the server.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -183,6 +183,10 @@
 <p>When the front-end makes a request, the back-end is responsible for formatting it into something the partner middleware or WePay will understand.  This provides a useful layer of abstraction should something change in either of those two systems.</p>
 <p>The server is also responsible for <a class="reference internal" href="#back-end-sendingdatabacktoclient"><span>packaging responses back to the client, including error messages</span></a>.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front-end.  Typically, valid data is simply sent to the front-end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.</p>
 <p>Kvasir&#8217;s node server also manages cookies on the client&#8217;s browser.  Right now, the only cookie is a CSRF cookie used to manage our CSRF protection.  The cookie has the <code class="docutils literal"><span class="pre">secure</span></code> and <code class="docutils literal"><span class="pre">httpOnly</span></code> flags set so that the cookie must be set over HTTPS, and it cannot be accessed by client side JavaScript.  Additionally, the CSRF token is placed in the HTML of the page itself via our templating engine.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The secure flag is configurable and may not be desirable depending on how you host Kvasir.  The httpOnly flag is non-negotiable.</p>
+</div>
 </div>
 <div class="section" id="endpoints">
 <h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this headline">¶</a></h2>
@@ -446,20 +450,19 @@
 <code class="descname">getDataFromMiddleware</code><span class="sig-paren">(</span><em>resource</em>, <em>data</em>, <em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#getDataFromMiddleware" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a resource, and package of data, send a request to the middleware.
 Once the request is complete, it will call the callback function provided.</p>
-<blockquote>
-<div><table class="docutils field-list" frame="void" rules="none">
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">param resource:</th><td class="field-body">the resource that we want to search on the partner&#8217;s database (also referred to as <em>objects</em> such as user, account, payer)</td>
-</tr>
-<tr class="field-even field"><th class="field-name">param data:</th><td class="field-body">the package we use to query information about the provided resource</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">param callback:</th><td class="field-body">a callback function to execute after the middleware returns information.  Typically this is <a class="reference internal" href="#parseMiddlewareResponse" title="parseMiddlewareResponse"><code class="xref js js-func docutils literal"><span class="pre">parseMiddlewareResponse()</span></code></a></td>
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>resource</strong> &#8211; the resource that we want to search on the partner&#8217;s database (also referred to as <em>objects</em> such as user, account, payer)</li>
+<li><strong>data</strong> &#8211; the package we use to query information about the provided resource</li>
+<li><strong>callback</strong> &#8211; a callback function to execute after the middleware returns information.  Typically this is <a class="reference internal" href="#parseMiddlewareResponse" title="parseMiddlewareResponse"><code class="xref js js-func docutils literal"><span class="pre">parseMiddlewareResponse()</span></code></a></li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
-</div></blockquote>
 </dd></dl>
 
 <dl class="function">
@@ -570,7 +573,7 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 <p>An environment file can still be defined to set the values of the different environment variables.  Some third party hosting services (such as the Google App Engine) will take all files in your current directory and upload those instead of using a git repository.  These types of services don&#8217;t always provide a way to set environment variables remotely, so the hidden file works in those cases.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If you are adding additional functionality into Kvasir (in other words, you are actively developing Kvasir), then you should define use the <cite>.env</cite> file.  It makes testing and manipulating the environment variables a little easier.</p>
+<p class="last">If you are adding additional functionality into Kvasir (in other words, you are actively developing Kvasir), then you should define the <cite>.env</cite> file.  It makes testing and manipulating the environment variables a little easier.</p>
 </div>
 <p>Kvasir will check for the presence of the environment file using the <a class="reference external" href="https://www.npmjs.com/package/dotenv">dotenv</a> package which will then set all of the environment variables accordingly.  This way, the other parts of Kvasir don&#8217;t have to worry about where the configuration values are coming from.  It will check the enviornment variables and pull them into an object that all of it&#8217;s routes and functions are free to reference.</p>
 <p>The file should be named <cite>.env</cite> and be placed in the same directory as <cite>server.js</cite>.</p>

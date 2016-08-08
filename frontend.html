@@ -249,18 +249,18 @@
 </div></blockquote>
 </dd>
 </dl>
-<p>If you look at these objects, you might recognize that all of these <em>except for the Payer object</em> directly tie back to a WePay API endpoint.  That&#8217;s intentional.  We assumed that many platforms would have developed their database configurations around the different WePay endpoints.  Since you generally have to interact with these endpoints in a certain order (/user endpoint, then /account endpoint, then /checkout endpoint), it makes sense that a partner&#8217;s database would grow around that.  Regardless of how a partner&#8217;s database is configured, Kvasir needs to interact with each of these endpoints to gather the information it needs.</p>
+<p>If you look at these objects, you might recognize that all of these <em>except for the Payer object</em> directly tie back to a WePay API endpoint.  That&#8217;s intentional.  We assumed that many platforms would have developed their database configurations around the different WePay endpoints.  Since you generally have to interact with these endpoints in a certain order (/user endpoint, then /account endpoint, then /checkout endpoint), it makes sense that a partner&#8217;s database would grow around that.  Regardless of how a your database is configured, Kvasir needs to interact with each of these endpoints to gather the information it needs.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The front-end objects do not make any calls directly to the WePay API.  All of those are done by the back-end server.</p>
 </div>
-<p>The <em>components</em> are responsible for handling user actions and then dispatching the associated actions.  The are also responsible for subscribing to all of the necessary state information and formatting that data.  While all actions are globally published, not every component relies on all of that info (and they shouldn&#8217;t).</p>
-<p>For example, when an account is clicked in the account component, the account component registers that the click happened, manipulates the table, and then dispatches the <em>searchedAccounts</em>, <em>fetchWithdrawalsIfNeeded</em> and <em>fetchCheckoutsIfNeeded</em> actions.  Some of these actions will directly impact the action component causing it to re-render with new info, while others will impact other components forcing them to re-render with the new information.</p>
+<p>The <em>components</em> are responsible for handling user actions and then dispatching the associated Redux actions.  They are also responsible for subscribing to all of the necessary state information and formatting that data.  While all actions are globally published, not every component relies on all of that info (and they shouldn&#8217;t).</p>
+<p>For example, when an account is clicked in the account component, the account component registers that the click happened, manipulates the table, and then dispatches the <em>searchedAccounts</em>, <em>fetchWithdrawalsIfNeeded</em> and <em>fetchCheckoutsIfNeeded</em> actions.  Some of these actions will directly impact the action component causing it to re-render with new info, while others will impact other components forcing them to re-render with the new information, but the <em>User</em> objects is not impacted at all.  Actions to accounts do not affect the User who owns them.</p>
 <div class="section" id="general-object-implementation">
 <h3>General Object Implementation<a class="headerlink" href="#general-object-implementation" title="Permalink to this headline">¶</a></h3>
 <p>All of the objects are different in the sense that they require different search requirements (user_id, account_id, etc.); however, they are all implemented in very similar ways.</p>
 <dl class="docutils">
-<dt>Really, what all of the objects require a handful of actions:</dt>
+<dt>All of the objects require a handful of actions:</dt>
 <dd><ol class="first last arabic">
 <li><dl class="first docutils">
 <dt>Search</dt>
@@ -411,7 +411,7 @@ The initial state is defined by each object but generally they all look this:</p
 </ol>
 </dd>
 </dl>
-<p>Going back to the early example, if someone were to search a user with one email and immediately change the search parameters, there is no way for them to cancel the original request.  It has likely already been sent to the back-end to be processed.  There is also no guarantee that the first request will finish before the second request.  So, the user may be handed information from the original request, despite the fact that they didn&#8217;t want to.  Separating the search information from the object&#8217;s information that we receive allows Kvasir to validate that the information we received is actually the info we wanted.  If it&#8217;s not, we can ignore it and prevent the state from being updated with unwanted info.</p>
+<p>Going back to the earlier example, if someone were to search a user with one email and immediately change the search parameters, there is no way for them to cancel the original request.  It has likely already been sent to the back-end to be processed.  There is also no guarantee that the first request will finish before the second request.  So, the user may be handed information from the original request, despite the fact that they didn&#8217;t want to.  Separating the search information from the object&#8217;s information that we receive allows Kvasir to validate that the information we received is actually the info we wanted.  If it&#8217;s not, we can ignore it and prevent the state from being updated with unwanted info.</p>
 </div>
 <div class="section" id="user-object">
 <span id="id1"></span><h3>User Object<a class="headerlink" href="#user-object" title="Permalink to this headline">¶</a></h3>
@@ -504,6 +504,7 @@ This includes information about where a merchant&#8217;s money is being withdraw
 <dt>Gross Amount</dt>
 <dd><ul class="first last simple">
 <li>the amount + any additional fees that the <em>payer</em> had to pay</li>
+<li>this is an important distinction because fees can be assigned to the payer, payee, or even the app itself</li>
 </ul>
 </dd>
 </dl>
