@@ -36,6 +36,8 @@ var app_config = {
     }
 }
 
+console.log("Lauching app with following config: ", app_config);
+
 // create the express app and define what port this is open on
 var app = new (express)();
 var port = app_config.port;

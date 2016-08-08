@@ -50,6 +50,8 @@
     "url": "^0.11.0",
     "webpack": "^1.13.1",
     "wepay": "git://github.com/wepay/NodeJS-SDK.git",
+    "webpack-dev-middleware": "^1.6.1",
+    "webpack-hot-middleware": "^2.12.2",
     "winston": "^2.2.0"
   },
   "devDependencies": {
