@@ -32,7 +32,7 @@
   
     <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
         <link rel="next" title="Deploying to Google App Engine" href="googleappengine.html"/>
-        <link rel="prev" title="The Middleware: Whatever Language You Want" href="middleware.html"/> 
+        <link rel="prev" title="Kvasir Use Cases" href="usecases.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -86,6 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a></li>
 <li class="toctree-l1"><a class="reference internal" href="backend.html">The Back-End: NodeJS and ExpressJS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">The Middleware: Whatever Language You Want</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usecases.html">Kvasir Use Cases</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Deploying to Heroku</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#following-the-tutorial">Following the Tutorial</a><ul>
@@ -180,19 +181,15 @@ This document will be more notes on the pitfalls that we encountered specific to
 <h4>Scripting Makes Life Easier<a class="headerlink" href="#scripting-makes-life-easier" title="Permalink to this headline">¶</a></h4>
 <p>If you already have a <cite>.env</cite> file defined (which you generally should during development), then you can use this Python script to set all of the environment variables on Heroku for you.</p>
 <blockquote>
-<div><p>..code-block:: python</p>
-<blockquote>
-<div><p>from subprocess import call</p>
-<p>command = [&#8216;heroku&#8217;, &#8216;config:set&#8217;, &#8216;&#8217;]
-with open(&#8221;.env&#8221;, &#8220;r&#8221;) as f:</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>for line in f:</dt>
-<dd>command[-1] = line.rstrip().replace(&#8221; &#8221;, &#8216;&#8217;)
-call(command)</dd>
-</dl>
-</div></blockquote>
-</div></blockquote>
+<div><div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">call</span>
+
+<span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;heroku&#39;</span><span class="p">,</span> <span class="s">&#39;config:set&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&quot;.env&quot;</span><span class="p">,</span> <span class="s">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">command</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">call</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</pre></div>
+</div>
 </div></blockquote>
 <p>What this script does is open the <cite>.env</cite> file, and then for each line in that file, it will strip any trailing whitespace (including new lines) and remove any spaces from the line and send the command via the command line to heroku to add the environment variable and value.</p>
 <p>The reason we have to remove any spaces is because spaces will mess up how the command line parses the command.  If your <cite>KVASIR_MIDDLEWARE_URI</cite> has spaces in it, make sure you replace those with <em>%20</em>.</p>
@@ -223,7 +220,7 @@ call(command)</dd>
         <a href="googleappengine.html" class="btn btn-neutral float-right" title="Deploying to Google App Engine" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="middleware.html" class="btn btn-neutral" title="The Middleware: Whatever Language You Want" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="usecases.html" class="btn btn-neutral" title="Kvasir Use Cases" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

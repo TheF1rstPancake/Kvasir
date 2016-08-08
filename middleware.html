@@ -31,7 +31,7 @@
 
   
     <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
-        <link rel="next" title="Deploying to Heroku" href="herokudeploy.html"/>
+        <link rel="next" title="Kvasir Use Cases" href="usecases.html"/>
         <link rel="prev" title="The Back-End: NodeJS and ExpressJS" href="backend.html"/> 
 
   
@@ -97,6 +97,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="usecases.html">Kvasir Use Cases</a></li>
 <li class="toctree-l1"><a class="reference internal" href="herokudeploy.html">Deploying to Heroku</a></li>
 <li class="toctree-l1"><a class="reference internal" href="googleappengine.html">Deploying to Google App Engine</a></li>
 </ul>
@@ -155,7 +156,7 @@
 </div>
 <div class="section" id="middleware-specifications">
 <h2>Middleware Specifications<a class="headerlink" href="#middleware-specifications" title="Permalink to this headline">¶</a></h2>
-<p>If you read the <a class="reference internal" href="backend.html#kvasirbackend"><span>back-end server documentation</span></a> then you know that Kvasir&#8217;s NodeJS server comes with one function for communicating with the middleware (<a class="reference internal" href="backend.html#getDataFromMiddleware" title="getDataFromMiddleware"><code class="xref js js-func docutils literal"><span class="pre">getDataFromMiddleware()</span></code></a>).</p>
+<p>If you read the <a class="reference internal" href="backend.html#kvasirbackend"><span>back-end server documentation</span></a> then you know that Kvasir&#8217;s NodeJS server comes with one function for communicating with the middleware (<code class="xref js js-func docutils literal"><span class="pre">getDataFromMid2dleware()</span></code>).</p>
 <p>This function is very simple, all it does is format it&#8217;s parameters into a POST request with a callback function.</p>
 <p>The idea is that the middleware gives Kvasir access to different <em>resources</em> in the partner&#8217;s database.  Those resources are queried via a set of data included in the body of the request, and then the response is sent to a callback function which then decides what to do with the data.</p>
 <dl class="docutils">
@@ -336,7 +337,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="herokudeploy.html" class="btn btn-neutral float-right" title="Deploying to Heroku" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="usecases.html" class="btn btn-neutral float-right" title="Kvasir Use Cases" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="backend.html" class="btn btn-neutral" title="The Back-End: NodeJS and ExpressJS" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>

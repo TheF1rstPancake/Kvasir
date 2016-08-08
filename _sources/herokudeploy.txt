@@ -40,7 +40,7 @@ Scripting Makes Life Easier
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you already have a `.env` file defined (which you generally should during development), then you can use this Python script to set all of the environment variables on Heroku for you.
 
-    ..code-block:: python
+    .. code-block:: python
 
         from subprocess import call
 

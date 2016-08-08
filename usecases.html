@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Kvasir Use Cases &mdash; Kvasir 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
+        <link rel="next" title="Deploying to Heroku" href="herokudeploy.html"/>
+        <link rel="prev" title="The Middleware: Whatever Language You Want" href="middleware.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kvasir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backend.html">The Back-End: NodeJS and ExpressJS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">The Middleware: Whatever Language You Want</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Kvasir Use Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#account-and-user-lookups">Account and User Lookups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#performing-refunds">Performing Refunds</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#potential-refund-errors">Potential Refund Errors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="herokudeploy.html">Deploying to Heroku</a></li>
+<li class="toctree-l1"><a class="reference internal" href="googleappengine.html">Deploying to Google App Engine</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kvasir</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Kvasir Use Cases</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/usecases.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="kvasir-use-cases">
+<h1>Kvasir Use Cases<a class="headerlink" href="#kvasir-use-cases" title="Permalink to this headline">¶</a></h1>
+<p>This page will explain what functionality Kvasir was built for and how to work with it in common use cases.</p>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><dl class="docutils">
+<dt>Kvasir is built to perform the following actions:</dt>
+<dd><blockquote class="first">
+<div><ul>
+<li><dl class="first docutils">
+<dt>account lookups</dt>
+<dd><ul class="first last simple">
+<li>account statuses</li>
+<li>withdrawal info</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<ul class="last simple">
+<li>user lookups</li>
+<li>resending user confirmation</li>
+<li>refunding checkouts</li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+<p>The combination of all of these actions allows you to complete most custom support items for your users.</p>
+</div>
+<div class="section" id="account-and-user-lookups">
+<h2>Account and User Lookups<a class="headerlink" href="#account-and-user-lookups" title="Permalink to this headline">¶</a></h2>
+<p>A common question from users is &#8216;Why can&#8217;t I withdraw funds?&#8217;  And the first thing a customer support rep should check is if the user completed KYC.  To do that, we need to do an account lookup and check if the user has a bank account tied to the account.</p>
+<p><strong>Any action involving a user requires that we get their email</strong>.</p>
+<dl class="docutils">
+<dt>To perform an account lookup:</dt>
+<dd><ol class="first last arabic">
+<li><p class="first">Go to the search bar and make sure the select box is set to &#8220;User&#8221; since we are searching for a merchant</p>
+</li>
+<li><p class="first">Type in the merchant&#8217;s email</p>
+</li>
+<li><p class="first">Hit enter and wait.  You should see a set of spinning animations indicating that Kvasir is fetching.</p>
+</li>
+<li><dl class="first docutils">
+<dt>Once the spinners stop, there will be 2 tables</dt>
+<dd><ol class="first last loweralpha simple">
+<li>A table that has the merchant&#8217;s information (name, email and whether or not they&#8217;ve confirmed their email)</li>
+<li>A table with the merchant&#8217;s accounts</li>
+</ol>
+</dd>
+</dl>
+</li>
+<li><p class="first">Table <em>b</em> contains a column with the merchant&#8217;s bank info.  If that column is blank, then the account does not have an associated bank account</p>
+</li>
+</ol>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the spinners stop and no tables appear, it is because an error occurred.  You should receive an error message that tells you why it died, but that&#8217;s dependent on how you implemented the middleware.</p>
+</div>
+<p>During these steps, you can also check to make sure that the user has confirmed their email with WePay.  The user table has a &#8220;State&#8221; column that tells you what state the user is in.  If the user&#8217;s state is not &#8220;Registered&#8221;, then there will be box on the screen that will allow you to resend the user the confirmation email so that they can complete registration.</p>
+</div>
+<div class="section" id="performing-refunds">
+<h2>Performing Refunds<a class="headerlink" href="#performing-refunds" title="Permalink to this headline">¶</a></h2>
+<p>Another common operation is issuing refunds to payers.  Kvasir can handle both full and partial refunds with some caveats.</p>
+<p>In both cases, you&#8217;ll want to get the payer&#8217;s email address that they entered when making the payment.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">It is possible that you do not associate a payer&#8217;s email with the checkout.  In that case, you cannot use Kvasir for this.  Allowing for more searchable options is part of the future plans.</p>
+</div>
+<p>First set the select box to be &#8220;Payer&#8221; to indicate that you are searching payer information, not merchant information.  Once you enter in their email address, you&#8217;ll see the spinning wheels indicating that Kvasir is working.  It should come back with a table that has all of that payer&#8217;s checkouts.  If the table is empty or you receive an error message, it means that no payer with that email exists in your system.</p>
+<p>With that list of checkouts, you need to identify which one the payer wants to refund.  You can use the time of the checkout to help narrow it down.  Once you know which checkout it is, click on the radio button for that row.</p>
+<dl class="docutils">
+<dt>This will cause Kvasir to go fetch more information about the checkout including:</dt>
+<dd><ul class="first last simple">
+<li>Information about the merchant</li>
+<li>Information about the account</li>
+<li>All of the information about the checkout from the WePay API</li>
+</ul>
+</dd>
+</dl>
+<p>Once we have all of this, we can perform the refund.  If the refund hasn&#8217;t already been refunded, you will see a blue button in a column titled &#8220;Refund.&#8221;  Clicking on that button will bring up a modal that includes information about the checkout along with two options - full and partial refund.</p>
+<p>When you do a full refund, you will refund the original amount paid to the merchant as well as all app and processing fees.  Clicking the full refund button will ask you to enter a reason for the refund.  This is may be sent to the merchant depending on your app configuration, so be careful what you put in.</p>
+<p>For a partial refund, you get to decide how much of the original amount paid to the merchant and how much of the app fees you want to refund.  There are three fields that appear when you click partial refund - amount, percentage, and fees.  The amount and percentage field are tied together.  This was designed to make issuing a refund easier.  If your refund policy is that you only refund half of the amount paid to the merchant, you can type in &#8220;50&#8221; into the &#8220;Percentage&#8221; field and Kvasir will calculate what 50% of the amount is for you right there.  Takes out some of the guess work in calculating refunds.</p>
+<p>If you leave a field blank, the default value will be 0.  So if you want to refund the entirety of the amount paid to the merchant but keep the app fees, you can do that in a partial refund.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The WePay processing fees are untouchable when doing a partial refund.</p>
+</div>
+<p>Partial refunds also require a reason.  After you type in the reason, go ahead and press enter and the refund will happen.  If the refund is successful, you will see a green box that says, &#8220;Refund successful!&#8221; and the row in the table will update with the refund information.  This update is actually Kvasir requesting the checkout object again from the WePay API to see if the state changed.  If it doesn&#8217;t update, don&#8217;t be alarmed.  Sometimes it takes a while for the checkout object to update, but if you see the &#8220;Refund successful&#8221; message, that means that the refund went through.</p>
+<div class="section" id="potential-refund-errors">
+<h3>Potential Refund Errors<a class="headerlink" href="#potential-refund-errors" title="Permalink to this headline">¶</a></h3>
+<p>Any errors sent back from the WePay API will be displayed in the modal above the submit button.</p>
+<p>The most common error is trying to refund the checkout before the checkout is in state &#8220;released.&#8221;  The WePay API will return an error in this case, but the state of the checkout is also included in the checkouts table, so you can check before attempting the refund.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="herokudeploy.html" class="btn btn-neutral float-right" title="Deploying to Heroku" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="middleware.html" class="btn btn-neutral" title="The Middleware: Whatever Language You Want" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Giovanni Briggs.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -17,7 +17,7 @@ When developing Kvasir, we constructed a middleware that connected to a set of f
 
 Middleware Specifications
 ---------------------------
-If you read the :ref:`back-end server documentation <kvasirbackend>` then you know that Kvasir's NodeJS server comes with one function for communicating with the middleware (:func:`getDataFromMiddleware`).
+If you read the :ref:`back-end server documentation <kvasirbackend>` then you know that Kvasir's NodeJS server comes with one function for communicating with the middleware (:func:`getDataFromMid2dleware`).
 
 This function is very simple, all it does is format it's parameters into a POST request with a callback function.
 
