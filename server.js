@@ -165,7 +165,7 @@ function sendResponse(package, res) {
             "error_description":"wepay call died. Check server logs for more details.", 
             "error_message":package.error_description, 
             "original_error":package}
-        winston.warning("Sending error!\t", error_package);
+        winston.warn("Sending error!\t", error_package);
         return res.status(500).send(JSON.stringify(error_package));
     }
     else {

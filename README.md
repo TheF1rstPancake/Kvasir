@@ -14,7 +14,10 @@ It will perform:
 
     - refunding checkouts
 
-    - account memebership management
+## Functionality
+All of the functionality has been tested repeatedly, but there may be some cases that I missed.  The WePay API isn't always predicatable, so if you run into an error, be sure to report it as an issue so that I can investigate furhter.  Giving me the original call information (without your client_secret or any access tokens) is extremely helpful so that I can try and reproduce the error.
+
+To see how the framework behaves in action go to: https://nameless-hollows-55554.herokuapp.com/
 
 ## License
 Copyright 2016 Giovanni Briggs
