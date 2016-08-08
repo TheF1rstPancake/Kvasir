@@ -1,3 +1,5 @@
+.. _herokudeploy:
+
 Deploying to Heroku
 ====================
 This page explains the process we took to deploy Kvasir on Heroku.  
