@@ -97,6 +97,11 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#adding-your-middleware-to-gae">Adding Your Middleware to GAE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting-nodejs-in-gae">Troubleshooting NodeJS in GAE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#can-t-set-up-login-with-nodejs">Can&#8217;t set up login with NodeJS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#docker-container-dies-during-deployment">Docker Container Dies during Deployment</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -253,6 +258,21 @@ So after you download Kvasir, it goes right in that directory at the same level 
 <p>We wrote our middleware in Python, but you would basically follow the same steps as above, but just for the language that you wrote your middleware in.</p>
 <p>This is the recommended approach.  Because NodeJS is still in Beta, using an already fully supported language such as Python, Java, PHP or Go seems to give you more functionality.  However, it is up to you to decide where everything will live.</p>
 </div>
+<div class="section" id="troubleshooting-nodejs-in-gae">
+<h2>Troubleshooting NodeJS in GAE<a class="headerlink" href="#troubleshooting-nodejs-in-gae" title="Permalink to this headline">¶</a></h2>
+<p>GAE can have many issues, and they aren&#8217;t always easy to track down.  Here are some of the issues we uncovered and how we fixed them.</p>
+<div class="section" id="can-t-set-up-login-with-nodejs">
+<h3>Can&#8217;t set up login with NodeJS<a class="headerlink" href="#can-t-set-up-login-with-nodejs" title="Permalink to this headline">¶</a></h3>
+<p>We were very excited about the opportunity to wrap Kvasir in an authentication system without having to implement one ourselves.  However, we may have unknowingly uncovered a bug/hack with the Google App Engine that you may not uncover on your first deployment.  We already had an existing GAE project set up that was running a Python application, so we added Kvasir as a service on that same project.</p>
+<p>If deploying Kvasir fails because the GAE does not recognize (or does not want to recognize) the <em>login</em> option and value in your app.yaml, you can reproduce our hack.  All you have to do is deploy a service with one of the supported languages (Python, PHP, Go, or Java) under the same project.  That should provide you with all the access you need.  The application does not have to provide any functionality.  It can even be a simple URL handler that immediately redirects to the NodeJS service, or be one of the tutorial apps that GAE provides.  This will give you a fully supported application with the NodeJS service running underneath it.</p>
+</div>
+<div class="section" id="docker-container-dies-during-deployment">
+<h3>Docker Container Dies during Deployment<a class="headerlink" href="#docker-container-dies-during-deployment" title="Permalink to this headline">¶</a></h3>
+<p>There is a lot more logging that the GAE does outside of what you see on the console during deployment.  Going to the <em>Logging</em> section on your apps console will give you a better idea of where your container is dying.</p>
+<p>One of the most annoying parts about GAE and Docker containers is the container will keep trying to start even if it&#8217;s never going to work.  You can stop the instance from the app&#8217;s console, or redeploy the application with the same version name.</p>
+<p>During development, the reason that our Docker container died was most commonly related to a bad <em>package.json</em> file.  Since that file comes with Kvasir, you shouldn&#8217;t have any issues.  If you are experiencing issues, then check the logs to see if there is something amiss in your <em>app.yaml</em> file that&#8217;s causing it to die.</p>
+</div>
+</div>
 </div>
 
 
@@ -272,7 +292,7 @@ So after you download Kvasir, it goes right in that directory at the same level 
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016, WePay Inc.
+        &copy; Copyright 2016, Giovanni Briggs.
 
     </p>
   </div>
