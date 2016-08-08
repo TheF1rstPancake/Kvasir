@@ -1,0 +1,16 @@
+# configuration file for GAE
+# 
+
+runtime: nodejs
+vm: true
+threadsafe: true
+service: kvasir
+
+vm_health_check:
+    enable_health_check: False
+
+handlers:
+ - url: /.*
+   script: server.js
+   secure: always
+   login: admin

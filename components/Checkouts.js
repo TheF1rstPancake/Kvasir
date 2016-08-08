@@ -564,6 +564,7 @@ var Checkouts = React.createClass({
                         </TableHeaderColumn>    
                         <TableHeaderColumn 
                             dataField = "create_time"
+                            dataFormat = {Base.formatDate}
                             dataSort={true}
                             >
                             Date

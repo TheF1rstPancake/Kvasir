@@ -74,6 +74,7 @@ Contents
    frontend
    backend
    middleware
+   usecases
    herokudeploy
    googleappengine
 

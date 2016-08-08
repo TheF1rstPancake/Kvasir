@@ -159,7 +159,7 @@ function verifyConfig(conf) {
  */
 function sendResponse(package, res) {
     res.setHeader('Content-Type', 'application/json');
-    if ("error_code" in package) {
+    if (package.error_code) {
         var error_package = {
             "error_code":500, 
             "error_description":"wepay call died. Check server logs for more details.", 
@@ -258,7 +258,7 @@ function parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint
     }
     else {
         if (body.access_token) {
-            winston.info("Setting access token cookie:\t", body.access_token);
+            winston.info("Requesting data from wepay: ", wepay_endpoint);
             return getWePayData(res, wepay_endpoint, body.access_token, wepay_package);
         }
         return sendResponse(body, res);

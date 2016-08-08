@@ -3,10 +3,9 @@ Kvasir (Vas-eer) is a support dashboard meant for WePay partners to be able to p
 It will perform:
 
     - account lookups
+        - Get the status of a merchant's account
 
-        - account statuses
-
-        - withdrawal info
+        - Get a merchant's withdrawal info including their bank info and when the next withdrawal will take place
 
     - user lookups
 
@@ -14,10 +13,15 @@ It will perform:
 
     - refunding checkouts
 
+        - Both full and partial refunds are possible
+
 ## Functionality
-All of the functionality has been tested repeatedly, but there may be some cases that I missed.  The WePay API isn't always predicatable, so if you run into an error, be sure to report it as an issue so that I can investigate furhter.  Giving me the original call information (without your client_secret or any access tokens) is extremely helpful so that I can try and reproduce the error.
+All of the functionality has been tested, but there may be some cases that I missed.  The WePay API isn't always predicatable, so if you run into an error, be sure to report it as an issue so that I can investigate furhter.  Giving me the original call information (without your client_secret or any access tokens) is extremely helpful so that I can try and reproduce the error.
 
 To see how the framework behaves in action go to: https://nameless-hollows-55554.herokuapp.com/
+
+## More Info
+To see more info and the full documentation on Kvasir's specs and what's required to use Kvasir, checkout the full documentation: https://wedemoapp.gitlab.io/kvasir/index.html
 
 ## License
 Copyright 2016 Giovanni Briggs
