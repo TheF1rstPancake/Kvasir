@@ -60,7 +60,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Kvasir'
-copyright = u'2016, WePay Inc'
+copyright = u'2016, Giovanni Briggs'
 author = u'Giovanni Briggs'
 
 # The version info for the project you're documenting, acts as replacement for

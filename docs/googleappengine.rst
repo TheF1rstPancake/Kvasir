@@ -111,3 +111,21 @@ Our Kvasir middleware is actually contained on the Google App Engine as another 
 We wrote our middleware in Python, but you would basically follow the same steps as above, but just for the language that you wrote your middleware in.
 
 This is the recommended approach.  Because NodeJS is still in Beta, using an already fully supported language such as Python, Java, PHP or Go seems to give you more functionality.  However, it is up to you to decide where everything will live.
+
+Troubleshooting NodeJS in GAE
+---------------------------------
+GAE can have many issues, and they aren't always easy to track down.  Here are some of the issues we uncovered and how we fixed them.
+
+Can't set up login with NodeJS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+We were very excited about the opportunity to wrap Kvasir in an authentication system without having to implement one ourselves.  However, we may have unknowingly uncovered a bug/hack with the Google App Engine that you may not uncover on your first deployment.  We already had an existing GAE project set up that was running a Python application, so we added Kvasir as a service on that same project.
+
+If deploying Kvasir fails because the GAE does not recognize (or does not want to recognize) the *login* option and value in your app.yaml, you can reproduce our hack.  All you have to do is deploy a service with one of the supported languages (Python, PHP, Go, or Java) under the same project.  That should provide you with all the access you need.  The application does not have to provide any functionality.  It can even be a simple URL handler that immediately redirects to the NodeJS service, or be one of the tutorial apps that GAE provides.  This will give you a fully supported application with the NodeJS service running underneath it.
+
+Docker Container Dies during Deployment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There is a lot more logging that the GAE does outside of what you see on the console during deployment.  Going to the *Logging* section on your apps console will give you a better idea of where your container is dying.
+
+One of the most annoying parts about GAE and Docker containers is the container will keep trying to start even if it's never going to work.  You can stop the instance from the app's console, or redeploy the application with the same version name.
+
+During development, the reason that our Docker container died was most commonly related to a bad *package.json* file.  Since that file comes with Kvasir, you shouldn't have any issues.  If you are experiencing issues, then check the logs to see if there is something amiss in your *app.yaml* file that's causing it to die.

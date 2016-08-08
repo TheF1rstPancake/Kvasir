@@ -1,7 +1,7 @@
 {
-  "name": "redux-todos-example",
-  "version": "0.0.0",
-  "description": "Redux Todos example",
+  "name": "kvasir-support-dash",
+  "version": "0.0.1",
+  "description": "Kvasir - The WePay Support Dashboard",
   "engines": {
     "node": "6.0.0"
   },
@@ -14,13 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/reactjs/redux.git"
+    "url": "https://gitlab.com/wedemoapp/kvasir.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/reactjs/redux/issues"
+    "url": "https://gitlab.com/wedemoapp/kvasir/issues"
   },
-  "homepage": "http://redux.js.org",
+  "homepage": "https://wedemoapp.gitlab.io/kvasir/index.html",
   "dependencies": {
     "babel-core": "^6.13.2",
     "babel-loader": "^6.2.4",
