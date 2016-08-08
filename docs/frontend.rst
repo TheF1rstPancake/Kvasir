@@ -32,15 +32,15 @@ These objects are:
     - :ref:`Accounts <account_object>`
         * represents a merchant account
         * One account can belong to multiple users, but this is not common
-    
+
     - :ref:`Checkouts <checkouts_object>`
         * represents the checkouts tied to a given merchant account (Accounts object)
         * Accounts should have multiple checkouts, but each checkout only belongs to one account.
-    
+
     - :ref:`Withdrawals <withdrawal_object>`
         * represents the withdrawals tied to a given merchant account
         * this includes the reserves that an account has
-    
+
     - :ref:`Credit Card <credit_card_object>`
         * represents the credit card information associated with a given tokenized credit card ID used for a checkout
         * Tokenized cards can be used for multiple checkouts on the same app, but the information tied to a tokenized card does not change from checkout to checkout
@@ -48,20 +48,20 @@ These objects are:
     - :ref:`Payer <payer_object>`
         * represents a payer who made a purchase on the platform
 
-If you look at these objects, you might recognize that all of these *except for the Payer object* directly tie back to a WePay API endpoint.  That's intentional.  We assumed that many platforms would have developed their database configurations around the different WePay endpoints.  Since you generally have to interact with these endpoints in a certain order (/user endpoint, then /account endpoint, then /checkout endpoint), it makes sense that a partner's database would grow around that.  Regardless of how a partner's database is configured, Kvasir needs to interact with each of these endpoints to gather the information it needs.
+If you look at these objects, you might recognize that all of these *except for the Payer object* directly tie back to a WePay API endpoint.  That's intentional.  We assumed that many platforms would have developed their database configurations around the different WePay endpoints.  Since you generally have to interact with these endpoints in a certain order (/user endpoint, then /account endpoint, then /checkout endpoint), it makes sense that a partner's database would grow around that.  Regardless of how a your database is configured, Kvasir needs to interact with each of these endpoints to gather the information it needs.
 
 .. note::
     The front-end objects do not make any calls directly to the WePay API.  All of those are done by the back-end server.
 
-The *components* are responsible for handling user actions and then dispatching the associated actions.  The are also responsible for subscribing to all of the necessary state information and formatting that data.  While all actions are globally published, not every component relies on all of that info (and they shouldn't).
+The *components* are responsible for handling user actions and then dispatching the associated Redux actions.  They are also responsible for subscribing to all of the necessary state information and formatting that data.  While all actions are globally published, not every component relies on all of that info (and they shouldn't).
 
-For example, when an account is clicked in the account component, the account component registers that the click happened, manipulates the table, and then dispatches the *searchedAccounts*, *fetchWithdrawalsIfNeeded* and *fetchCheckoutsIfNeeded* actions.  Some of these actions will directly impact the action component causing it to re-render with new info, while others will impact other components forcing them to re-render with the new information.
+For example, when an account is clicked in the account component, the account component registers that the click happened, manipulates the table, and then dispatches the *searchedAccounts*, *fetchWithdrawalsIfNeeded* and *fetchCheckoutsIfNeeded* actions.  Some of these actions will directly impact the action component causing it to re-render with new info, while others will impact other components forcing them to re-render with the new information, but the *User* objects is not impacted at all.  Actions to accounts do not affect the User who owns them.
 
 General Object Implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 All of the objects are different in the sense that they require different search requirements (user_id, account_id, etc.); however, they are all implemented in very similar ways.  
 
-Really, what all of the objects require a handful of actions:
+All of the objects require a handful of actions:
     1) Search
         - Notify all components the object is being *searched* for and what exactly we are searching for
     
@@ -123,7 +123,7 @@ These two reducers are:
         :param state:   the current state of the object.  This includes the information that we requested from the Kvasir's back-end.
         :param action:  the action that was fired that contains information about the object
 
-Going back to the early example, if someone were to search a user with one email and immediately change the search parameters, there is no way for them to cancel the original request.  It has likely already been sent to the back-end to be processed.  There is also no guarantee that the first request will finish before the second request.  So, the user may be handed information from the original request, despite the fact that they didn't want to.  Separating the search information from the object's information that we receive allows Kvasir to validate that the information we received is actually the info we wanted.  If it's not, we can ignore it and prevent the state from being updated with unwanted info.
+Going back to the earlier example, if someone were to search a user with one email and immediately change the search parameters, there is no way for them to cancel the original request.  It has likely already been sent to the back-end to be processed.  There is also no guarantee that the first request will finish before the second request.  So, the user may be handed information from the original request, despite the fact that they didn't want to.  Separating the search information from the object's information that we receive allows Kvasir to validate that the information we received is actually the info we wanted.  If it's not, we can ignore it and prevent the state from being updated with unwanted info.
 
 .. _user_object:
 
@@ -192,6 +192,7 @@ The checkout component renders a table of information gathered from a :wepay:`ch
     - Amount
     - Gross Amount
         * the amount + any additional fees that the *payer* had to pay
+        * this is an important distinction because fees can be assigned to the payer, payee, or even the app itself
     - Payer Email
     - Payer Name
     - Payment Method ID

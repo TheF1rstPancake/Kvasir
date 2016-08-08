@@ -11,7 +11,7 @@ The back-end is built using Node and ExpressJS.  While we personally prefer Pyth
 
 Structure
 ----------------
-The underlying structure is pretty simple.  Requests come in from the front-end, and some of those requests will require the server to communicate with the platform's database, while others require requests to the WePay API, and then there are requests that will require both.
+The underlying structure is pretty simple.  Requests come in from the front-end, and some of those requests will require the server to communicate with the your database, while others require requests to the WePay API, and then there are requests that will require both.
 
 Each object built in the front-end app receives it's own endpoint on the server.  For example, the :ref:`user object <user_object>` makes all of it's requests to the */user* endpoint on the server.
 
@@ -23,6 +23,9 @@ When the front-end makes a request, the back-end is responsible for formatting i
 The server is also responsible for :ref:`packaging responses back to the client, including error messages <back-end_sendingdatabacktoclient>`.  Every response is sent through the same function to ensure a level of consistency in the way that we report data back to the front-end.  Typically, valid data is simply sent to the front-end in the same format in which it was received.  The error structure is little more specific, but will also pass along the original, unaltered response as part of it.
 
 Kvasir's node server also manages cookies on the client's browser.  Right now, the only cookie is a CSRF cookie used to manage our CSRF protection.  The cookie has the ``secure`` and ``httpOnly`` flags set so that the cookie must be set over HTTPS, and it cannot be accessed by client side JavaScript.  Additionally, the CSRF token is placed in the HTML of the page itself via our templating engine.
+
+.. note::
+    The secure flag is configurable and may not be desirable depending on how you host Kvasir.  The httpOnly flag is non-negotiable.
 
 Endpoints
 -----------
@@ -188,9 +191,9 @@ The ExpressJS server has two functions for communicating with the middleware.
     Given a resource, and package of data, send a request to the middleware.
     Once the request is complete, it will call the callback function provided.
 
-     :param resource:   the resource that we want to search on the partner's database (also referred to as *objects* such as user, account, payer)
-     :param data:       the package we use to query information about the provided resource
-     :param callback:   a callback function to execute after the middleware returns information.  Typically this is :func:`parseMiddlewareResponse`
+    :param resource:   the resource that we want to search on the partner's database (also referred to as *objects* such as user, account, payer)
+    :param data:       the package we use to query information about the provided resource
+    :param callback:   a callback function to execute after the middleware returns information.  Typically this is :func:`parseMiddlewareResponse`
 
 .. function:: parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint, wepay_package)
 
@@ -284,7 +287,7 @@ Environment File
 An environment file can still be defined to set the values of the different environment variables.  Some third party hosting services (such as the Google App Engine) will take all files in your current directory and upload those instead of using a git repository.  These types of services don't always provide a way to set environment variables remotely, so the hidden file works in those cases.
 
 .. note::
-    If you are adding additional functionality into Kvasir (in other words, you are actively developing Kvasir), then you should define use the `.env` file.  It makes testing and manipulating the environment variables a little easier.
+    If you are adding additional functionality into Kvasir (in other words, you are actively developing Kvasir), then you should define the `.env` file.  It makes testing and manipulating the environment variables a little easier.
 
 Kvasir will check for the presence of the environment file using the `dotenv <https://www.npmjs.com/package/dotenv>`_ package which will then set all of the environment variables accordingly.  This way, the other parts of Kvasir don't have to worry about where the configuration values are coming from.  It will check the enviornment variables and pull them into an object that all of it's routes and functions are free to reference.
 

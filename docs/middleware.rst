@@ -90,11 +90,11 @@ The payer reosurce should be accessed via the *(middleware)/payer* endpoint.
     :form payer_email:  the payer's email address
 
     :>json payer_checkouts:     a list of all checkouts that the given payer has made.  Each checkout is a JSON object
-    :>jsonarr checkout_id:      checkout_id of a given checkout
-    :>jsonarr account_id:       the account_id for which the checkout was made
-    :>jsonarr create_time:      *(optional)* the time at which the checkout occurred
-    :>jsonarr credit_card_id:   *(optional)* the tokenized id of the card used to make the payment
-    :>jsonarr amount:           *(optional)* the amount paid
+    :>json checkout_id:      checkout_id of a given checkout
+    :>json account_id:       the account_id for which the checkout was made
+    :>json create_time:      *(optional)* the time at which the checkout occurred
+    :>json credit_card_id:   *(optional)* the tokenized id of the card used to make the payment
+    :>json amount:           *(optional)* the amount paid
 
 The checkouts contained in *payer_checkouts* are very particular about the information they need to include.  Again, you can include more information, but this is the **minimum** information.
 
