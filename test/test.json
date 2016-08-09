@@ -33,5 +33,7 @@
             "data": {"refund": {"amount_refunded": 0, "refund_reason": null}, "payment_method": {"type": "credit_card", "credit_card": {"auto_capture": true, "data": {"emv_receipt": null, "signature_url": null}, "id": 3722644581}}, "currency": "USD", "create_time": 1470758296, "auto_release": true, "long_description": null, "account_id": 1964530060, "gross": 26.02, "fee": {"processing_fee": 1.02, "app_fee": 0, "fee_payer": "payer"}, "payment_error": null, "npo_information": null, "state": "authorized", "chargeback": {"dispute_uri": null, "amount_charged_back": 0}, "short_description": "Fundraising!", "type": "goods", "hosted_checkout": null, "delivery_type": null, "in_review": false, "checkout_id": 555763278, "reference_id": null, "soft_descriptor": "WPY*My Fundraiser", "payer": {"home_address": null, "email": "gbriggs2012+payer@gmail.com", "name": "John Shepard"}, "amount": 25, "callback_uri": null}, "payment_method_id": 3722644581
         }
     },
-    "secret_key": "ec50c71f851360c2cff4892d889674f4b827a6bf74a0e066"
+    "secret_key": "ec50c71f851360c2cff4892d889674f4b827a6bf74a0e066",
+    "credit_card_id": 3722644581,
+    "preapproval_id": 14661919
 }

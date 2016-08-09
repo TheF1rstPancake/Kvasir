@@ -37,16 +37,23 @@ class KvasirBlueprint(Blueprint):
         print("Getting access_token from user")
         if "account_owner_email" in data:
             user = self.database['Users'].get(data['account_owner_email'])
+            
             if not user:
                 return self._returnError("user", {"error_message":"could not locate user with email {0}".format(data)})
+
+            print("Found user: {0}".format(user))
             return jsonify(user)
 
         elif "account_id" in data:
             account = self.database['Accounts'].get(data['account_id'])
+            
             if not account:
                 return self._returnError("user", {"error_message": "could not find account with id: {0}".format(data.get('account_id'))})
+            
             user = self.database['Users'].get(account['username'])
+            
             if user:
+                print("Found user: {0}".format(user))
                 return jsonify(user)
         print("Could not find resource.  Returning error")
         return self._returnError("user", {"error_message":"could not locate resource with {0}".format(data)})
