@@ -46,7 +46,8 @@ var app_config = {
         "certificate": process.env.KVASIR_SSL_CERTIFICATE
     },
     "middleware_test_uri": process.env.KVASIR_MIDDLEWARE_TEST_URI,
-    "test_mode": argv.test
+    "test_mode": argv.test,
+    "wepay_production": process.env.KVASIR_WEPAY_USE_PRODUCTION
 
 }
 
@@ -200,8 +201,14 @@ function getWePayData(res, wepay_endpoint, access_token, package) {
         wepay_settings.access_token = access_token;
     }
 
+    // set wepay settings and chose production or stage
     var wepay = new WePay(wepay_settings);
-    wepay.use_staging();
+    if (app_config.wepay_production) {
+        wepay.use_production()
+    }
+    else {
+        wepay.use_staging();
+    }
 
     winston.info("Making request to wepay: ", wepay_endpoint, package);
 
@@ -497,8 +504,8 @@ verifyConfig(app_config);
 
 if (app_config.test_mode){
     console.log("Updating config because of test mode.");
-    app_config.middleware_uri = app_config.middleware_test_uri;
-    app_config.middleware_secret = require("./test/test.json").secret_key;
+    app_config.middleware_uri = app_config.middleware_test_uri ? app_config.middleware_test_uri : app_config.middleware_uri;
+    app_config.middleware_secret = app_config.middleware_test_uri ? require("./test/test.json").secret_key : app_config.middleware_secret;
     console.log("New config: ", app_config);
 }
 

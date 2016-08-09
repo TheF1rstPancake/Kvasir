@@ -41,6 +41,10 @@ Overall, these are the requirements for the middleware:
 .. note::
     Many of the middleware endpoints have names that match endpoints on the Kvasir server (and the WePay API).  There is not a 1 to 1 map between all of these different APIs.  Middleware endpoints will have *"(middleware)"* in front of all of them in order to separate them from the Kvasir server endpoints.
 
+Testing your Middleware
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+After you design your middleware, you will want to run it against our defined test cases which are talked more about in our :ref:`testing section <kvasirtesting>`.
+
 Authorization
 ~~~~~~~~~~~~~~~~~
 Security was a concern when developing the specifications for the middleware.  Exposing your database to another application posses some risk.
@@ -133,4 +137,5 @@ If the field is not marked with *(optional)*, the it is a required field for Kva
 If you do not have a required field, you will likely need to add it into your database.  You can likely do that by making requests to the WePay API with the limited information that you have and expanding your tables to include new information.
 
 Our development database actually includes the WePay responses as blobs in a column.  We pulled out data that we wanted to be able to index and search on (like emails, account_ids, account names and checkout_ids) and gave them dedicated columns.  While this increases the size of your database, it does give you all of the information regarding actions completed on your platform.  Not all of the information contained in the WePay API responses are completely necessary, but they could become useful at some point.  Simply storing the original responses as blobs gives you the opportunity to pull them out and get more detailed information when appropriate.
+
 

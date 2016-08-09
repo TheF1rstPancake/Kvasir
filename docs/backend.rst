@@ -141,6 +141,26 @@ The credit_card endpoint allows us to get more information about a tokenized cre
 
     :<json credit_card_id:  the tokenzied id of the credit_card
 
+Preapproval Endpoint
+~~~~~~~~~~~~~~~~~~~~~~~
+This endpoint allows us to lookup more information about a perapproval.  Preapprovals are used primarly for recurring transactions (such as subscriptions) but there are other use cases, and they appear in the checkout objects as the payment_method.
+
+.. http:post:: /preapproval
+
+    Get more information about a WePay preapproval_id
+
+    :<json preapproval_id:  the id of the preapproval
+
+Preapproval Cancel Endpoint
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+One of the functionalities of preapprovals is cancellation.  If a payer wants to cancel their recurring transaction, they may ask the support team to aid them.  The preapproval table on the front end will also include a "Cancel" button to perform this action.
+
+.. http:post:: /preapproval/cancel
+
+    Cancel a preapproval
+
+    :<json preapproval_id:  the id of the preapproval
+
 
 Getting Data From WePay
 ---------------------------
@@ -278,9 +298,15 @@ This is the entire list of environment variables:
     - **KVASIR_SSL_PRIVATE_KEY**:      *(optional)* the name of the file that contains your SSL private key
     - **KVASIR_SSL_CERTIFICATE**:      *(optional)* the name of the file that contains your SSL certificate
     - **KVASIR_HTTP_OVERRIDE**:        *(optional)* boolean to tell Kvasir to launch under an HTTP server instead of an HTTPS server
+    - **KVASIR_WEPAY_USE_PRODUCTION**: *(optional)* boolean to tell Kvasir to connect to WePay's production servers.  Do not include, or set to false in order to connect to WePay's stage environments.
+    - **KVASIR_MIDDLEWARE_TEST_URI**:  *(optional)* The middleware for Kvasir to connect to for testing.  If you leave this out, then when you run the test cases, you will run them against KVASIR_MIDDLEWARE_URI 
 
 .. note::
     You must supply either KVASIR_HTTP_OVERRIDE as `True` **or** supply both KVASIR_SSL_CERTIFICATE and KVASIR_SSL_PRIVATE_KEY.  
+
+For KVASIR_WEPAY_USE_PRODUCTION, we **highly** recommend that you leave it out or set it to *False* to make sure that you are initially testing your middleware and Kvasir against Stage (development) data instead of production data.
+
+To see more about what KVASIR_MIDDLEWARE_TEST_URI does, see the doucmentation on :ref:`testing <kvasirtesting>`.
 
 Environment File
 ~~~~~~~~~~~~~~~~~~~
@@ -296,12 +322,14 @@ The file should be named `.env` and be placed in the same directory as `server.j
 A sample environment file looks like this:
     .. code-block:: python
 
-        KVASIR_COOKIE_SECRET = YOUR_COOKIE_SECRET
-        KVASIR_MIDDLEWARE_URI = https://your.middle.ware/
-        KVASIR_MIDDLEWARE_SECRET = YOU_MIDDLEWARE_SECRET
-        KVASIR_CLIENT_ID = YOUR_WEPAY_CLIENT_ID
-        KVASIR_CLIENT_SECRET = YOUR_WEPAY_CLIENT_SECRET
-        KVASIR_HTTP_OVERRIDE =  TRUE_OR_FALSE
+        KVASIR_COOKIE_SECRET=YOUR_COOKIE_SECRET
+        KVASIR_MIDDLEWARE_URI=https://your.middle.ware/
+        KVASIR_MIDDLEWARE_SECRET=sup3rs3cr37
+        KVASIR_CLIENT_ID=00000
+        KVASIR_CLIENT_SECRET=th1s1s4s3cr37
+        KVASIR_HTTP_OVERRIDE=false
+        KVASIR_WEPAY_USE_PRODUCTION=false
+        KVASIR_MIDDLEWARE_TEST_URI=https://your.test.middleware
 
 Generating Secret Keys
 ~~~~~~~~~~~~~~~~~~~~~~~~

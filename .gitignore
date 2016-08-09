@@ -10,6 +10,9 @@ dist
 # heroku/foreman env file
 .env
 
+# GAE app.yaml
+app.yaml
+
 # Runtime data
 pids
 *.pid

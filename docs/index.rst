@@ -75,6 +75,7 @@ Contents
    backend
    middleware
    usecases
+   testing
    herokudeploy
    googleappengine
 

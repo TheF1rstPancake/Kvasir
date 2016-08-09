@@ -360,7 +360,7 @@ describe("server", function() {
     });
 
     /**
-     * Check credit card endpoint
+     * Check credit card 
      *
      */
      describe("credit_card endoint", function(){

@@ -7,7 +7,6 @@
   },
   "scripts": {
     "start": "node server.js",
-    "start:test": "npm start -- --test",
     "postinstall": "webpack --config ./webpack.config.js",
     "bundle": "webpack --config webpack.config.js",
     "test": "mocha --reporter spec",
