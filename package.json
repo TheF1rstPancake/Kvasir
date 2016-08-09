@@ -7,6 +7,7 @@
   },
   "scripts": {
     "start": "node server.js",
+    "start:test": "npm start -- --test",
     "postinstall": "webpack --config ./webpack.config.js",
     "bundle": "webpack --config webpack.config.js",
     "test": "mocha --reporter spec",
@@ -54,7 +55,8 @@
     "webpack-dev-middleware": "^1.6.1",
     "webpack-hot-middleware": "^2.12.2",
     "wepay": "git://github.com/wepay/NodeJS-SDK.git",
-    "winston": "^2.2.0"
+    "winston": "^2.2.0",
+    "yargs": "^4.8.1"
   },
   "devDependencies": {
     "react-addons-test-utils": "^0.14.7",

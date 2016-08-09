@@ -12,6 +12,8 @@ var request = require("request");
 var expect = require("chai").expect;
 var cheerio = require("cheerio");
 
+var database = require("./test.json"); 
+
 var url = "http://localhost:8080";
 var csrf = "";
 var cookieString ="";
@@ -31,118 +33,134 @@ describe("server", function() {
             headers['Cookie'] = cookieString;
         });
     });
-
-    it("fails to get user by email due to unknown email", function(done) {
-        this.timeout(10000);
-        request.post(
-            {
-                url: url+"/user", 
-                json:{"email":"xxx"},
-                headers: headers
-            }, 
-            function(error, response, body) {
-                expect(body).to.include.keys("error_message");
-                done();
-            }
-        );
+    describe("user endpoint", function() {
+        it("fails to get user by email due to unknown email", function(done) {
+            this.timeout(10000);
+            request.post(
+                {
+                    url: url+"/user", 
+                    json:{"email":"xxx"},
+                    headers: headers
+                }, 
+                function(error, response, body) {
+                    expect(body).to.include.keys("error_message");
+                    done();
+                }
+            );
+        });
+        it("fails to get user by account_id due to unknown account_id", function(done) {
+            this.timeout(10000);
+            request.post({
+                    url: url+"/user", 
+                    json:{"account_id":"-1"},
+                    headers:headers
+                }, 
+                function(error, response, body) {
+                    expect(body).to.include.keys("error_message");
+                    done();
+                }
+            );
+        });
     });
-    it("fails to get user by account_id due to unknown account_id", function(done) {
-        this.timeout(10000);
-        request.post({
-                url: url+"/user", 
-                json:{"account_id":"-1"},
-                headers:headers
-            }, 
-            function(error, response, body) {
-                expect(body).to.include.keys("error_message");
-                done();
-            }
-        );
+    describe("account endpoint", function() {
+        it("fails to get account by email due to unknown email", function(done) {
+            this.timeout(10000);
+            request.post({
+                    url: url+"/account", 
+                    json:{"email":"xxx"},
+                    headers:headers
+                }, 
+                function(error, response, body) {
+                    expect(body).to.have.property("error_message");
+                    done();
+                }
+            );
+        });
+        it ("fails to get account by account_id due to unknown account_id", function(done){
+            this.timeout(10000);
+            request.post({
+                    url: url+"/account", 
+                    json:{"account_id":"-1"},
+                    headers:headers
+                }, 
+                function(error, response, body) {
+                    expect(body).to.have.property("error_message");
+                    done();
+                }
+            );
+        });
     });
-    it("fails to get account by email due to unknown email", function(done) {
-        this.timeout(10000);
-        request.post({
-                url: url+"/account", 
-                json:{"email":"xxx"},
-                headers:headers
-            }, 
-            function(error, response, body) {
-                expect(body).to.have.property("error_message");
-                done();
-            }
-        );
+    describe("checkout endpoint", function() {
+        it ("fails to get checkout by checkout_id due to unknwon checkout_id", function(done){
+            this.timeout(10000);
+            request.post({
+                    url: url+"/checkout", 
+                    json:{"checkout_id":"-1", "account_id":"-1"},
+                    headers:headers
+                }, 
+                function(error, response, body) {
+                    expect(body).to.have.property("error_message");
+                    done();
+                }
+            );
+        });
+        it ("fails to get checkout by account_id due to unknown account_id", function(done){
+            this.timeout(10000);
+            request.post({
+                    url: url+"/checkout", 
+                    json:{"account_id":"-1"},
+                    headers:headers
+                }, 
+                function(error, response, body) {
+                    expect(body).to.have.property("error_message");
+                    done();
+                }
+            );
+        });
+    })
+    describe("withdrawal endpoint", function(){
+        it("fails to get withdrawal by account_id due to unknown account_id", function(done){
+            this.timeout(10000);
+            request.post({
+                    url: url+"/withdrawal", 
+                    json:{"account_id":"-1"},
+                    headers:headers
+                }, 
+                function(error, response, body) {
+                    expect(body).to.have.property("error_message");
+                    done();
+                }
+            );
+        });
     });
-    it ("fails to get account by account_id due to unknown account_id", function(done){
-        this.timeout(10000);
-        request.post({
-                url: url+"/account", 
-                json:{"account_id":"-1"},
-                headers:headers
-            }, 
-            function(error, response, body) {
-                expect(body).to.have.property("error_message");
-                done();
-            }
-        );
+    describe("reserve endpoint", function() {
+        it("fails to get reserve by account_id due to unknown account_id", function(done){
+            this.timeout(10000);
+            request.post({
+                    url: url+"/reserve", 
+                    json:{"account_id":"-1"},
+                    headers:headers
+                }, 
+                function(error, response, body) {
+                    expect(body).to.have.property("error_message");
+                    done();
+                }
+            );
+        });
     });
-    it ("fails to get checkout by checkout_id due to unknwon checkout_id", function(done){
-        request.post({
-                url: url+"/checkout", 
-                json:{"checkout_id":"-1", "account_id":"-1"},
-                headers:headers
-            }, 
-            function(error, response, body) {
-                expect(body).to.have.property("error_message");
-                done();
-            }
-        );
-    });
-    it ("fails to get checkout by account_id due to unknown account_id", function(done){
-        request.post({
-                url: url+"/checkout", 
-                json:{"account_id":"-1"},
-                headers:headers
-            }, 
-            function(error, response, body) {
-                expect(body).to.have.property("error_message");
-                done();
-            }
-        );
-    });
-    it("fails to get withdrawal by account_id due to unknown account_id", function(done){
-        request.post({
-                url: url+"/withdrawal", 
-                json:{"account_id":"-1"},
-                headers:headers
-            }, 
-            function(error, response, body) {
-                expect(body).to.have.property("error_message");
-                done();
-            }
-        );
-    });
-    it("fails to get reserve by account_id due to unknown account_id", function(done){
-        request.post({
-                url: url+"/reserve", 
-                json:{"account_id":"-1"},
-                headers:headers
-            }, 
-            function(error, response, body) {
-                expect(body).to.have.property("error_message");
-                done();
-            }
-        );
-    });
-    it("fails to get payer by email due to unknown email", function(done){
-        request.post({
-                url: url+"/payer", 
-                json:{"email":"-1"},
-                headers:headers
-            }, 
-            function(error, response, body) {
-                expect(body.payer_checkouts).to.be.empty;
-                done();
-            }
-        );
+    describe("payer endpoint", function() {
+        it("fails to get payer by email due to unknown email", function(done){
+            this.timeout(10000);
+            request.post({
+                    url: url+"/payer", 
+                    json:{"email":"-1"},
+                    headers:headers
+                }, 
+                function(error, response, body) {
+                    expect(body.payer_checkouts).to.be.empty;
+                    done();
+                }
+            );
+        });
     });
 });

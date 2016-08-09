@@ -37,15 +37,18 @@ class KvasirBlueprint(Blueprint):
         print("Getting access_token from user")
         if "account_owner_email" in data:
             user = self.database['Users'].get(data['account_owner_email'])
-            if user:
-                return jsonify(user)
+            if not user:
+                return self._returnError("user", {"error_message":"could not locate user with email {0}".format(data)})
+            return jsonify(user)
+
         elif "account_id" in data:
             account = self.database['Accounts'].get(data['account_id'])
             if not account:
-                self._returnError("user", {"error_message": "could not find account with id: {0}".format(data.get('account_id'))})
+                return self._returnError("user", {"error_message": "could not find account with id: {0}".format(data.get('account_id'))})
             user = self.database['Users'].get(account['username'])
             if user:
                 return jsonify(user)
+        print("Could not find resource.  Returning error")
         return self._returnError("user", {"error_message":"could not locate resource with {0}".format(data)})
     def _getPayerCheckouts(self, data):
         """
@@ -103,6 +106,7 @@ def KvasirMiddleware(resource):
         return kvasir_middleware._returnError(resource, data)
 
 app = Flask(__name__)
+app.config['DEBUG'] = True
 
 app.register_blueprint(kvasir_middleware)
 

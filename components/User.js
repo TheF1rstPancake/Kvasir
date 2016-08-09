@@ -37,7 +37,7 @@ var UserInfo = React.createClass({
         $.post("/user/resend_confirmation", {"email":this.props.userInfo.email})
             .fail(function(data) {
                 console.log("ERROR: ", data);
-                this2.setState({resendError:JSON.parse(data.responseText)});
+                this2.setState({resendError:data});
             })
             .done(function(data){
                 this2.setState(

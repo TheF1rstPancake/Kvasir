@@ -25,6 +25,11 @@ var express = require("express");
 // if it doesn't exist, you should be setting the environment variables manually.
 require("dotenv").config();
 
+// grab any command line arguments that were passed
+// for example, those that put the application in "test" mode
+var argv = require("yargs").argv;
+console.log(argv);
+
 
 // load app configuration settings
 // pull all of the environment variables down into a dictionary
@@ -39,8 +44,12 @@ var app_config = {
     "ssl": {
         "privateKey": process.env.KVASIR_SSL_PRIVATE_KEY,
         "certificate": process.env.KVASIR_SSL_CERTIFICATE
-    }
+    },
+    "middleware_test_uri": process.env.KVASIR_MIDDLEWARE_TEST_URI,
+    "test_mode": argv.test
+
 }
+
 
 console.log("Lauching app with following config: ", app_config);
 
@@ -450,10 +459,28 @@ app.post("/payer", csrfProtection, function(req, res) {
  * Given a credit_card_id (tokenized card) get more information about the card from the v2/credit_card WePay API endpoint
  */
 app.post("/credit_card", csrfProtection, function(req, res){
-    winston.info("Received request for credit_card");
-    var credit_card_id = parseInt(req.body.credit_card_id);
+    winston.info("Received request for credit_card: ", req.body);
+    var credit_card_id = parseInt(req.body.id);
 
     getWePayData(res, "/credit_card", null, {"credit_card_id":credit_card_id, "client_id":app_config.client_id, "client_secret":app_config.client_secret});
+})
+
+/*get preapproval info*/
+app.post("/preapproval", csrfProtection, function(req, res){
+    winston.info("Receieved request for preapproval");
+    var preapproval = parseInt(req.body.id);
+
+    getWePayData(res, "/preapproval", null, {"preapproval_id":preapproval, "client_id":app_config.client_id, "client_secret":app_config.client_secret});
+
+});
+
+/*cancel a preapproval*/
+app.post("/preapproval/cancel", csrfProtection, function(req, res){
+    winston.info("Receieved request for preapproval cancellation");
+    var preapproval = parseInt(req.body.preapproval_id);
+
+    getWePayData(res, "/preapproval/cancel", null, {"preapproval_id":preapproval, "client_id":app_config.client_id, "client_secret":app_config.client_secret});
+
 })
 
 
@@ -461,8 +488,20 @@ app.post("/credit_card", csrfProtection, function(req, res){
  * Start the application
  *
  * Before we start, make sure that the app configuration meets the requirements
+ * But we use a hack here to get around the check for testing
+ * The test environment does not need to use HTTPS for the middleware, so after we check the config and it's squeaky clean, we update the middleware uri in the even that we are in test mode
+ * we also want to use a different middleware secret when we are test
  */
 verifyConfig(app_config);
+
+
+if (app_config.test_mode){
+    console.log("Updating config because of test mode.");
+    app_config.middleware_uri = app_config.middleware_test_uri;
+    app_config.middleware_secret = require("./test/test.json").secret_key;
+    console.log("New config: ", app_config);
+}
+
 if (app_config.http_override) {
     var httpsServer = http.createServer(app);
 }

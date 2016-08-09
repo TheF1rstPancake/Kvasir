@@ -14,7 +14,8 @@ import {
 var defaultCardState = {
     isFetching: false,
     didInvalidate: false,
-    cardInfo: []
+    cardInfo: [],
+    requestType: "credit_card"
 };
 
 function searchedCard(state = {"cc_id":""}, action) {
@@ -44,6 +45,7 @@ function card_base(state = defaultCardState, action) {
                 isFetching: false,
                 didInvalidate: false,
                 cardInfo: action.card,
+                requestType: action.request_type,
                 lastUpdated: action.receivedAt
             })
         default:

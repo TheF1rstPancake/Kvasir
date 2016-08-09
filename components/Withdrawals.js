@@ -163,7 +163,6 @@ var Withdrawals= React.createClass({
                     >
                         <TableHeaderColumn 
                             dataField="account_id" 
-                            isKey={true}  
                             >
                             Account ID
                         </TableHeaderColumn>
@@ -180,6 +179,7 @@ var Withdrawals= React.createClass({
                         <TableHeaderColumn
                             dataField="time"
                             dataFormat={Base.formatDate}
+                            isKey={true}  
                             >
                             Next Withdrawal Date
                         </TableHeaderColumn>

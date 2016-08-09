@@ -130,9 +130,12 @@ var Checkouts = React.createClass({
     handlePaymentIDSelect: function(event) {
         event.preventDefault();
         var credit_card_id = parseInt(event.target.id);
+        var type = event.target.getAttribute('data-payment-type');
 
-        this.props.dispatch(searchCard(credit_card_id));
-        this.props.dispatch(fetchCardIfNeeded(credit_card_id));
+        console.log(event.target, type);
+
+        this.props.dispatch(searchCard(credit_card_id, type));
+        this.props.dispatch(fetchCardIfNeeded(credit_card_id, type));
     },
     /**
      * Format payment_ids
@@ -141,7 +144,17 @@ var Checkouts = React.createClass({
      * That function will go and gather the information about the tokenized id and display it in a table
      */
     formatPaymentID: function(cell, row) {
-        return (<a href="#credit_card_table" id={cell} onClick={this.handlePaymentIDSelect}>{cell}</a>)
+        if (row.payment_method_credit_card_id) {
+            var pay_id = row.payment_method_credit_card_id;
+            return (<a href="#credit_card_table" id={pay_id} onClick={this.handlePaymentIDSelect} data-payment-type="credit_card">{pay_id}</a>)
+        }
+        else if (row.payment_method_preapproval_id) {
+            return (<a href="#preapproval_table" id={row.payment_method_preapproval_id} onClick={this.handlePaymentIDSelect} data-payment-type="preapproval">{row.payment_method_preapproval_id}</a>)
+
+        }
+        else {
+            return (<p>Cannot find payment method id in response</p>);
+        }
     },
     /**
      * Refund a checkout
