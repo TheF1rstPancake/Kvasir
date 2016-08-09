@@ -95,6 +95,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#reserve-endpoint">Reserve Endpoint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#payer-endpoint">Payer Endpoint</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#credit-card-endpoint">Credit Card Endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#preapproval-endpoint">Preapproval Endpoint</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#preapproval-cancel-endpoint">Preapproval Cancel Endpoint</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-data-from-wepay">Getting Data From WePay</a><ul>
@@ -118,6 +122,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="middleware.html">The Middleware: Whatever Language You Want</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usecases.html">Kvasir Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Kvasir</a></li>
 <li class="toctree-l1"><a class="reference internal" href="herokudeploy.html">Deploying to Heroku</a></li>
 <li class="toctree-l1"><a class="reference internal" href="googleappengine.html">Deploying to Google App Engine</a></li>
 </ul>
@@ -398,6 +403,50 @@
 </dd></dl>
 
 </div>
+<div class="section" id="preapproval-endpoint">
+<h3>Preapproval Endpoint<a class="headerlink" href="#preapproval-endpoint" title="Permalink to this headline">¶</a></h3>
+<p>This endpoint allows us to lookup more information about a perapproval.  Preapprovals are used primarly for recurring transactions (such as subscriptions) but there are other use cases, and they appear in the checkout objects as the payment_method.</p>
+<dl class="post">
+<dt id="post--preapproval">
+<code class="descname">POST </code><code class="descname">/preapproval</code><a class="headerlink" href="#post--preapproval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get more information about a WePay preapproval_id</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>preapproval_id</strong> &#8211; the id of the preapproval</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<div class="section" id="preapproval-cancel-endpoint">
+<h4>Preapproval Cancel Endpoint<a class="headerlink" href="#preapproval-cancel-endpoint" title="Permalink to this headline">¶</a></h4>
+<p>One of the functionalities of preapprovals is cancellation.  If a payer wants to cancel their recurring transaction, they may ask the support team to aid them.  The preapproval table on the front end will also include a &#8220;Cancel&#8221; button to perform this action.</p>
+<dl class="post">
+<dt id="post--preapproval-cancel">
+<code class="descname">POST </code><code class="descname">/preapproval/cancel</code><a class="headerlink" href="#post--preapproval-cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cancel a preapproval</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Request JSON Object:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body"><ul class="first last simple">
+<li><strong>preapproval_id</strong> &#8211; the id of the preapproval</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
 </div>
 <div class="section" id="getting-data-from-wepay">
 <h2>Getting Data From WePay<a class="headerlink" href="#getting-data-from-wepay" title="Permalink to this headline">¶</a></h2>
@@ -561,12 +610,16 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 <li><strong>KVASIR_SSL_PRIVATE_KEY</strong>:      <em>(optional)</em> the name of the file that contains your SSL private key</li>
 <li><strong>KVASIR_SSL_CERTIFICATE</strong>:      <em>(optional)</em> the name of the file that contains your SSL certificate</li>
 <li><strong>KVASIR_HTTP_OVERRIDE</strong>:        <em>(optional)</em> boolean to tell Kvasir to launch under an HTTP server instead of an HTTPS server</li>
+<li><strong>KVASIR_WEPAY_USE_PRODUCTION</strong>: <em>(optional)</em> boolean to tell Kvasir to connect to WePay&#8217;s production servers.  Do not include, or set to false in order to connect to WePay&#8217;s stage environments.</li>
+<li><strong>KVASIR_MIDDLEWARE_TEST_URI</strong>:  <em>(optional)</em> The middleware for Kvasir to connect to for testing.  If you leave this out, then when you run the test cases, you will run them against KVASIR_MIDDLEWARE_URI</li>
 </ul>
 </div></blockquote>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">You must supply either KVASIR_HTTP_OVERRIDE as <cite>True</cite> <strong>or</strong> supply both KVASIR_SSL_CERTIFICATE and KVASIR_SSL_PRIVATE_KEY.</p>
 </div>
+<p>For KVASIR_WEPAY_USE_PRODUCTION, we <strong>highly</strong> recommend that you leave it out or set it to <em>False</em> to make sure that you are initially testing your middleware and Kvasir against Stage (development) data instead of production data.</p>
+<p>To see more about what KVASIR_MIDDLEWARE_TEST_URI does, see the doucmentation on <a class="reference internal" href="testing.html#kvasirtesting"><span>testing</span></a>.</p>
 </div>
 <div class="section" id="environment-file">
 <h3>Environment File<a class="headerlink" href="#environment-file" title="Permalink to this headline">¶</a></h3>
@@ -579,12 +632,14 @@ If no wepay_endpoint is provided, then just send the results from the middleware
 <p>The file should be named <cite>.env</cite> and be placed in the same directory as <cite>server.js</cite>.</p>
 <dl class="docutils">
 <dt>A sample environment file looks like this:</dt>
-<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="n">KVASIR_COOKIE_SECRET</span> <span class="o">=</span> <span class="n">YOUR_COOKIE_SECRET</span>
-<span class="n">KVASIR_MIDDLEWARE_URI</span> <span class="o">=</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">your</span><span class="o">.</span><span class="n">middle</span><span class="o">.</span><span class="n">ware</span><span class="o">/</span>
-<span class="n">KVASIR_MIDDLEWARE_SECRET</span> <span class="o">=</span> <span class="n">YOU_MIDDLEWARE_SECRET</span>
-<span class="n">KVASIR_CLIENT_ID</span> <span class="o">=</span> <span class="n">YOUR_WEPAY_CLIENT_ID</span>
-<span class="n">KVASIR_CLIENT_SECRET</span> <span class="o">=</span> <span class="n">YOUR_WEPAY_CLIENT_SECRET</span>
-<span class="n">KVASIR_HTTP_OVERRIDE</span> <span class="o">=</span>  <span class="n">TRUE_OR_FALSE</span>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="n">KVASIR_COOKIE_SECRET</span><span class="o">=</span><span class="n">YOUR_COOKIE_SECRET</span>
+<span class="n">KVASIR_MIDDLEWARE_URI</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">your</span><span class="o">.</span><span class="n">middle</span><span class="o">.</span><span class="n">ware</span><span class="o">/</span>
+<span class="n">KVASIR_MIDDLEWARE_SECRET</span><span class="o">=</span><span class="n">sup3rs3cr37</span>
+<span class="n">KVASIR_CLIENT_ID</span><span class="o">=</span><span class="mo">00000</span>
+<span class="n">KVASIR_CLIENT_SECRET</span><span class="o">=</span><span class="n">th1s1s4s3cr37</span>
+<span class="n">KVASIR_HTTP_OVERRIDE</span><span class="o">=</span><span class="n">false</span>
+<span class="n">KVASIR_WEPAY_USE_PRODUCTION</span><span class="o">=</span><span class="n">false</span>
+<span class="n">KVASIR_MIDDLEWARE_TEST_URI</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">your</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">middleware</span>
 </pre></div>
 </div>
 </dd>

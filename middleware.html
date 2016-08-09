@@ -88,6 +88,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="">The Middleware: Whatever Language You Want</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#a-quick-note-about-languages">A Quick Note about Languages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#middleware-specifications">Middleware Specifications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#testing-your-middleware">Testing your Middleware</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#authorization">Authorization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#user-resource">User Resource</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#payer-resource">Payer Resource</a></li>
@@ -98,6 +99,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="usecases.html">Kvasir Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Kvasir</a></li>
 <li class="toctree-l1"><a class="reference internal" href="herokudeploy.html">Deploying to Heroku</a></li>
 <li class="toctree-l1"><a class="reference internal" href="googleappengine.html">Deploying to Google App Engine</a></li>
 </ul>
@@ -192,6 +194,10 @@
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Many of the middleware endpoints have names that match endpoints on the Kvasir server (and the WePay API).  There is not a 1 to 1 map between all of these different APIs.  Middleware endpoints will have <em>&#8220;(middleware)&#8221;</em> in front of all of them in order to separate them from the Kvasir server endpoints.</p>
+</div>
+<div class="section" id="testing-your-middleware">
+<h3>Testing your Middleware<a class="headerlink" href="#testing-your-middleware" title="Permalink to this headline">¶</a></h3>
+<p>After you design your middleware, you will want to run it against our defined test cases which are talked more about in our <a class="reference internal" href="testing.html#kvasirtesting"><span>testing section</span></a>.</p>
 </div>
 <div class="section" id="authorization">
 <h3>Authorization<a class="headerlink" href="#authorization" title="Permalink to this headline">¶</a></h3>

@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Testing Kvasir &mdash; Kvasir 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Kvasir 0.0.1 documentation" href="index.html"/>
+        <link rel="next" title="Deploying to Heroku" href="herokudeploy.html"/>
+        <link rel="prev" title="Kvasir Use Cases" href="usecases.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kvasir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backend.html">The Back-End: NodeJS and ExpressJS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">The Middleware: Whatever Language You Want</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usecases.html">Kvasir Use Cases</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Testing Kvasir</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-tests">Running the Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-your-middleware">Testing your Middleware</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="herokudeploy.html">Deploying to Heroku</a></li>
+<li class="toctree-l1"><a class="reference internal" href="googleappengine.html">Deploying to Google App Engine</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kvasir</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Testing Kvasir</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/testing.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="testing-kvasir">
+<span id="kvasirtesting"></span><h1>Testing Kvasir<a class="headerlink" href="#testing-kvasir" title="Permalink to this headline">¶</a></h1>
+<p>Kvasir comes with a direcrory called <em>test</em> that contains a set of <a class="reference external" href="https://mochajs.org/">Mocha</a> tests that use <a class="reference external" href="http://chaijs.com/">Chai&#8217;s</a> assertion API to make sure that Kvasir&#8217;s server is performing as expected.</p>
+<p>To achieve this, the <em>test</em> directory also contains a sample middleware written in Python that uses a small JSON file as a &#8220;database.&#8221;  The JSON file contains a handful of live WePay objects (from the stage environment) that allow you to check to make sure that Kvasir has everything it needs to perform correctly.</p>
+<div class="section" id="running-the-tests">
+<h2>Running the Tests<a class="headerlink" href="#running-the-tests" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>There are a couple of configuration options that you have to set in order for the test cases to work the first time:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>KVASIR_MIDDLEWARE_TEST_URI=http://localhost:5000</dt>
+<dd><ul class="first last simple">
+<li>the Python middleware server will run on port 5000 and we want to tell Kvasir to use this URL for running tests</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p>You can either set this in your <cite>.env</cite> file or via environment variables.</p>
+<dl class="docutils">
+<dt>When you run Kvasir you want to run it as:</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">npm</span> <span class="n">start</span> <span class="o">--</span> <span class="o">--</span><span class="n">test</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>This will launch Kvasir in test mode and overwrite the value of KVASIR_MIDDLEWARE_URI with the value on KVASIR_MIDDLEWARE_TEST_URI.  It will also override the value of KVASIR_MIDDLEWARE_SECRET with the value provided in the test JSON &#8220;database.&#8221;</p>
+<dl class="docutils">
+<dt>After this is set up, open another terminal window and navigate to the <em>test</em> directory and run:</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">python</span> <span class="n">middleware</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>The first line will install all required libraries for our middleware to run.  The second will actually launch it.</p>
+<p>The middleware loads the JSON file into memory in order to simulate what it would look like if this was actually live.  Originally, we wrote only failure test cases, because we couldn&#8217;t be certain what values would be in every database that tries to integrate with us.  It&#8217;s hard to write a test to successfully query a user based on their email if you don&#8217;t know what emails you have avaialable.</p>
+<dl class="docutils">
+<dt>Now launch a third terminal and navigate to Kvasir&#8217;s main source directory and run:</dt>
+<dd><div class="first last highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">npm</span> <span class="n">test</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<p>This will launch a series of test cases, all of which should succeed.</p>
+<dl class="docutils">
+<dt>These tests are designed to make sure that the server and the middleware:</dt>
+<dd><ol class="first last arabic simple">
+<li>can communicate with one another</li>
+<li>are returning data in the expected format</li>
+<li>are returing errors when they are supposed to</li>
+</ol>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">These test cases are not exhaustive.  For example, it does not check that <a class="reference external" href="http:post">http:post</a>:<cite>/preapproval/cancel</cite> actually works, because we can only cancel a preapproval once.</p>
+</div>
+</div>
+<div class="section" id="testing-your-middleware">
+<h2>Testing your Middleware<a class="headerlink" href="#testing-your-middleware" title="Permalink to this headline">¶</a></h2>
+<p>While a middleware is readily provided, the KVASIR_MIDDLEWARE_TEST_URI is meant to provide you with the ability to change what URI you are testing against, and thereby what middleware you test against.</p>
+<p>All Kvasir cares about is that the middleware is present and returns data as expected.  As you develop your own middleware, you can use the testing cases provided to make sure that your middleware provides the necessary data in the expected format.  Build your middleware, and then change the KVASIR_MIDDLEWARE_TEST_URI and you will test against whatever URI you provide.</p>
+<p>None of these tests check that the React components are working properly.  That is on the to-do list; however, the React components should behave as expected as long as the data they receive is in the right format.  So having test cases that simply check the format of the data that Kvasir sends to the front end allows us to be reasonably confident that your middleware works in all cases with Kvasir.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="herokudeploy.html" class="btn btn-neutral float-right" title="Deploying to Heroku" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="usecases.html" class="btn btn-neutral" title="Kvasir Use Cases" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Giovanni Briggs.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
