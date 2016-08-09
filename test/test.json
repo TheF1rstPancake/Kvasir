@@ -1,0 +1,37 @@
+{
+    "Users": {
+        "gbriggs2012+test08091601@gmail.com": {
+            "username": "gbriggs2012+test08091601@gmail.com", 
+            "access_token": "STAGE_67763f3d3609a20427dac2c9db95db9a200ed06d6a0200bb1aac693faf16d392", 
+            "creation_time": 1470758670, "user_id": 118034129
+        }
+    },
+    "Accounts":
+        {
+            "1964530060":{
+                    "username": "gbriggs2012+test08091601@gmail.com", 
+                    "config_id": "ahVzfnNlY29uZC1sb2RnZS0xMTg5MjFyEwsSBkNvbmZpZxiAgICA2YuPCgw", 
+                    "user_id": 118034129, 
+                    "account_id": 1964530060, 
+                    "creation_time": 1470758670, 
+                    "account_info": {
+                        "name": "My Fundraiser", 
+                        "firstname": "Giovanni", 
+                        "lastname": "Briggs", 
+                        "email": "gbriggs2012+test08091601@gmail.com", 
+                        "description": "Fundraising!"} 
+            }
+        }
+    ,
+    "Checkouts": {
+        "555763278": {
+            "account_id": 1964530060, 
+            "payment_method": "credit_card", 
+            "creation_time": 1470759670, 
+            "checkout_id": 555763278, 
+            "payer_email": "gbriggs2012+payer@gmail.com", 
+            "data": {"refund": {"amount_refunded": 0, "refund_reason": null}, "payment_method": {"type": "credit_card", "credit_card": {"auto_capture": true, "data": {"emv_receipt": null, "signature_url": null}, "id": 3722644581}}, "currency": "USD", "create_time": 1470758296, "auto_release": true, "long_description": null, "account_id": 1964530060, "gross": 26.02, "fee": {"processing_fee": 1.02, "app_fee": 0, "fee_payer": "payer"}, "payment_error": null, "npo_information": null, "state": "authorized", "chargeback": {"dispute_uri": null, "amount_charged_back": 0}, "short_description": "Fundraising!", "type": "goods", "hosted_checkout": null, "delivery_type": null, "in_review": false, "checkout_id": 555763278, "reference_id": null, "soft_descriptor": "WPY*My Fundraiser", "payer": {"home_address": null, "email": "gbriggs2012+payer@gmail.com", "name": "John Shepard"}, "amount": 25, "callback_uri": null}, "payment_method_id": 3722644581
+        }
+    },
+    "secret_key": "ec50c71f851360c2cff4892d889674f4b827a6bf74a0e066"
+}
