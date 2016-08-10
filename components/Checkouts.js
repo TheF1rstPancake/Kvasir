@@ -144,8 +144,8 @@ var Checkouts = React.createClass({
      * That function will go and gather the information about the tokenized id and display it in a table
      */
     formatPaymentID: function(cell, row) {
-        if (row.payment_method_credit_card_id) {
-            var pay_id = row.payment_method_credit_card_id;
+        if (cell) {
+            var pay_id = cell;
             return (<a href="#credit_card_table" id={pay_id} onClick={this.handlePaymentIDSelect} data-payment-type="credit_card">{pay_id}</a>)
         }
         else if (row.payment_method_preapproval_id) {

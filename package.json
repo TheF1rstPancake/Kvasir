@@ -14,13 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/wedemoapp/kvasir.git"
+    "url": "https://github.com/Jalepeno112/Kvasir.git" 
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://gitlab.com/wedemoapp/kvasir/issues"
+    "url": "https://github.com/Jalepeno112/Kvasir/issues" 
   },
-  "homepage": "https://wedemoapp.gitlab.io/kvasir/index.html",
+  "homepage": "https://jalepeno112.github.io/kvasir/index.html",
   "dependencies": {
     "babel-core": "^6.13.2",
     "babel-loader": "^6.2.4",
