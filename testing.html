@@ -89,7 +89,17 @@
 <li class="toctree-l1"><a class="reference internal" href="usecases.html">Kvasir Use Cases</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">Testing Kvasir</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#running-the-tests">Running the Tests</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#testing-your-middleware">Testing your Middleware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing-your-middleware">Testing your Middleware</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-test-middleware">The Test Middleware</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-test-values">The Test Values</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#users">Users</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#accounts">Accounts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#checkouts">Checkouts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#payers">Payers</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="herokudeploy.html">Deploying to Heroku</a></li>
@@ -194,9 +204,10 @@
 </ol>
 </dd>
 </dl>
+<p>The tests are broken up into two sections - server tests and middleware tests.  The server tests rely on communication with the middleware to succeed, so if your middleware is not working properly the server tests will fail, but just because the server tests fail does not mean its a result of a middleware. So we provide tests that will specifically query your middleware to provide more clarity as to why tests may be failing.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">These test cases are not exhaustive.  For example, it does not check that <a class="reference external" href="http:post">http:post</a>:<cite>/preapproval/cancel</cite> actually works, because we can only cancel a preapproval once.</p>
+<p class="last">These test cases are not exhaustive.  For example, it does not check that <a class="reference internal" href="backend.html#post--preapproval-cancel" title="POST /preapproval/cancel"><code class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/preapproval/cancel</span></code></a> actually works, because we can only cancel a preapproval once so always having a preapproval on hand to test is difficult.</p>
 </div>
 </div>
 <div class="section" id="testing-your-middleware">
@@ -204,6 +215,144 @@
 <p>While a middleware is readily provided, the KVASIR_MIDDLEWARE_TEST_URI is meant to provide you with the ability to change what URI you are testing against, and thereby what middleware you test against.</p>
 <p>All Kvasir cares about is that the middleware is present and returns data as expected.  As you develop your own middleware, you can use the testing cases provided to make sure that your middleware provides the necessary data in the expected format.  Build your middleware, and then change the KVASIR_MIDDLEWARE_TEST_URI and you will test against whatever URI you provide.</p>
 <p>None of these tests check that the React components are working properly.  That is on the to-do list; however, the React components should behave as expected as long as the data they receive is in the right format.  So having test cases that simply check the format of the data that Kvasir sends to the front end allows us to be reasonably confident that your middleware works in all cases with Kvasir.</p>
+<div class="section" id="the-test-middleware">
+<h3>The Test Middleware<a class="headerlink" href="#the-test-middleware" title="Permalink to this headline">¶</a></h3>
+<p>The test middleware provided can be used as example of how you should develop your middleware.  The provided middleware is a slightly edited copy of the one we made during the development of Kvasir.  That one actually runs on the Google App Engine and makes use of the GAE Datastore instead of a JSON file for it&#8217;s database, but the functionality is consistent across both.</p>
+<p>If you are comfortable with Python and Flask, you can take the provided middleware and modify the <em>KvasirBlueprint</em> class to connect to your database rather than the <cite>test.json</cite> file.</p>
+</div>
+<div class="section" id="the-test-values">
+<h3>The Test Values<a class="headerlink" href="#the-test-values" title="Permalink to this headline">¶</a></h3>
+<p>The provided test &#8220;database&#8221; is meant to replicate what you might find in your database at a very basic level.  It provides the test suite with values it can send to the Kvasir server and your middleware to validate that everything is working properly.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The sample middleware we provide uses the test values as it&#8217;s own internal database too.  That way, when it receives a query for one of the provided keys, it can provide a response that mimics what we would send in production.  Your test middleware does not have to rely on the <cite>test.json</cite> file as it&#8217;s own database too, but the values in <cite>test.json</cite> should be values that actually exist in your database.</p>
+</div>
+<dl class="docutils">
+<dt>The database contains a handful of top-level keys:</dt>
+<dd><ul class="first last">
+<li><dl class="first docutils">
+<dt>Users</dt>
+<dd><ul class="first last simple">
+<li>to access a valid WePay user object</li>
+<li>the keys <strong>must</strong> be valid WePay user emails associated with your application.  The information they point to is not important</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Accounts</dt>
+<dd><ul class="first last simple">
+<li>to access a valid WePay account object</li>
+<li>the keys <strong>must</strong> be valid WePay account_ids associated with your app.  The information they point to is not important</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Checkouts</dt>
+<dd><ul class="first last simple">
+<li>to access a valid WePay checkout object</li>
+<li>the keys <strong>must</strong> be valid WePay checkout_ids associated with your app</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Payers</dt>
+<dd><ul class="first last simple">
+<li>to access an object the represents payers on your application</li>
+<li>the keys <strong>must</strong> be valid emails tied to transactions on your app</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>middleware_secret_key</dt>
+<dd><ul class="first last simple">
+<li>Shared secret key between the test suite, Kvasir, and your middleware to allow requests to pass through</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>credit_card_id</dt>
+<dd><ul class="first last simple">
+<li>A valid credit_card id associated with your application</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>preapproval_id</dt>
+<dd><ul class="first last simple">
+<li>A valid preapproval id associated with your application</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<p>All of these values are generated in the WePay <strong>Stage</strong> environment.  You likely do not want to include production level information in this file.  The Users, Accounts, and Checkouts keys all point to other objects that include live Stage information.  This allows us to continue working on the test cases to not only check that the endpoints send back information, but that they send back the <em>right</em> information.</p>
+<p>The Users, Accounts, and Checkouts objects likely include more information than is necessary.  Your database may not be configured the same as ours, so you may associate completely different information.</p>
+<div class="section" id="users">
+<h4>Users<a class="headerlink" href="#users" title="Permalink to this headline">¶</a></h4>
+<p>The <em>Users</em> key points to another object where the keys are user emails and the values are objects that represent what you pull out of your database about that user.</p>
+<p>If we look at the default values provided, we see that the User object has:</p>
+<blockquote>
+<div><div class="highlight-javascript"><div class="highlight"><pre><span class="s2">&quot;gbriggs2012+test08091601@gmail.com&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s2">&quot;username&quot;</span><span class="o">:</span> <span class="s2">&quot;gbriggs2012+test08091601@gmail.com&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;access_token&quot;</span><span class="o">:</span> <span class="s2">&quot;SOME_TOKEN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;creation_time&quot;</span><span class="o">:</span> <span class="mi">1470758670</span><span class="p">,</span> <span class="s2">&quot;user_id&quot;</span><span class="o">:</span> <span class="mi">118034129</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The key here is a valid email to a valid WePay user object associated with our test application.  In our development database, we store the user&#8217;s email, their WePay access_token, the time that the user registered with us and their WePay user_id.  The information that you put in here might be different, but remember the point of the middleware is to take a key (like an email or account id) and return an access token to Kvasir.  So you should at least include an access token here.</p>
+</div>
+<div class="section" id="accounts">
+<h4>Accounts<a class="headerlink" href="#accounts" title="Permalink to this headline">¶</a></h4>
+<p>The <em>Accounts</em> key points to an object where the keys are WePay account_ids.  Like the object under the <em>Users</em> key, this object has all of the information that we typically store with an account_id.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="s2">&quot;1964530060&quot;</span><span class="o">:</span><span class="p">{</span>
+                <span class="s2">&quot;username&quot;</span><span class="o">:</span> <span class="s2">&quot;gbriggs2012+test08091601@gmail.com&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;user_id&quot;</span><span class="o">:</span> <span class="mi">118034129</span><span class="p">,</span>
+                <span class="s2">&quot;account_id&quot;</span><span class="o">:</span> <span class="mi">1964530060</span><span class="p">,</span>
+                <span class="s2">&quot;creation_time&quot;</span><span class="o">:</span> <span class="mi">1470758670</span><span class="p">,</span>
+                <span class="s2">&quot;account_info&quot;</span><span class="o">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;My Fundraiser&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;firstname&quot;</span><span class="o">:</span> <span class="s2">&quot;Giovanni&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;lastname&quot;</span><span class="o">:</span> <span class="s2">&quot;Briggs&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;email&quot;</span><span class="o">:</span> <span class="s2">&quot;gbriggs2012+test08091601@gmail.com&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;description&quot;</span><span class="o">:</span> <span class="s2">&quot;Fundraising!&quot;</span><span class="p">}</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>At the very least, you need to include a set of account_ids that point to empty objects.  The test middleware provided happens to use this &#8220;test.json&#8221; file as it closely mimics our production database on the Google App Engine, so we provide additional info here to send back with certain requests.</p>
+</div>
+<div class="section" id="checkouts">
+<h4>Checkouts<a class="headerlink" href="#checkouts" title="Permalink to this headline">¶</a></h4>
+<p>The <em>Checkouts</em> key points to an object where the keys are WePay checkout_ids and each checkout_id points to an object that represents that checkout.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="s2">&quot;555763278&quot;</span><span class="o">:</span> <span class="p">{</span>
+       <span class="s2">&quot;account_id&quot;</span><span class="o">:</span> <span class="mi">1964530060</span><span class="p">,</span>
+       <span class="s2">&quot;payment_method&quot;</span><span class="o">:</span> <span class="s2">&quot;credit_card&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;creation_time&quot;</span><span class="o">:</span> <span class="mi">1470759670</span><span class="p">,</span>
+       <span class="s2">&quot;checkout_id&quot;</span><span class="o">:</span> <span class="mi">555763278</span><span class="p">,</span>
+       <span class="s2">&quot;payer_email&quot;</span><span class="o">:</span> <span class="s2">&quot;gbriggs2012+payer@gmail.com&quot;</span><span class="p">,</span>
+       <span class="s2">&quot;data&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;refund&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;amount_refunded&quot;</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;refund_reason&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">},</span> <span class="s2">&quot;payment_method&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;credit_card&quot;</span><span class="p">,</span> <span class="s2">&quot;credit_card&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;auto_capture&quot;</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;emv_receipt&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;signature_url&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">},</span> <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="mi">3722644581</span><span class="p">}},</span> <span class="s2">&quot;currency&quot;</span><span class="o">:</span> <span class="s2">&quot;USD&quot;</span><span class="p">,</span> <span class="s2">&quot;create_time&quot;</span><span class="o">:</span> <span class="mi">1470758296</span><span class="p">,</span> <span class="s2">&quot;auto_release&quot;</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="s2">&quot;long_description&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;account_id&quot;</span><span class="o">:</span> <span class="mi">1964530060</span><span class="p">,</span> <span class="s2">&quot;gross&quot;</span><span class="o">:</span> <span class="mf">26.02</span><span class="p">,</span> <span class="s2">&quot;fee&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;processing_fee&quot;</span><span class="o">:</span> <span class="mf">1.02</span><span class="p">,</span> <span class="s2">&quot;app_fee&quot;</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;fee_payer&quot;</span><span class="o">:</span> <span class="s2">&quot;payer&quot;</span><span class="p">},</span> <span class="s2">&quot;payment_error&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;npo_information&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="o">:</span> <span class="s2">&quot;authorized&quot;</span><span class="p">,</span> <span class="s2">&quot;chargeback&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;dispute_uri&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;amount_charged_back&quot;</span><span class="o">:</span> <span class="mi">0</span><span class="p">},</span> <span class="s2">&quot;short_description&quot;</span><span class="o">:</span> <span class="s2">&quot;Fundraising!&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;goods&quot;</span><span class="p">,</span> <span class="s2">&quot;hosted_checkout&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;delivery_type&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;in_review&quot;</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span> <span class="s2">&quot;checkout_id&quot;</span><span class="o">:</span> <span class="mi">555763278</span><span class="p">,</span> <span class="s2">&quot;reference_id&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;soft_descriptor&quot;</span><span class="o">:</span> <span class="s2">&quot;WPY*My Fundraiser&quot;</span><span class="p">,</span> <span class="s2">&quot;payer&quot;</span><span class="o">:</span> <span class="p">{</span><span class="s2">&quot;home_address&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span> <span class="s2">&quot;email&quot;</span><span class="o">:</span> <span class="s2">&quot;gbriggs2012+payer@gmail.com&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="o">:</span> <span class="s2">&quot;John Shepard&quot;</span><span class="p">},</span> <span class="s2">&quot;amount&quot;</span><span class="o">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;callback_uri&quot;</span><span class="o">:</span> <span class="kc">null</span><span class="p">},</span> <span class="s2">&quot;payment_method_id&quot;</span><span class="o">:</span> <span class="mi">3722644581</span>
+   <span class="p">}</span>
+</pre></div>
+</div>
+<p>Again, all that is important is that the key you provide here is a valid checkout_id.  The rest of the information is optional and will help if we chose to expand the test cases to check that the <em>correct</em> information is returned, not that just some information is returned.</p>
+</div>
+<div class="section" id="payers">
+<h4>Payers<a class="headerlink" href="#payers" title="Permalink to this headline">¶</a></h4>
+<p>The <em>Payers</em> key points to an object where the keys are emails associated with payers on your application.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span class="s2">&quot;gbriggs2012+payer@gmail.com&quot;</span><span class="o">:</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>We use the keys provided to query the :<a class="reference external" href="http:post:(middleware)/payer">http:post:(middleware)/payer</a> endpoint.  Using the given key, your application should return a list of all checkouts that this payer has completed.</p>
+</div>
+</div>
 </div>
 </div>
 
