@@ -18,12 +18,177 @@ var cheerio = require("cheerio");
 
 var database = require("./test.json"); 
 
-var url = "http://localhost:8080";
-var csrf = "";
-var cookieString ="";
-var headers = {"X-CSRF-TOKEN":"", "Cookie":""}
 
+
+// load the varaibles that the Kvasir server uses
+// this allows us to make calls directly to the middleware
+var dotenv  = require('dotenv');
+var fs = require("fs");
+//var kvasir_config = {};
+var env_file = fs.readFileSync('.env');
+var kvasir_config = dotenv.parse(env_file.toString('utf8'));
+
+describe("middleware", function(){
+     /**
+     * test the /user endpoint
+     */
+    var middleware_uri = kvasir_config.KVASIR_MIDDLEWARE_TEST_URI;
+    var middleware_headers = {"Authorization":database.middleware_secret_key, "Content-Type":"application/json"}
+    console.log(middleware_headers);
+    describe("user endpoint", function() {
+        /*this test should fail because the authorization header is not right*/
+        it("fails to get info due to bad Authorization header", function(done){
+            this.timeout(10000);
+            request.post(
+                {
+                    uri: middleware_uri+"/user",
+                    json:{"account_owner_email": Object.keys(database.Users)[0] },
+                    headers:{"Authorization":null, "Content-Type":"application/json"}
+                },
+                function(error, response, body) {
+                    expect(body).to.include.keys("error_message");
+                    expect(response.statusCode).to.equal(403);
+                    done();
+                }
+            )
+        });
+        /*this test should give us an error because the email is unknown*/
+        it("fails to get access_token by email due to unknown email", function(done) {
+            this.timeout(10000);
+            request.post(
+                {
+                    url: middleware_uri+"/user", 
+                    json:{"account_owner_email":"xxx"},
+                    headers: middleware_headers
+                }, 
+                function(error, response, body) {
+                    expect(body).to.include.keys("error_message");
+                    expect(response.statusCode).to.equal(200);
+                    done();
+                }
+            );
+        });
+        /**
+         * this test should give us an error because the account_id is unknown
+         */
+        it("fails to get access_token by account_id due to unknown account_id", function(done) {
+            this.timeout(10000);
+            request.post({
+                    url: middleware_uri+"/user", 
+                    json:{"account_id":"-1"},
+                    headers:middleware_headers
+                }, 
+                function(error, response, body) {
+                    expect(body).to.include.keys("error_message");
+                    expect(response.statusCode).to.equal(200);
+                    done();
+                }
+            );
+        });
+        /**
+         * This test should successfully return an access token because the user email is known
+         */
+        it("gets access_token by email", function(done) {
+            this.timeout(10000);
+            request.post({
+                    url:middleware_uri+"/user",
+                    json:{"account_owner_email":Object.keys(database.Users)[0]},
+                    headers:middleware_headers
+                },
+                function(error, response, body) {
+                    expect(body).to.include.keys("access_token");
+                    expect(response.statusCode).to.equal(200);
+                    done();
+                }
+            );
+        });
+        /** 
+         * This test should return an access token because the account id is known
+         */
+        it("gets access_token by account_id", function(done) {
+            this.timeout(10000);
+            request.post({
+                    url:middleware_uri+"/user",
+                    json:{"account_id":Object.keys(database.Accounts)[0]},
+                    headers:middleware_headers
+                },
+                function(error, response, body) {
+                    expect(body).to.include.keys("access_token");
+                    expect(response.statusCode).to.equal(200);
+                    done();
+                }
+            );
+        });
+    });
+
+    /**
+     * Check the payer endpoint
+     */
+     describe("payer endpoint", function() {
+        /**
+         * request should fail if the authorization header is not set correctly
+         */
+        it("fails to get info due to bad Authorization header", function(done){
+            this.timeout(10000);
+            request.post(
+                {
+                    uri: middleware_uri+"/user",
+                    json:{"payer_email":database.Checkouts[Object.keys(database.Checkouts)[0]].payer_email},
+                    headers:{"Authorization":null, "Content-Type":"application/json"}
+                },
+                function(error, response, body) {
+                    expect(body).to.include.keys("error_message");
+                    expect(response.statusCode).to.equal(403);
+                    done();
+                }
+            )
+        });
+        /**
+         * if we pass an invalid email, we should get an error
+         */
+        it("fails to get payer by email due to unknown email", function(done){
+            this.timeout(10000);
+            request.post({
+                    url: middleware_uri+"/payer", 
+                    json:{"payer_email":"-1"},
+                    headers:middleware_headers
+                }, 
+                function(error, response, body) {
+                    expect(body.payer_checkouts).to.be.empty;
+                    done();
+                }
+            );
+        });
+        /**
+         * Provide a list of checkouts when the payer email is valid
+         */
+        it("gets list of payer checkouts by payer_email", function(done) {
+            this.timeout(15000);
+            request.post({
+                    url:middleware_uri+"/payer",
+                    json:{"payer_email":Object.keys(database.Payers)[0]},
+                    headers:middleware_headers
+                },
+                function(error, response, body) {
+                    expect(body).to.include.keys("payer_checkouts");
+                    expect(body.payer_checkouts[0]).to.include.keys(["checkout_id", "account_id"]);
+                    done();
+                }
+            );
+        });
+    });
+
+});
+
+/**
+ * Run tests against Kvasir's server.  
+ * These will test the middleware at the same time, but the middleware tests are provided to give more clarity as to why a server test might be failing.
+ */
 describe("server", function() {
+    var url = "http://localhost:8080";
+    var csrf = "";
+    var cookieString ="";
+    var headers = {"X-CSRF-TOKEN":"", "Cookie":""}
     /*try and get the homepage from the server*/
     it("get homepage", function(done) {
         request.get(url, function(error, response, body) {
@@ -347,7 +512,7 @@ describe("server", function() {
             this.timeout(15000);
             request.post({
                     url:url+"/payer",
-                    json:{"email":database.Checkouts[Object.keys(database.Checkouts)[0]].payer_email},
+                    json:{"email":Object.keys(database.Payers)[0]},
                     headers:headers
                 },
                 function(error, response, body) {

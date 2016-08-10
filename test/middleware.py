@@ -20,20 +20,40 @@ class KvasirBlueprint(Blueprint):
         # load our test json file and store it in memory
         with open("test.json", 'r') as f:
             self.database = json.load(f)
-        self.middleware_secret = self.database['secret_key']
+        self.middleware_secret = self.database['middleware_secret_key']
 
     def _returnError(self, resource, data):
+        """
+        Return an error response back to the client
+
+        :param resource:    the *resource* that caused the error (either "user" or "payer")
+        :param data:        a JSON object that contains an "error_message" key that describes the error that occurred
+        """
         error_package = data;
         error_package['error'] = "error"
         return jsonify(error_package)
 
     def _getUserFromAccountId(self, account_id):
+        """
+        Given an account_id, find the associated email
+
+        This is used in conjunction with :func:`_getAccessTokenFromUser`.
+
+        :param account_id:  an account_id that we want to find the correspodning username for
+        """
         account = self.database['Accounts'].get(str(account_id))
         if account:
             return account['username']
         return None
 
     def _getAccessTokenFromUser(self, data):
+        """
+        Given either an email address or an account_id, this function will fetch an associated access_token
+
+        This function will either return a JSON response with the associated access_token or an error
+
+        :param data:    the body of the incoming HTTP(S) request.
+        """
         print("Getting access_token from user")
         if "account_owner_email" in data:
             user = self.database['Users'].get(data['account_owner_email'])
@@ -101,6 +121,16 @@ def checkSecret(f):
 @kvasir_middleware.route("/<resource>", methods=['POST'])
 @checkSecret
 def KvasirMiddleware(resource):
+    """
+    Given the provided resource, perform the associated action
+
+    Acceptable resource values are:
+        - user
+            * to receive an access token from a provided email or account_id
+
+        - payer
+            * to receive a list of checkouts that are tied to the provided email address
+    """
     print("Received request: {0}, {1}".format(resource, request.json))
     data = request.json
 
@@ -110,7 +140,7 @@ def KvasirMiddleware(resource):
         return kvasir_middleware._getPayerCheckouts(data)
     else:
         print("ERROR:\tDid not recognize resource: {0}".format(resource))
-        return kvasir_middleware._returnError(resource, data)
+        return kvasir_middleware._returnError(resource, {"error_message":"Did not recognize resource {0}".format(resource), "original_package":data})
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
