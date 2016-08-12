@@ -54,13 +54,13 @@ console.log("Lauching app with following config: ", app_config);
 var app = new (express)();
 var port = app_config.port;
 
-
+// webpack loading
+var config = require('./webpack.config');
 if(process.env.NODE_ENV !== 'production') {
   console.log("Not in production mode!  Running webpack");
   var webpackDevMiddleware = require('webpack-dev-middleware');
   var webpackHotMiddleware = require('webpack-hot-middleware');
   var webpack = require('webpack');
-  var config = require('./webpack.config');
   var compiler = webpack(config);
   
   app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: config.output.publicPath }));
@@ -101,7 +101,7 @@ if (!app_config.http_override) {
 
 // point the app to the static folder
 app.use('/static', express.static('static'));
-app.use(express.static('dist'));
+app.use(config.output.publicPath, express.static(config.output.path));
 
 
 var expressWinston = require("express-winston");
