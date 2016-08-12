@@ -20,8 +20,16 @@ All of the functionality has been tested, but there may be some cases that I mis
 
 To see how the framework behaves in action go to: https://nameless-hollows-55554.herokuapp.com/
 
+The test cases are found in the "test" directory.
+
 ## More Info
 To see more info and the full documentation on Kvasir's specs and what's required to use Kvasir, checkout the full documentation: https://wedemoapp.gitlab.io/kvasir/index.html
+
+## Why Kvasir?
+`Kvasir is a Norse god of wisdom <http://norse-mythology.org/kvasir/>`_.  In fact he's considered the wisest of all of them.  He was killed by dwarves and his blood became the Mead of Poetry which was used to inspire poets and scholars.  Basically, he's the personification of alcohol.  Given that we were drinking when we came up with the idea for Kvasir, it only made sense.
+
+## Who is this mystical "we" all over the documentation?
+We are many, but we are one.
 
 ## License
 Copyright 2016 Giovanni Briggs

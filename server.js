@@ -1,7 +1,3 @@
-var webpack = require('webpack')
-var webpackDevMiddleware = require('webpack-dev-middleware')
-var webpackHotMiddleware = require('webpack-hot-middleware')
-var config = require('./webpack.config')
 var bodyParser = require('body-parser')
 var request = require("request")
 var url = require("url");
@@ -59,10 +55,17 @@ var app = new (express)();
 var port = app_config.port;
 
 
-// load webpack compiler
-var compiler = webpack(config);
-app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: config.output.publicPath }));
-app.use(webpackHotMiddleware(compiler));
+if(process.env.NODE_ENV !== 'production') {
+  console.log("Not in production mode!  Running webpack");
+  var webpackDevMiddleware = require('webpack-dev-middleware');
+  var webpackHotMiddleware = require('webpack-hot-middleware');
+  var webpack = require('webpack');
+  var config = require('./webpack.config');
+  var compiler = webpack(config);
+  
+  app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: config.output.publicPath }));
+  app.use(webpackHotMiddleware(compiler));
+}
 
 
 // setup cookie parser and csrf protection
@@ -98,6 +101,8 @@ if (!app_config.http_override) {
 
 // point the app to the static folder
 app.use('/static', express.static('static'));
+app.use(express.static('dist'));
+
 
 var expressWinston = require("express-winston");
 var winston = require("winston");

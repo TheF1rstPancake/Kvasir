@@ -25,14 +25,6 @@ import {addError, clearAllStates} from "../actions/errors"
 
 var SearchBar = React.createClass({
     /**
-     * Define the properties for the SearchBar object
-     *
-     * resource -   the type of resource this search bar queries.  Currently, the options are "user" and "payer"
-     */
-    propTypes: {
-        resource: React.PropTypes.string.isRequired    // what we are searching for.  Depending on what it is, it will do a different searchFunction
-    },
-    /**
      * Set the initial state of the search bar
      * Initially, it's just an empty search string and value
      */
