@@ -5,7 +5,7 @@
 
 Welcome to Kvasir's documentation!
 ==================================
-Kvasir (Vas-eer) is a support dashboard built for WePay partner's to use with their customer support teams.  
+Kvasir (Vas-eer) is a support dashboard built for WePay partners to use with their customer support teams.  
 It provides most of the essential functionality that a support teams needs to handle the various actions that merchants and payers need.
 
 .. note::

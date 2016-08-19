@@ -354,14 +354,14 @@ This will result in the dispatching of the <em>request</em> action along with <e
 </dd>
 </dl>
 <p>The reducers that take these actions are also very similar.
-Each reducer is actually composed of two smaller reducers - a <em>searched</em> reducer and a <em>base</em> reducer.
+Each reducer is actually composed of two smaller functions - a <em>searched</em> function and a <em>base</em> function.
 We do this because of the asynchronous nature of Redux actions mixed with the POST requests to our back-end.  If someone searches a user, but then realizes they searched the wrong email and changes the search parameter, we need a way to handle that.</p>
 <dl class="docutils">
-<dt>These two reducers are:</dt>
+<dt>These two functions are:</dt>
 <dd><ol class="first last arabic">
 <li><dl class="function">
 <dt id="searched">
-<code class="descname">searched</code><span class="sig-paren">(</span><em>state ={}</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#searched" title="Permalink to this definition">¶</a></dt>
+<code class="descname">searched</code><span class="sig-paren">(</span><em>state =defaultState</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#searched" title="Permalink to this definition">¶</a></dt>
 <dd><p>When a search action fires, update the object&#8217;s state with the information we used to search (account_id, user&#8217;s email, etc).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
