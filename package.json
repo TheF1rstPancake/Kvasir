@@ -7,7 +7,8 @@
   },
   "scripts": {
     "start": "node server.js",
-    "postinstall": "webpack --config ./webpack.prod.config.js --production",
+    "prestart": "npm run postinstall",
+    "postinstall": "webpack --config ./webpack.prod.config.js",
     "bundle": "webpack --config ./webpack.prod.config.js --production",
     "test": "mocha --reporter spec",
     "test:watch": "npm test -- --watch"
@@ -39,11 +40,13 @@
     "express-winston": "^2.0.0",
     "mocha": "^3.0.2",
     "react": "^15.3.0",
+    "react-addons-test-utils": "^0.14.7",
     "react-bootstrap": "^0.29.5",
     "react-bootstrap-table": "^2.3.7",
     "react-dom": "^0.14.7",
     "react-redux": "^4.1.2",
     "redux": "^3.1.2",
+    "redux-logger": "^2.6.1",
     "redux-thunk": "^2.1.0",
     "request": "^2.74.0",
     "url": "^0.11.0",
@@ -55,8 +58,6 @@
     "yargs": "^4.8.1"
   },
   "devDependencies": {
-    "redux-logger": "^2.6.1",
-    "react-addons-test-utils": "^0.14.7",
     "webpack-dev-middleware": "^1.6.1",
     "webpack-hot-middleware": "^2.12.2"
   }

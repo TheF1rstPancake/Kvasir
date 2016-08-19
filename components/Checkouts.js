@@ -19,7 +19,7 @@ import {BootstrapTable} from "react-bootstrap-table"
 
 import {fetchRefundIfNeeded, clearRefund, fetchCheckoutIfNeeded, searchCheckout} from "../actions/checkouts"
 import {searchUser, fetchUserIfNeeded} from "../actions/user"
-import {fetchAccountIfNeeded} from "../actions/accounts"
+import {searchAccount, fetchAccountIfNeeded} from "../actions/accounts"
 import {fetchCardIfNeeded, searchCard} from "../actions/credit_card"
 
 import {clearError} from "../actions/errors"
@@ -82,7 +82,13 @@ var Checkouts = React.createClass({
         // fetch the user info and after the user info is fetched, get the account error
         this.props.dispatch(fetchUserIfNeeded(null, account_id,
                 function(){
+                    //update the search state
+                    this2.props.dispatch(searchAccount( account_id))
+                    this2.props.dispatch(searchCheckout(account_id, checkout_id));
+
+                    // fetch the info
                     this2.props.dispatch(fetchAccountIfNeeded(null, account_id));
+
                     this2.props.dispatch(fetchCheckoutIfNeeded(account_id, checkout_id));
                 }
         ));
@@ -623,7 +629,7 @@ var Checkouts = React.createClass({
 const mapStateToProps = (state) => {
     return {
         checkoutInfo:       state.wepay_checkout.checkout.checkoutInfo,
-        account_id:         state.wepay_account.searchedAccount.account_id,
+        account_id:         state.wepay_account.account.account_id,
         submitted_refund:   state.wepay_checkout.checkout.submitted_refund,
         successful_refund:  state.wepay_checkout.checkout.successful_refund,
         refund_error:       state.errors.refund ? state.errors.refund.info: {},

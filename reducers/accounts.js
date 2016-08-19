@@ -13,11 +13,13 @@ import {CLEAR_ALL_STATE} from "../actions/errors"
 
 var defaultAccountState = {
     isFetching: false,
+    acccount_id: null,
     didInvalidate: false,
-    accountInfo: []
+    accountInfo: [],
+    account_id: null
 };
 
-function searchedAccount(state = {}, action) {
+function searchedAccount(state = defaultAccountState, action) {
     switch (action.type) {
         case SEARCH_ACCOUNT:
             return Object.assign({}, state, {"account_id":action.account_id})
@@ -45,6 +47,11 @@ function account_base(state = defaultAccountState, action) {
                 }
             }
 
+            /*If the incoming account_id does not match the account_id set by SEARCH_ACCOUNT, then do not update the state*/
+            if(action.account_id != state.account_id) {
+                return state;
+            }
+
             return Object.assign({}, state, {
                 isFetching: false,
                 didInvalidate: false,
@@ -61,17 +68,18 @@ function account(state = [], action) {
         case INVALIDATE_ACCOUNT:
         case RECEIVE_ACCOUNT:
         case REQUEST_ACCOUNT:
-            return Object.assign([], state, account_base(state, action))
+            return Object.assign({}, state, account_base(state, action))
+        case SEARCH_ACCOUNT:
+            return Object.assign({}, state, searchedAccount(state, action));
         case CLEAR_ACCOUNTS:
         case CLEAR_ALL_STATE:
-            return {}            
+            return {}     
         default:
             return state
     }
 }
 
 const wepay_account = combineReducers({
-    searchedAccount,
     account
 })
 

@@ -93,7 +93,7 @@ function fetchReserveDetail(account_id) {
 }
 
 function shouldFetchWithdrawal(state) {
-    if (state.wepay_account && state.wepay_account.searchedAccount.account_id != null) {
+    if (state.wepay_account && state.wepay_account.account.isFetching == false) {
         return true;
     }
     else if(state.wepay_user.isFetching){

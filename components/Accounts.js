@@ -8,7 +8,7 @@
 import React, { PropTypes } from 'react'
 import {FormGroup, FormControl, Row, Col, ControlLabel, Table} from "react-bootstrap"
 import { connect } from 'react-redux'
-import {addCheckouts, clearCheckouts, fetchCheckoutIfNeeded} from "../actions/checkouts"
+import {searchCheckout, clearCheckouts, fetchCheckoutIfNeeded} from "../actions/checkouts"
 import {addWithdrawals, clearWithdrawals, fetchWithdrawalIfNeeded} from "../actions/withdrawals"
 import {clearPayer} from "../actions/payer"
 import {clearCard} from "../actions/credit_card"
@@ -68,6 +68,7 @@ var AccountBlock= React.createClass({
         this.props.dispatch(clearCard());
 
         // fetch the checkouts
+        this.props.dispatch(searchCheckout(account_id));
         this.props.dispatch(fetchCheckoutIfNeeded(account_id));
 
         // fetch the withdrawals
@@ -156,16 +157,12 @@ var AccountBlock= React.createClass({
  *
  * accountInfo:         a list of dictionaries representing different accounts
  * isFetching:          true if the object is currently fetching account details
- * searchedAccount:     the account_id of the account we are currently looking up/rendering
- * haveAccessToken:     true if we successfully got an access token when looking up a user
  * error:               errors raised by /actions/accounts and /reducers/accounts 
  */
 const mapStateToProps = (state) => {
     return {
         accountInfo:        state.wepay_account.account.accountInfo,
         isFetching:         state.wepay_account.account.isFetching,
-        searchedAccount:    state.wepay_account.searchedAccount,
-        haveAccessToken:    state.wepay_user.user.haveAccessToken,
         error:              state.errors.account ? state.errors.account.info : {},
     }
 }

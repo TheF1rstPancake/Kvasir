@@ -15,7 +15,9 @@ import {
 var defaultWithdrawalState = {
     isFetching: false,
     didInvalidate: false,
-    withdrawalInfo: []
+    withdrawalInfo: [],
+    withdrawal_id: null,
+    account_id: null
 };
 
 function searchedWithdrawal(state = {}, action) {
@@ -39,6 +41,9 @@ function withdrawal_base(state = defaultWithdrawalState, action) {
             didInvalidate: false
         })
         case RECEIVE:
+        if (action.account_id != state.account_id || action.withdrawal_id != state.withdrawal_id){
+            return state;
+        }
         return Object.assign({}, state, {
             isFetching: false,
             didInvalidate: false,
@@ -60,17 +65,18 @@ function withdrawal(state = {}, action) {
         case RECEIVE:
         case REQUEST:
         case RECEIVE_RESERVE:
-            return Object.assign({}, state, withdrawal_base(state, action))
+            return Object.assign({}, state, withdrawal_base(state, action));
+        case SEARCH:
+            return Object.assign({}, state, searchedWithdrawal(state, action));
         case CLEAR:
         case CLEAR_ALL_STATE:
-            return {}
+            return {};
         default:
-            return state
+            return state;
     }
 }
 
 const wepay_withdrawal = combineReducers({
-    searchedWithdrawal,
     withdrawal
 })
 

@@ -18,7 +18,6 @@ import {
 var userDefaultState = {
     isFetching: false,
     didInvalidate: false,
-    haveAccessToken: false,
     userInfo: {}
 };
 
@@ -37,19 +36,16 @@ function user_base(state = userDefaultState, action) {
             return Object.assign({}, state, {
                 didInvalidate:  true,
                 isFetching:     false,
-                haveAccessToken:false,
             })
         case REQUEST_USER:
             return Object.assign({}, state, {
                 isFetching:         true,
-                haveAccessToken:    false,
                 didInvalidate:      false
             })
         case RECEIVE_USER:
             return Object.assign({}, state, {
                 isFetching:      false,
                 didInvalidate:   false,
-                haveAccessToken: true,
                 userInfo:        action.user,
                 lastUpdated:     action.receivedAt
             })
