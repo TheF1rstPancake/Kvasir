@@ -95,11 +95,11 @@ In general, these are the public functions that each object has for dispatching 
         :param id:  some unique id of the object that we just looked up.  For example, for user's this is an email address; accounts use an account_id
 
 The reducers that take these actions are also very similar.  
-Each reducer is actually composed of two smaller reducers - a *searched* reducer and a *base* reducer. 
+Each reducer is actually composed of two smaller functions - a *searched* function and a *base* function. 
 We do this because of the asynchronous nature of Redux actions mixed with the POST requests to our back-end.  If someone searches a user, but then realizes they searched the wrong email and changes the search parameter, we need a way to handle that.
 
-These two reducers are:
-    1) .. function:: searched(state ={}, action)
+These two functions are:
+    1) .. function:: searched(state =defaultState, action)
         
         When a search action fires, update the object's state with the information we used to search (account_id, user's email, etc).
     
