@@ -7,18 +7,19 @@
   },
   "scripts": {
     "start": "node server.js",
-    "postinstall": "webpack --config ./webpack.config.js",
-    "bundle": "webpack --config webpack.config.js",
+    "prestart": "npm run postinstall",
+    "postinstall": "webpack --config ./webpack.prod.config.js",
+    "bundle": "webpack --config ./webpack.prod.config.js --production",
     "test": "mocha --reporter spec",
     "test:watch": "npm test -- --watch"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Jalepeno112/Kvasir.git" 
+    "url": "https://github.com/Jalepeno112/Kvasir.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Jalepeno112/Kvasir/issues" 
+    "url": "https://github.com/Jalepeno112/Kvasir/issues"
   },
   "homepage": "https://jalepeno112.github.io/kvasir/index.html",
   "dependencies": {
@@ -31,17 +32,15 @@
     "babel-register": "^6.3.13",
     "body-parser": "^1.15.2",
     "chai": "^3.5.0",
-    "chai-things": "^0.2.0",
     "cookie-parser": "^1.4.3",
-    "cookie-session": "^2.0.0-alpha.1",
     "csurf": "^1.9.0",
     "dotenv": "^2.0.0",
     "ejs": "^2.5.1",
     "express": "^4.13.3",
     "express-winston": "^2.0.0",
-    "foreman": "^1.4.1",
     "mocha": "^3.0.2",
     "react": "^15.3.0",
+    "react-addons-test-utils": "^0.14.7",
     "react-bootstrap": "^0.29.5",
     "react-bootstrap-table": "^2.3.7",
     "react-dom": "^0.14.7",
@@ -59,7 +58,6 @@
     "yargs": "^4.8.1"
   },
   "devDependencies": {
-    "react-addons-test-utils": "^0.14.7",
     "webpack-dev-middleware": "^1.6.1",
     "webpack-hot-middleware": "^2.12.2"
   }

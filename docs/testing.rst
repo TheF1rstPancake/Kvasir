@@ -157,6 +157,6 @@ The *Payers* key points to an object where the keys are emails associated with p
      
     "gbriggs2012+payer@gmail.com": {}
 
-We use the keys provided to query the :http:post:(middleware)/payer endpoint.  Using the given key, your application should return a list of all checkouts that this payer has completed.
+We use the keys provided to query the :http:post:`(middleware)/payer` endpoint.  Using the given key, your application should return a list of all checkouts that this payer has completed.
 
 

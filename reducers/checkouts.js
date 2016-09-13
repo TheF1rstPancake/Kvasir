@@ -17,6 +17,8 @@ var defaultCheckoutState = {
     didInvalidate: false,
     submitted_refund: false,
     successful_refund:false,
+    account_id: null,
+    checkout_id: null,
     checkoutInfo: []
 };
 
@@ -63,6 +65,12 @@ function checkout_base(state = defaultCheckoutState, action) {
                 didInvalidate: false
             })
         case RECEIVE:
+            /*check to make sure incoming info matches what we searched for*/
+            if (action.checkout_id != state.checkout_id || action.account_id != state.account_id){
+                console.log("Incoming ids: do not match searched ids")
+                return state;
+            }
+
             if (action.checkout_id && !(state.checkoutInfo === undefined)) {
                 console.log("Updating single checkout in array!");
                 return Object.assign({}, state, updateCheckout(state, action));
@@ -110,6 +118,9 @@ function checkout(state = {}, action) {
         case REFUND:
         case CLEAR_REFUND:
             return Object.assign({}, state, checkout_base(state, action))
+        case SEARCH:
+            return Object.assign({}, state, searchedCheckout(state, action));
+
         case CLEAR_CHECKOUTS:
         case CLEAR_ALL_STATE:
             return {}
@@ -119,7 +130,6 @@ function checkout(state = {}, action) {
 }
 
 const wepay_checkout = combineReducers({
-    searchedCheckout,
     checkout
 })
 

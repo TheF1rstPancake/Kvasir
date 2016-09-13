@@ -13,7 +13,7 @@ export function searchCard(cc_id = null, type="credit_card") {
     return {
         type: SEARCH,
         cc_id: cc_id,
-        request_type: "credit_card"
+        request_type: type
     }
 }
 

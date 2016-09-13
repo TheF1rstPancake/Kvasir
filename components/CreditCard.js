@@ -242,7 +242,7 @@ const mapStateToProps = (state) => {
         cardInfo:           state.wepay_card.card.cardInfo,
         paymentType:        state.wepay_card.card.requestType,
         isFetching:         state.wepay_card.card.isFetching,
-        searchedCard:       state.wepay_card.searchedCard,
+        searchedCard:       state.wepay_card.card.cc_id,
         error:              state.errors.credit_card ? state.errors.credit_card.info : {}
     }
 }

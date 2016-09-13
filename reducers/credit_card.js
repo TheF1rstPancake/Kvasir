@@ -15,13 +15,14 @@ var defaultCardState = {
     isFetching: false,
     didInvalidate: false,
     cardInfo: [],
-    requestType: "credit_card"
+    requestType: "credit_card",
+    cc_id: null
 };
 
 function searchedCard(state = {"cc_id":""}, action) {
     switch (action.type) {
         case SEARCH:
-            return Object.assign({}, state, action.info)
+            return Object.assign({}, state, {"cc_id": action.cc_id, "request_type":action.request_type});
         case CLEAR:
             return {}
         default:
@@ -41,6 +42,9 @@ function card_base(state = defaultCardState, action) {
                 didInvalidate: false
             })
         case RECEIVE:
+            if(state.cc_id != action.cc_id || state.request_type != action.request_type){
+                return state;
+            }
             return Object.assign({}, state, {
                 isFetching: false,
                 didInvalidate: false,
@@ -58,7 +62,9 @@ function card(state = { }, action) {
         case INVALIDATE:
         case RECEIVE:
         case REQUEST:
-            return Object.assign({}, state, card_base(state, action))
+            return Object.assign({}, state, card_base(state, action));
+        case SEARCH:
+            return Object.assign({}, state, searchedCard(state, action));
         case CLEAR:
         case CLEAR_ALL_STATE:
             console.log("CLEARING CREDIT CARD: ", action.type);
@@ -69,7 +75,6 @@ function card(state = { }, action) {
 }
 
 const wepay_card = combineReducers({
-    searchedCard,
     card
 })
 
