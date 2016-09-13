@@ -195,16 +195,16 @@ var Checkouts = React.createClass({
             refundFee = null;
         }
 
-        /*if (refundAmount - maxRefundableAmount == 0) {
-            console.log("Full refund!");
-            refundAmount = null;
-        }*/
+        // build the package to send to do a refund
         var current = this.state.refund;
         current['refundAmount'] = refundAmount;
         current['refundReason'] = refundReason;
         current['refundFee'] = refundFee;
         this.setState({refund:current})
 
+        // set the checkout that we are searching for
+        // and initiate the refund
+        this.props.dispatch(searchCheckout(account_id, checkout_id))
         this.props.dispatch(fetchRefundIfNeeded(account_id, checkout_id, refundAmount, refundFee, refundReason));
     },
     calculateMaxRefund: function(checkout) {
