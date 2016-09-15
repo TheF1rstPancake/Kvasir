@@ -103,9 +103,15 @@ Any errors sent back from the WePay API will be displayed in the modal above the
 
 The most common error is trying to refund the checkout before the checkout is in state "released."  The WePay API will return an error in this case, but the state of the checkout is also included in the checkouts table, so you can check before attempting the refund.
 
+Payment Method Lookups
+--------------------------
+You often times need to lookup information about the payment method associated with a given checkout.  Since you likely aren't storing any personal identifying information on your payers when you use WePay's API, you likely only have a *payment_method_id* to work with.
+
+Doing a lookup on that token can help confirm that the payer who might be requesting a refund is actually the one who made the refund.  Currently, Kvasir supports lookups for credit cards and preapprovals.  The behavior of the lookup differs slightly due to the difference between the two objects.
+
 Credit Card Lookups
----------------------
-Another common action is getting information about a tokenized card.  This can be especially helpful during the refund process if you want to verify the identity of the person who is requesting the refund.  The checkout object holds the tokenized payment method, and we can fetch the information attached to that token, including the owner's name and the last four digits of their credit card.
+~~~~~~~~~~~~~~~~~~~~~~~
+Looking up a credit card token can be especially helpful during the refund process if you want to verify the identity of the person who is requesting the refund.  The checkout object holds the tokenized payment method, and we can fetch the information attached to that token, including the owner's name and the last four digits of their credit card.
 
 You can do a credit card lookup by clicking on the value in the *payment_method* column of the checkouts table.  During the refund process, this can only be done after you click which checkout you want to refund.  When you click that value, Kvasir will go fetch the card's information from WePay and render it underneath the checkout table.
 
@@ -113,3 +119,23 @@ You can do a credit card lookup by clicking on the value in the *payment_method*
     :align: center
 
     Looking up a credit card can help a user verify the identity of a payer
+
+Preapproval Lookups
+~~~~~~~~~~~~~~~~~~~~~~
+Preapproval lookups function the same as credit card lookups, except Kvasir comes with additional functionality that allows you to cancel a preapproval to stop recurring transactions.  
+
+.. figure:: images/KvasirPreapprovalLookup.png
+    :align: center
+    :scale: 75%
+
+    Looking up a preapprvoal can also be helpful in identifying the payer's identity.
+
+The *Preapproval ID* column contains a hyperlink to a URI that the payer (or customer support rep) can use to manage the state of the preapproval.  Clicking on the link will take the user to WePay where they can cancel the preapproval or update it's information.  
+
+.. figure:: images/KvasirWePayPreapprovalManageURI.png
+    :align: center
+
+    The management URI hosted by WePay allows the user to update the information for a given preapproval or cancel it outright.
+
+    
+

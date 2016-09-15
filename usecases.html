@@ -93,7 +93,11 @@
 <li class="toctree-l3"><a class="reference internal" href="#potential-refund-errors">Potential Refund Errors</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#credit-card-lookups">Credit Card Lookups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#payment-method-lookups">Payment Method Lookups</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#credit-card-lookups">Credit Card Lookups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#preapproval-lookups">Preapproval Lookups</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Kvasir</a></li>
@@ -266,13 +270,31 @@
 <p>The most common error is trying to refund the checkout before the checkout is in state &#8220;released.&#8221;  The WePay API will return an error in this case, but the state of the checkout is also included in the checkouts table, so you can check before attempting the refund.</p>
 </div>
 </div>
+<div class="section" id="payment-method-lookups">
+<h2>Payment Method Lookups<a class="headerlink" href="#payment-method-lookups" title="Permalink to this headline">¶</a></h2>
+<p>You often times need to lookup information about the payment method associated with a given checkout.  Since you likely aren&#8217;t storing any personal identifying information on your payers when you use WePay&#8217;s API, you likely only have a <em>payment_method_id</em> to work with.</p>
+<p>Doing a lookup on that token can help confirm that the payer who might be requesting a refund is actually the one who made the refund.  Currently, Kvasir supports lookups for credit cards and preapprovals.  The behavior of the lookup differs slightly due to the difference between the two objects.</p>
 <div class="section" id="credit-card-lookups">
-<h2>Credit Card Lookups<a class="headerlink" href="#credit-card-lookups" title="Permalink to this headline">¶</a></h2>
-<p>Another common action is getting information about a tokenized card.  This can be especially helpful during the refund process if you want to verify the identity of the person who is requesting the refund.  The checkout object holds the tokenized payment method, and we can fetch the information attached to that token, including the owner&#8217;s name and the last four digits of their credit card.</p>
+<h3>Credit Card Lookups<a class="headerlink" href="#credit-card-lookups" title="Permalink to this headline">¶</a></h3>
+<p>Looking up a credit card token can be especially helpful during the refund process if you want to verify the identity of the person who is requesting the refund.  The checkout object holds the tokenized payment method, and we can fetch the information attached to that token, including the owner&#8217;s name and the last four digits of their credit card.</p>
 <p>You can do a credit card lookup by clicking on the value in the <em>payment_method</em> column of the checkouts table.  During the refund process, this can only be done after you click which checkout you want to refund.  When you click that value, Kvasir will go fetch the card&#8217;s information from WePay and render it underneath the checkout table.</p>
 <div class="figure align-center" id="id7">
 <img alt="_images/KvasirCreditCardLookup.png" src="_images/KvasirCreditCardLookup.png" />
 <p class="caption"><span class="caption-text">Looking up a credit card can help a user verify the identity of a payer</span></p>
+</div>
+</div>
+<div class="section" id="preapproval-lookups">
+<h3>Preapproval Lookups<a class="headerlink" href="#preapproval-lookups" title="Permalink to this headline">¶</a></h3>
+<p>Preapproval lookups function the same as credit card lookups, except Kvasir comes with additional functionality that allows you to cancel a preapproval to stop recurring transactions.</p>
+<div class="figure align-center" id="id8">
+<a class="reference internal image-reference" href="_images/KvasirPreapprovalLookup.png"><img alt="_images/KvasirPreapprovalLookup.png" src="_images/KvasirPreapprovalLookup.png" style="width: 1805.25px; height: 3287.25px;" /></a>
+<p class="caption"><span class="caption-text">Looking up a preapprvoal can also be helpful in identifying the payer&#8217;s identity.</span></p>
+</div>
+<p>The <em>Preapproval ID</em> column contains a hyperlink to a URI that the payer (or customer support rep) can use to manage the state of the preapproval.  Clicking on the link will take the user to WePay where they can cancel the preapproval or update it&#8217;s information.</p>
+<div class="figure align-center" id="id9">
+<img alt="_images/KvasirWePayPreapprovalManageURI.png" src="_images/KvasirWePayPreapprovalManageURI.png" />
+<p class="caption"><span class="caption-text">The management URI hosted by WePay allows the user to update the information for a given preapproval or cancel it outright.</span></p>
+</div>
 </div>
 </div>
 </div>
