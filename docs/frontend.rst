@@ -25,7 +25,7 @@ React and Redux apps are comprised of 3 parts:
 Holding onto the idea that our application is really taking a user on a walk through their internal database, we have a set of "objects" or "models", each of which have their own set of actions, reducers and components.
 
 These objects are:
-   - :ref:`User <user_object>`
+    - :ref:`User <user_object>`
         * represents a given *merchant*.  
         * A merchant can have multiple accounts.
     
@@ -55,12 +55,14 @@ If you look at these objects, you might recognize that all of these *except for 
 
 The *components* are responsible for handling user actions and then dispatching the associated Redux actions.  They are also responsible for subscribing to all of the necessary state information and formatting that data.  While all actions are globally published, not every component relies on all of that info (and they shouldn't).
 
-For example, when an account is clicked in the account component, the account component registers that the click happened, manipulates the table, and then dispatches the *searchedAccounts*, *fetchWithdrawalsIfNeeded* and *fetchCheckoutsIfNeeded* actions.  Some of these actions will directly impact the action component causing it to re-render with new info, while others will impact other components forcing them to re-render with the new information, but the *User* objects is not impacted at all.  Actions to accounts do not affect the User who owns them.
+For example, when an account is clicked in the account component, the account component registers that the click happened, manipulates the table, and then dispatches the *searchedAccounts*, *fetchWithdrawalsIfNeeded* and *fetchCheckoutsIfNeeded* actions.  Some of these actions will directly impact the action component causing it to re-render with new info, while others will impact other components forcing them to re-render with new info as well.  On the other hand, the *User* objects is not impacted at all.  Actions to accounts do not affect the User who owns them so we do not see the user component re-render.
 
 General Object Implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 All of the objects are different in the sense that they require different search requirements (user_id, account_id, etc.); however, they are all implemented in very similar ways.  
 
+Actions
+^^^^^^^^^^
 All of the objects require a handful of actions:
     1) Search
         - Notify all components the object is being *searched* for and what exactly we are searching for
@@ -82,7 +84,7 @@ But not all of these actions are directly accessible.  For example, request and 
 In general, these are the public functions that each object has for dispatching actions:
     1) .. function:: search(id)
         
-        Will cause the associated reducer to update its state with the information the user passed in order to search the object.
+        Will cause the associated reducer to update its state with the information the user passed in order to search the object. This is necessary so that we can verify that the info coming back is actually the info we requested.
         
         :param id:  some unique id of the object that we just looked up.  For example, for user's this is an email address; accounts use an account_id
 
@@ -94,6 +96,8 @@ In general, these are the public functions that each object has for dispatching 
 
         :param id:  some unique id of the object that we just looked up.  For example, for user's this is an email address; accounts use an account_id
 
+Reducers
+^^^^^^^^^^^^
 The reducers that take these actions are also very similar.  
 Each reducer is actually composed of two smaller functions - a *searched* function and a *base* function. 
 We do this because of the asynchronous nature of Redux actions mixed with the POST requests to our back-end.  If someone searches a user, but then realizes they searched the wrong email and changes the search parameter, we need a way to handle that.
@@ -128,7 +132,7 @@ Going back to the earlier example, if someone were to search a user with one ema
 .. _user_object:
 
 User Object
-~~~~~~~~~~~~
+------------
 The user objects represents a WePay merchant accessible through the :wepay:`user` endpoint.
 This is the primary building block for all other information that we gather.
 
@@ -149,7 +153,7 @@ The state of the user is important because if the user is not in the *registered
 .. _account_object:
 
 Account Object
-~~~~~~~~~~~~~~~~
+----------------
 As soon we have a user's access token, we can also get a list of all of their merchant accounts tied to the app_id that the access token is associated with via the :wepay:`account find` call.
 
 A user could have multiple accounts, so each account is displayed as a row in a larger table. Clicking on a row of the table will cause the row to become highlighted, and will dispatch actions to fetch more information about that specific account.  This information includes withdrawals, reserves, and checkouts.
@@ -171,7 +175,7 @@ The account table itself includes:
 .. _withdrawal_object:
 
 Withdrawal Object
-~~~~~~~~~~~~~~~~~~~~~
+------------------
 The withdrawal object represents information gained from the :wepay:`withdrawal` endpoint. 
 This includes information about where a merchant's money is being withdrawn too, when it's being withdrawn, and how much is being withdrawn.
 
@@ -182,7 +186,7 @@ These tables will render the 50 most recent withdrawals/reserves for a merchant.
 .. _checkouts_object:
 
 Checkouts Object
-~~~~~~~~~~~~~~~~~~~
+------------------
 The checkout object is one of the more intensive objects.  Since it is the heart of many operations that a platform performs, there are also several actions tied to any given checkout.
 
 The checkout component renders a table of information gathered from a :wepay:`checkout find` call which includes:
@@ -214,7 +218,7 @@ The checkout component is also currently responsible for rendering the informati
 .. _credit_card_object:
 
 Credit Card Object
-~~~~~~~~~~~~~~~~~~~
+--------------------
 The credit_card object represents information gathered by a :wepay:`credit_card` call.  One of the benefits of WePay is the ability to tokenize payment information and simply store a token instead of all the payer's info.  Storing all payer info requires a higher level of PCI compliance than just the token.
 
 However, a platform may want to lookup information associated with a tokenized card at any point in time.  The *Payment Method ID* column in the checkout object contains the tokenized id.  Clicking on one of them (they are all hyperlinks) will dispatch actions to fetch more information about the card and render it in a table.
@@ -233,7 +237,7 @@ This table includes:
 .. _payer_object:
 
 Payer Object
-~~~~~~~~~~~~~~~~
+-------------------
 As mentioned earlier the Payer object is the only one that doesn't tie directly back to a WePay endpoint.  This is because the WePay API does not provide any way to search by a payer's information.  All you can search by is a tokenized credit card ID.
 
 However, if a payer comes to a platform's customer support and requests a refund, they likely don't know the token associated with their purchase.  Storing payer information falls squarely onto the platform.

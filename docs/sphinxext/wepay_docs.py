@@ -6,7 +6,7 @@ from docutils.parsers.rst.roles import set_classes
 
 
 def setup(app):
-    app.add_config_value("wepay_docs_home", "https://stage.wepay.com/developer/reference/", 'html')
+    app.add_config_value("wepay_docs_home", "https://developer.wepay.com/api-calls/", 'html')
 
     app.add_role("wepay", wepay_docs_role)
 
@@ -34,7 +34,8 @@ def make_wepay_link(app, rawtext, endpoint, function, options):
 
     # build external url
     # if no function is given, then it is the main endpoint, which is accessed by #lookup on the page
-    ref = base + endpoint + "#" + function if function else base + endpoint + "#lookup"
+    ref = "{0}{1}#{2}"
+    ref = ref.format(base,endpoint,function) if function else ref.format(base,endpoint,"lookup")
 
     # build the text that we will display instead of :wepay:`endpoint function`
 
