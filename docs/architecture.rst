@@ -2,7 +2,7 @@
 
 Kvasir's Architecture
 =========================
-This page details Kvasir's architecture.  It explains in detail why each architecture decision was made.
+This page details Kvasir's architecture.  We do this so that you have a better idea for why certain decisions are made in the :ref:`back-end <kvasirbackend>` and :ref:`front-end <kvasirfrontend>`.
 
 A Brief History
 -------------------
@@ -15,14 +15,14 @@ On the security side, many of the WePay API calls that we need to make required 
 
 While exposing access tokens to the front-end was considered a deal breaker, being able to get tokens to the front-end in the first place was also a challenge.  No two database configurations are the same, and we wanted this solution to be available to any company that currently integrates with WePay.  Normally, data makes up the fundamental building block of a web-application, but here we were presented with the unusual problem of having absolutely no control over the underlying database.  Not only that, but many databases would likely not be optimized for use with Kvasir, so we could make no assumptions about how certain pieces of data were connected or about the presence of data.
 
-A pure SPA with no attached back-end fell of the table pretty quickly, but we wanted to try and hold on to many of the benefits that come with a SPA such as:
+A SPA with no attached back-end fell of the table pretty quickly, but we wanted to try and hold on to many of the benefits that come with a SPA such as:
     1) **Being back-end agnostic**.  Someone could simply take our front-end, and redesign the lower pieces and it should work just as well (if not better)
     2) **Easy setup and deployment**.  One of the nice parts of an SPA is that all of the logic and external calls are contained in the app running in a user's browser.  It only requires a small static server to push the necessary files forward, but the burden of the work falls on the user's machine.
 
 
 Architecture
 -----------------
-With all of these considerations in mind, we decided to stick with a SPA but provide it a sturdy back-end server for managing external API calls and database connections.
+With all of these considerations in mind, we decided to stick with a SPA design but provide it a sturdy back-end server for managing external API calls and database connections.
 
 .. figure:: images/KvasirInitialArchitecture_Prototype.*
     :align: center
@@ -43,7 +43,7 @@ In order to achieve this, we came up with this idea of a :ref:`"middleware compo
 This middleware can be provided in any language that the developer chooses, using any structure that they want.  As long as it can receive and send back information in the way that Kvasir expects, the rest is up to the developer.  The information that Kvasir requests may be spread out across three or four tables for one developer, but be completed contained in a single table for another.  This middleware piece allows Kvasir to be apathetic towards a developer's underlying database.  This provides us with the necessary flexibility to be able to provide this as a solution to all platforms currently using WePay, not just a handful.
 
 
-Integration Environment with Kvasir
+How to Host Kvasir
 ----------------------------------------
 The entire architectural model assumes that Kvasir and your middleware are running on your company's internal network.  Kvasir does not come with any sort of authentication and there are *no plans for it*.  Similarly to database configurations, there are a plethora of authentication systems out there that we cannot provide mechanisms to interact with all of them.
 

@@ -99,16 +99,31 @@ if (!app_config.http_override) {
     var credentials = {key: privateKey, cert: certificate};
 }
 
-// point the app to the static folder
-app.use('/static', express.static('static'));
 app.use(config.output.publicPath, express.static(config.output.path));
 
 
 var expressWinston = require("express-winston");
 var winston = require("winston");
+
+// create a logger for our other log inputs
+// we remove the default Console logger and add our own to allow for more fine-tuned formatting
+winston.add(winston.transports.File, {
+    level:"info",
+    filename:"logs/log.log",
+    timestamp: true,
+    json: true,
+    colorize: true
+});
+winston.remove(winston.transports.Console);
+winston.add(winston.transports.Console, {
+    colorize: true,
+    timstamp:true
+})
+
 // define our logger
-app.use(expressWinston.logger({
-    transports: [
+// the expressWinston.logger only logs the HTTP(s) requests and response
+// the expressWinston.errorLogger is at the bottom of the file.  It has be 
+var expressTransports = [
         new winston.transports.Console({
             colorize: true,
             timstamp:true,
@@ -120,13 +135,16 @@ app.use(expressWinston.logger({
             timestamp:true,
 
         })
-    ],
+]
+app.use(expressWinston.logger({
+    transports: expressTransports,
     meta: true, // optional: control whether you want to log the meta data about the request (default to true)
     expressFormat: true
 }));
 
-
 // use ejs for our template engine
+// point the app to the static folder
+app.use('/static', express.static('static'));
 app.set("view engine", "ejs");
 
 /**
@@ -495,6 +513,20 @@ app.post("/preapproval/cancel", csrfProtection, function(req, res){
     getWePayData(res, "/preapproval/cancel", null, {"preapproval_id":preapproval, "client_id":app_config.client_id, "client_secret":app_config.client_secret});
 
 })
+
+// define the error logger.
+// it uses the same transports as the normal logger, and will write all errors to a special file for easier access
+var error_transport = new winston.transports.File({
+        filename: "logs/error.log",
+        level: "error",
+        json: true,
+        timestamp:true
+    });
+app.use(expressWinston.errorLogger({
+    transports: [error_transport],
+    meta: true, // optional: control whether you want to log the meta data about the request (default to true)
+    expressFormat: true
+}));
 
 
 /**

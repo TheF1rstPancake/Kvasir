@@ -32,8 +32,15 @@ These actions include:
     - Withdrawal Lookups
         * Gather information about where a merchant's funds have been withdrawn to and when the next withdrawal should take place
         * This also includes being able to get reserve details for accounts that have money in reserve
-    - Credit Card Token Lookup
+    - Payment Method Lookups
         * Given a tokenized credit card, Kvasir can gather the original information used to create the token
+        * Given a preapproval id, Kvasir can gather the original information used to create the token and provide a link where the conditions of the preapproval can be updated
+
+.. figure:: images/KvasirLiveSnapshot.png
+  :align: center
+  :scale: 65%
+
+  A live snapshot of Kvasir in action
 
 Tech Stack
 -----------
