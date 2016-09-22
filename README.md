@@ -13,7 +13,7 @@ It will perform:
         - Get the information that a given *payment_method_id* represents
 
 ## Full Documentation
-This README only contains a brief outline of what Kvasir is and what it is capable of.  To view the whole documentation, head to http://jalepeno112.github.io/Kvasir/index.html
+This README only contains a brief outline of what Kvasir is and what it is capable of.  To view the whole documentation, head to https://jalepeno112.github.io/Kvasir/
 
 ## Functionality
 All of the functionality has been tested, but there may be some cases that we missed.  The WePay API isn't always predictable, so if you run into an error, be sure to report it as an issue so that we can investigate further.  Giving me the original call information (without your client_secret or any access tokens as those are sensitive pieces of information you shouldn't share with anyone) is extremely helpful so that I can try and reproduce the error.
