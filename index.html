@@ -188,9 +188,10 @@ It provides most of the essential functionality that a support teams needs to ha
 </dl>
 </li>
 <li><dl class="first docutils">
-<dt>Credit Card Token Lookup</dt>
+<dt>Payment Method Lookups</dt>
 <dd><ul class="first last simple">
 <li>Given a tokenized credit card, Kvasir can gather the original information used to create the token</li>
+<li>Given a preapproval id, Kvasir can gather the original information used to create the token and provide a link where the conditions of the preapproval can be updated</li>
 </ul>
 </dd>
 </dl>
@@ -198,6 +199,10 @@ It provides most of the essential functionality that a support teams needs to ha
 </ul>
 </dd>
 </dl>
+<div class="figure align-center" id="id2">
+<a class="reference internal image-reference" href="_images/KvasirLiveSnapshot.png"><img alt="_images/KvasirLiveSnapshot.png" src="_images/KvasirLiveSnapshot.png" style="width: 1566.5px; height: 3352.7px;" /></a>
+<p class="caption"><span class="caption-text">A live snapshot of Kvasir in action</span></p>
+</div>
 </div>
 <div class="section" id="tech-stack">
 <h2>Tech Stack<a class="headerlink" href="#tech-stack" title="Permalink to this headline">¶</a></h2>
@@ -231,11 +236,17 @@ However, you are free to take the application apart and use just Kvasir&#8217;s 
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="architecture.html#a-brief-history">A Brief History</a></li>
 <li class="toctree-l2"><a class="reference internal" href="architecture.html#architecture">Architecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="architecture.html#integration-environment-with-kvasir">Integration Environment with Kvasir</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#how-to-host-kvasir">How to Host Kvasir</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="frontend.html">The Front End: ReactJS and Redux</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="frontend.html#actions-components-and-reducers">Actions, Components, and Reducers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="frontend.html#user-object">User Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="frontend.html#account-object">Account Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="frontend.html#withdrawal-object">Withdrawal Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="frontend.html#checkouts-object">Checkouts Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="frontend.html#credit-card-object">Credit Card Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="frontend.html#payer-object">Payer Object</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="backend.html">The Back-End: NodeJS and ExpressJS</a><ul>

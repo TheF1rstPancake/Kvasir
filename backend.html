@@ -202,7 +202,7 @@
 <dl class="docutils">
 <dt>The user endpoint does two important actions:</dt>
 <dd><ol class="first last arabic simple">
-<li>Get user information from the WePay <a class="reference external" href="https://stage.wepay.com/developer/reference/user#lookup">/user</a> endpoint</li>
+<li>Get user information from the WePay <a class="reference external" href="https://developer.wepay.com/api-calls/user#lookup">/user</a> endpoint</li>
 <li>Get the access token for the user from the platform&#8217;s database</li>
 </ol>
 </dd>
@@ -236,7 +236,7 @@
 <div class="section" id="account-endpoint">
 <h3>Account Endpoint<a class="headerlink" href="#account-endpoint" title="Permalink to this headline">¶</a></h3>
 <p>The account endpoint simply makes requests to WePay.  However, depending on the parameters passed, it might do one of two different actions.</p>
-<p>If no account_id is provided, the endpoint will make a request to <a class="reference external" href="https://stage.wepay.com/developer/reference/account#find">/account/find</a> which will return all accounts associated with the user.  If an account_id is provided, the endpoint will make a request to <a class="reference external" href="https://stage.wepay.com/developer/reference/account#lookup">/account</a>, which will return information for just the specified account.</p>
+<p>If no account_id is provided, the endpoint will make a request to <a class="reference external" href="https://developer.wepay.com/api-calls/account#find">/account/find</a> which will return all accounts associated with the user.  If an account_id is provided, the endpoint will make a request to <a class="reference external" href="https://developer.wepay.com/api-calls/account#lookup">/account</a>, which will return information for just the specified account.</p>
 <dl class="post">
 <dt id="post--account">
 <code class="descname">POST </code><code class="descname">/account</code><a class="headerlink" href="#post--account" title="Permalink to this definition">¶</a></dt>
@@ -263,7 +263,7 @@
 </div>
 <div class="section" id="checkout-endpoint">
 <h3>Checkout Endpoint<a class="headerlink" href="#checkout-endpoint" title="Permalink to this headline">¶</a></h3>
-<p>Very similar to the <a class="reference internal" href="#post--account" title="POST /account"><code class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/account</span></code></a>, except it looks at <a class="reference external" href="https://stage.wepay.com/developer/reference/checkout#lookup">/checkout</a> instead.  If no checkout_id is provided, it will gather the 50 most recent checkouts for the given account_id.  If a checkout_id is provided, then it will only fetch information regarding that one checkout.</p>
+<p>Very similar to the <a class="reference internal" href="#post--account" title="POST /account"><code class="xref http http-post docutils literal"><span class="pre">POST</span> <span class="pre">/account</span></code></a>, except it looks at <a class="reference external" href="https://developer.wepay.com/api-calls/checkout#lookup">/checkout</a> instead.  If no checkout_id is provided, it will gather the 50 most recent checkouts for the given account_id.  If a checkout_id is provided, then it will only fetch information regarding that one checkout.</p>
 <dl class="post">
 <dt id="post--checkout">
 <code class="descname">POST </code><code class="descname">/checkout</code><a class="headerlink" href="#post--checkout" title="Permalink to this definition">¶</a></dt>
@@ -313,7 +313,7 @@
 <div class="section" id="refund-endpoint">
 <h3>Refund Endpoint<a class="headerlink" href="#refund-endpoint" title="Permalink to this headline">¶</a></h3>
 <p>Even though checkouts and refunds are merged into the same object, the refund part requires it&#8217;s own endpoint.</p>
-<p>Refunds are a complicated area.  The refund logic changes depending on who the <em>fee_payer</em> was in the original checkout.  However, all refunds have to go through the <a class="reference external" href="https://stage.wepay.com/developer/reference/checkout#refund">/checkout/refund</a> API endpoint.  This endpoint requires the checkout_id for the given checkout and a reason for why the checkout is being refunded.</p>
+<p>Refunds are a complicated area.  The refund logic changes depending on who the <em>fee_payer</em> was in the original checkout.  However, all refunds have to go through the <a class="reference external" href="https://developer.wepay.com/api-calls/checkout#refund">/checkout/refund</a> API endpoint.  This endpoint requires the checkout_id for the given checkout and a reason for why the checkout is being refunded.</p>
 <dl class="post">
 <dt id="post--refund">
 <code class="descname">POST </code><code class="descname">/refund</code><a class="headerlink" href="#post--refund" title="Permalink to this definition">¶</a></dt>
@@ -339,7 +339,7 @@
 <div class="section" id="reserve-endpoint">
 <h3>Reserve Endpoint<a class="headerlink" href="#reserve-endpoint" title="Permalink to this headline">¶</a></h3>
 <p>The reserve endpoint is typically hit at the same time as the withdrawal endpoint, and they function similiarly.</p>
-<p>This endpoint will gather the reserve information about an account from <a class="reference external" href="https://stage.wepay.com/developer/reference/account#get_reserve_details">/account/get_reserve_details</a>.</p>
+<p>This endpoint will gather the reserve information about an account from <a class="reference external" href="https://developer.wepay.com/api-calls/account#get_reserve_details">/account/get_reserve_details</a>.</p>
 <dl class="post">
 <dt id="post--reserve">
 <code class="descname">POST </code><code class="descname">/reserve</code><a class="headerlink" href="#post--reserve" title="Permalink to this definition">¶</a></dt>
@@ -482,7 +482,7 @@
 <p class="first admonition-title">Note</p>
 <p class="last">The <code class="docutils literal"><span class="pre">access_token</span></code> field can be null if the WePAy endpoint doesn&#8217;t require an access token.</p>
 </div>
-<p>We talk a lot about retrieving access tokens from the middleware as a critical component of accessing data from the WePay API.  While many of the endpoints require an access token, not all of them do.  For example, the <a class="reference external" href="https://stage.wepay.com/developer/reference/credit_card#lookup">/credit_card</a> endpoint does not require an acces token.  Instead, it wants the platform&#8217;s client_id and client_secret in the body of the request.</p>
+<p>We talk a lot about retrieving access tokens from the middleware as a critical component of accessing data from the WePay API.  While many of the endpoints require an access token, not all of them do.  For example, the <a class="reference external" href="https://developer.wepay.com/api-calls/credit_card#lookup">/credit_card</a> endpoint does not require an acces token.  Instead, it wants the platform&#8217;s client_id and client_secret in the body of the request.</p>
 <p>Each endpoint on Kvasir&#8217;s server is responsible for creating the call to <a class="reference internal" href="#getWePayData" title="getWePayData"><code class="xref js js-func docutils literal"><span class="pre">getWePayData()</span></code></a> including formatting the package that it sends.</p>
 <div class="section" id="managing-access-tokens">
 <h3>Managing Access Tokens<a class="headerlink" href="#managing-access-tokens" title="Permalink to this headline">¶</a></h3>

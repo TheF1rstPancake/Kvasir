@@ -85,15 +85,19 @@
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Kvasir&#8217;s Architecture</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="">The Front End: ReactJS and Redux</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#actions-components-and-reducers">Actions, Components, and Reducers</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#general-object-implementation">General Object Implementation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#user-object">User Object</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#account-object">Account Object</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#withdrawal-object">Withdrawal Object</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#checkouts-object">Checkouts Object</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#credit-card-object">Credit Card Object</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#payer-object">Payer Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#general-object-implementation">General Object Implementation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#actions">Actions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#reducers">Reducers</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#user-object">User Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#account-object">Account Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#withdrawal-object">Withdrawal Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#checkouts-object">Checkouts Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#credit-card-object">Credit Card Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#payer-object">Payer Object</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="backend.html">The Back-End: NodeJS and ExpressJS</a></li>
@@ -189,7 +193,7 @@
 <p>Holding onto the idea that our application is really taking a user on a walk through their internal database, we have a set of &#8220;objects&#8221; or &#8220;models&#8221;, each of which have their own set of actions, reducers and components.</p>
 <dl class="docutils">
 <dt>These objects are:</dt>
-<dd><ul class="first">
+<dd><ul class="first last">
 <li><dl class="first docutils">
 <dt><a class="reference internal" href="#user-object"><span>User</span></a></dt>
 <dd><ul class="first last simple">
@@ -199,9 +203,6 @@
 </dd>
 </dl>
 </li>
-</ul>
-<blockquote class="last">
-<div><ul>
 <li><dl class="first docutils">
 <dt><a class="reference internal" href="#account-object"><span>Accounts</span></a></dt>
 <dd><ul class="first last simple">
@@ -247,7 +248,6 @@
 </dl>
 </li>
 </ul>
-</div></blockquote>
 </dd>
 </dl>
 <p>If you look at these objects, you might recognize that all of these <em>except for the Payer object</em> directly tie back to a WePay API endpoint.  That&#8217;s intentional.  We assumed that many platforms would have developed their database configurations around the different WePay endpoints.  Since you generally have to interact with these endpoints in a certain order (/user endpoint, then /account endpoint, then /checkout endpoint), it makes sense that a partner&#8217;s database would grow around that.  Regardless of how a your database is configured, Kvasir needs to interact with each of these endpoints to gather the information it needs.</p>
@@ -256,10 +256,12 @@
 <p class="last">The front-end objects do not make any calls directly to the WePay API.  All of those are done by the back-end server.</p>
 </div>
 <p>The <em>components</em> are responsible for handling user actions and then dispatching the associated Redux actions.  They are also responsible for subscribing to all of the necessary state information and formatting that data.  While all actions are globally published, not every component relies on all of that info (and they shouldn&#8217;t).</p>
-<p>For example, when an account is clicked in the account component, the account component registers that the click happened, manipulates the table, and then dispatches the <em>searchedAccounts</em>, <em>fetchWithdrawalsIfNeeded</em> and <em>fetchCheckoutsIfNeeded</em> actions.  Some of these actions will directly impact the action component causing it to re-render with new info, while others will impact other components forcing them to re-render with the new information, but the <em>User</em> objects is not impacted at all.  Actions to accounts do not affect the User who owns them.</p>
+<p>For example, when an account is clicked in the account component, the account component registers that the click happened, manipulates the table, and then dispatches the <em>searchedAccounts</em>, <em>fetchWithdrawalsIfNeeded</em> and <em>fetchCheckoutsIfNeeded</em> actions.  Some of these actions will directly impact the action component causing it to re-render with new info, while others will impact other components forcing them to re-render with new info as well.  On the other hand, the <em>User</em> objects is not impacted at all.  Actions to accounts do not affect the User who owns them so we do not see the user component re-render.</p>
 <div class="section" id="general-object-implementation">
 <h3>General Object Implementation<a class="headerlink" href="#general-object-implementation" title="Permalink to this headline">¶</a></h3>
 <p>All of the objects are different in the sense that they require different search requirements (user_id, account_id, etc.); however, they are all implemented in very similar ways.</p>
+<div class="section" id="actions">
+<h4>Actions<a class="headerlink" href="#actions" title="Permalink to this headline">¶</a></h4>
 <dl class="docutils">
 <dt>All of the objects require a handful of actions:</dt>
 <dd><ol class="first last arabic">
@@ -315,7 +317,7 @@
 <li><dl class="function">
 <dt id="search">
 <code class="descname">search</code><span class="sig-paren">(</span><em>id</em><span class="sig-paren">)</span><a class="headerlink" href="#search" title="Permalink to this definition">¶</a></dt>
-<dd><p>Will cause the associated reducer to update its state with the information the user passed in order to search the object.</p>
+<dd><p>Will cause the associated reducer to update its state with the information the user passed in order to search the object. This is necessary so that we can verify that the info coming back is actually the info we requested.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -353,6 +355,9 @@ This will result in the dispatching of the <em>request</em> action along with <e
 </ol>
 </dd>
 </dl>
+</div>
+<div class="section" id="reducers">
+<h4>Reducers<a class="headerlink" href="#reducers" title="Permalink to this headline">¶</a></h4>
 <p>The reducers that take these actions are also very similar.
 Each reducer is actually composed of two smaller functions - a <em>searched</em> function and a <em>base</em> function.
 We do this because of the asynchronous nature of Redux actions mixed with the POST requests to our back-end.  If someone searches a user, but then realizes they searched the wrong email and changes the search parameter, we need a way to handle that.</p>
@@ -414,9 +419,11 @@ The initial state is defined by each object but generally they all look this:</p
 </dl>
 <p>Going back to the earlier example, if someone were to search a user with one email and immediately change the search parameters, there is no way for them to cancel the original request.  It has likely already been sent to the back-end to be processed.  There is also no guarantee that the first request will finish before the second request.  So, the user may be handed information from the original request, despite the fact that they didn&#8217;t want to.  Separating the search information from the object&#8217;s information that we receive allows Kvasir to validate that the information we received is actually the info we wanted.  If it&#8217;s not, we can ignore it and prevent the state from being updated with unwanted info.</p>
 </div>
+</div>
+</div>
 <div class="section" id="user-object">
-<span id="id1"></span><h3>User Object<a class="headerlink" href="#user-object" title="Permalink to this headline">¶</a></h3>
-<p>The user objects represents a WePay merchant accessible through the <a class="reference external" href="https://stage.wepay.com/developer/reference/user#lookup">/user</a> endpoint.
+<span id="id1"></span><h2>User Object<a class="headerlink" href="#user-object" title="Permalink to this headline">¶</a></h2>
+<p>The user objects represents a WePay merchant accessible through the <a class="reference external" href="https://developer.wepay.com/api-calls/user#lookup">/user</a> endpoint.
 This is the primary building block for all other information that we gather.</p>
 <p>To gather most information via the WePay API, you need to know the merchant&#8217;s access token.  This has to be stored in the platform&#8217;s database, and is likely tied to the merchant&#8217;s login credentials (such as their email).  So given a merchant&#8217;s email, we can find their access token in the partner database, and then get their information from the WePay API.</p>
 <div class="admonition note">
@@ -437,8 +444,8 @@ This is the primary building block for all other information that we gather.</p>
 <p>The state of the user is important because if the user is not in the <em>registered</em> state, then they have not yet confirmed their email on WePay.  It is possible that the confirmation email is lost in the merchant&#8217;s inbox, so Kvasir provides the functionality to resend the confirmation if the user is not <em>registered</em>.</p>
 </div>
 <div class="section" id="account-object">
-<span id="id2"></span><h3>Account Object<a class="headerlink" href="#account-object" title="Permalink to this headline">¶</a></h3>
-<p>As soon we have a user&#8217;s access token, we can also get a list of all of their merchant accounts tied to the app_id that the access token is associated with via the <a class="reference external" href="https://stage.wepay.com/developer/reference/account#find">/account/find</a> call.</p>
+<span id="id2"></span><h2>Account Object<a class="headerlink" href="#account-object" title="Permalink to this headline">¶</a></h2>
+<p>As soon we have a user&#8217;s access token, we can also get a list of all of their merchant accounts tied to the app_id that the access token is associated with via the <a class="reference external" href="https://developer.wepay.com/api-calls/account#find">/account/find</a> call.</p>
 <p>A user could have multiple accounts, so each account is displayed as a row in a larger table. Clicking on a row of the table will cause the row to become highlighted, and will dispatch actions to fetch more information about that specific account.  This information includes withdrawals, reserves, and checkouts.</p>
 <dl class="docutils">
 <dt>The account table itself includes:</dt>
@@ -481,17 +488,17 @@ This is the primary building block for all other information that we gather.</p>
 </dl>
 </div>
 <div class="section" id="withdrawal-object">
-<span id="id3"></span><h3>Withdrawal Object<a class="headerlink" href="#withdrawal-object" title="Permalink to this headline">¶</a></h3>
-<p>The withdrawal object represents information gained from the <a class="reference external" href="https://stage.wepay.com/developer/reference/withdrawal#lookup">/withdrawal</a> endpoint.
+<span id="id3"></span><h2>Withdrawal Object<a class="headerlink" href="#withdrawal-object" title="Permalink to this headline">¶</a></h2>
+<p>The withdrawal object represents information gained from the <a class="reference external" href="https://developer.wepay.com/api-calls/withdrawal#lookup">/withdrawal</a> endpoint.
 This includes information about where a merchant&#8217;s money is being withdrawn too, when it&#8217;s being withdrawn, and how much is being withdrawn.</p>
 <p>It also manages another table detailing the reserves associated with an account if applicable. They are in two different tables, but once you have enough information to get withdrawals, you have enough to get reserves, and they are closely related enough that gathering both at the same time makes sense.</p>
 <p>These tables will render the 50 most recent withdrawals/reserves for a merchant.  The actions to gather this information are generally dispatched after an account is selected.  They can be dispatched sooner, but withdrawals are tied to a specific account, so you need both an access_token and an account_id to complete the request.</p>
 </div>
 <div class="section" id="checkouts-object">
-<span id="id4"></span><h3>Checkouts Object<a class="headerlink" href="#checkouts-object" title="Permalink to this headline">¶</a></h3>
+<span id="id4"></span><h2>Checkouts Object<a class="headerlink" href="#checkouts-object" title="Permalink to this headline">¶</a></h2>
 <p>The checkout object is one of the more intensive objects.  Since it is the heart of many operations that a platform performs, there are also several actions tied to any given checkout.</p>
 <dl class="docutils">
-<dt>The checkout component renders a table of information gathered from a <a class="reference external" href="https://stage.wepay.com/developer/reference/checkout#find">/checkout/find</a> call which includes:</dt>
+<dt>The checkout component renders a table of information gathered from a <a class="reference external" href="https://developer.wepay.com/api-calls/checkout#find">/checkout/find</a> call which includes:</dt>
 <dd><ul class="first last">
 <li><p class="first">Checkout ID</p>
 </li>
@@ -533,8 +540,8 @@ This includes information about where a merchant&#8217;s money is being withdraw
 </div>
 </div>
 <div class="section" id="credit-card-object">
-<span id="id5"></span><h3>Credit Card Object<a class="headerlink" href="#credit-card-object" title="Permalink to this headline">¶</a></h3>
-<p>The credit_card object represents information gathered by a <a class="reference external" href="https://stage.wepay.com/developer/reference/credit_card#lookup">/credit_card</a> call.  One of the benefits of WePay is the ability to tokenize payment information and simply store a token instead of all the payer&#8217;s info.  Storing all payer info requires a higher level of PCI compliance than just the token.</p>
+<span id="id5"></span><h2>Credit Card Object<a class="headerlink" href="#credit-card-object" title="Permalink to this headline">¶</a></h2>
+<p>The credit_card object represents information gathered by a <a class="reference external" href="https://developer.wepay.com/api-calls/credit_card#lookup">/credit_card</a> call.  One of the benefits of WePay is the ability to tokenize payment information and simply store a token instead of all the payer&#8217;s info.  Storing all payer info requires a higher level of PCI compliance than just the token.</p>
 <p>However, a platform may want to lookup information associated with a tokenized card at any point in time.  The <em>Payment Method ID</em> column in the checkout object contains the tokenized id.  Clicking on one of them (they are all hyperlinks) will dispatch actions to fetch more information about the card and render it in a table.</p>
 <dl class="docutils">
 <dt>This table includes:</dt>
@@ -566,7 +573,7 @@ This includes information about where a merchant&#8217;s money is being withdraw
 </dl>
 </div>
 <div class="section" id="payer-object">
-<span id="id6"></span><h3>Payer Object<a class="headerlink" href="#payer-object" title="Permalink to this headline">¶</a></h3>
+<span id="id6"></span><h2>Payer Object<a class="headerlink" href="#payer-object" title="Permalink to this headline">¶</a></h2>
 <p>As mentioned earlier the Payer object is the only one that doesn&#8217;t tie directly back to a WePay endpoint.  This is because the WePay API does not provide any way to search by a payer&#8217;s information.  All you can search by is a tokenized credit card ID.</p>
 <p>However, if a payer comes to a platform&#8217;s customer support and requests a refund, they likely don&#8217;t know the token associated with their purchase.  Storing payer information falls squarely onto the platform.</p>
 <p>The payer object follows the same design as all the other objects, however, it&#8217;s associated back-end call does not communicate with WePay.  Instead, it communicates with the partner&#8217;s database to receive <strong>all</strong> checkouts associated with the user.</p>
@@ -584,7 +591,6 @@ This includes information about where a merchant&#8217;s money is being withdraw
 Selecting a checkout here will then dispatch actions to gather information about the merchant and the associated account.  A platform can&#8217;t do a refund without the merchant&#8217;s access token, so the account_id serves as a way for us to request that info from the partner&#8217;s middleware.</p>
 <p>Once a checkout has been selected though, it will also dispatch an action to find more information on the WePay API about <em>that specific checkout</em>.  The payer table that had all of the payer&#8217;s checkout on that platform, potentially across multiple accounts, will become a single row with all of the information that you would normally get from the checkout object, but only for this particular checkout.</p>
 <p>Again, the idea behind this application is to take a walk through the platform&#8217;s database in conjunction with information stored by WePay.  No matter what path you take, you should be able to arrive at your destination and it should look familiar to all other paths.</p>
-</div>
 </div>
 </div>
 
