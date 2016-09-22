@@ -58,11 +58,11 @@ The *components* are responsible for handling user actions and then dispatching 
 For example, when an account is clicked in the account component, the account component registers that the click happened, manipulates the table, and then dispatches the *searchedAccounts*, *fetchWithdrawalsIfNeeded* and *fetchCheckoutsIfNeeded* actions.  Some of these actions will directly impact the action component causing it to re-render with new info, while others will impact other components forcing them to re-render with new info as well.  On the other hand, the *User* objects is not impacted at all.  Actions to accounts do not affect the User who owns them so we do not see the user component re-render.
 
 General Object Implementation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------
 All of the objects are different in the sense that they require different search requirements (user_id, account_id, etc.); however, they are all implemented in very similar ways.  
 
 Actions
-^^^^^^^^^^
+~~~~~~~~~~~
 All of the objects require a handful of actions:
     1) Search
         - Notify all components the object is being *searched* for and what exactly we are searching for
@@ -97,7 +97,7 @@ In general, these are the public functions that each object has for dispatching 
         :param id:  some unique id of the object that we just looked up.  For example, for user's this is an email address; accounts use an account_id
 
 Reducers
-^^^^^^^^^^^^
+~~~~~~~~~~~~~
 The reducers that take these actions are also very similar.  
 Each reducer is actually composed of two smaller functions - a *searched* function and a *base* function. 
 We do this because of the asynchronous nature of Redux actions mixed with the POST requests to our back-end.  If someone searches a user, but then realizes they searched the wrong email and changes the search parameter, we need a way to handle that.
@@ -132,7 +132,7 @@ Going back to the earlier example, if someone were to search a user with one ema
 .. _user_object:
 
 User Object
-------------
+-------------
 The user objects represents a WePay merchant accessible through the :wepay:`user` endpoint.
 This is the primary building block for all other information that we gather.
 
@@ -256,7 +256,3 @@ Selecting a checkout here will then dispatch actions to gather information about
 Once a checkout has been selected though, it will also dispatch an action to find more information on the WePay API about *that specific checkout*.  The payer table that had all of the payer's checkout on that platform, potentially across multiple accounts, will become a single row with all of the information that you would normally get from the checkout object, but only for this particular checkout.
 
 Again, the idea behind this application is to take a walk through the platform's database in conjunction with information stored by WePay.  No matter what path you take, you should be able to arrive at your destination and it should look familiar to all other paths.
-
-
-
-
