@@ -6,7 +6,7 @@
  */
 
 import React, { PropTypes } from 'react'
-import {FormGroup, FormControl, Row, Col, ControlLabel, Table} from "react-bootstrap"
+import {FormGroup, FormControl, Row, Col, ControlLabel, Table, Tooltip, OverlayTrigger, Popover} from "react-bootstrap"
 import { connect } from 'react-redux'
 import {searchCheckout, clearCheckouts, fetchCheckoutIfNeeded} from "../actions/checkouts"
 import {addWithdrawals, clearWithdrawals, fetchWithdrawalIfNeeded} from "../actions/withdrawals"
@@ -44,6 +44,49 @@ var AccountBlock= React.createClass({
         });
         console.log((<p>{row.action_reasons_0}</p>))
         $("#account_table .react-bs-table").popover("show")
+    },
+    formatAccountState: function(cell, row) {
+      var reason_type = "";
+      var title = "";
+      var reasons = [];
+      if (cell === 'action_required') {
+        reason_type = "action_reasons";
+        title = "Action Reasons";
+      }
+      else if (cell === "disabled") {
+        reason_type = "disabled_reasons";
+        title = "Disabled Reasons"
+      }
+
+      /*
+        if the reason type is not action_required or disabled_reasons
+        just return the reason
+      */
+      if (reason_type === ""){
+        return cell
+      }
+
+      for (var k in row) {
+        if(k.indexOf(reason_type) !== -1){
+          reasons.push(row[k]);
+        }
+      }
+      reasons = reasons.join(", ");
+      console.log("REASONS: ", reasons);
+
+      var popoverHoverFocus = (<Popover id="popover-trigger-hover-focus" title={title}>
+        {reasons}
+      </Popover>)
+
+      return (
+        <div>{cell}
+
+          <OverlayTrigger trigger={['hover', 'focus']} placement="top" overlay={popoverHoverFocus}>
+              <span className={"glyphicon glyphicon-question-sign"}></span>
+          </OverlayTrigger>
+        </div>
+      );
+
     },
     formatBalance: function(cell, row) {
 
@@ -135,6 +178,7 @@ var AccountBlock= React.createClass({
                         </TableHeaderColumn>
                         <TableHeaderColumn
                           dataField="state"
+                          dataFormat={this.formatAccountState}
                         > State
                         </TableHeaderColumn>
                         <TableHeaderColumn
@@ -151,6 +195,7 @@ var AccountBlock= React.createClass({
                     </BootstrapTable>
                     <hr></hr>
                 </div>
+
             );
         }
     }

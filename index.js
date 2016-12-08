@@ -17,7 +17,7 @@ const logger = createLogger();
 
 
 // initialize store
-let store = createStore(todoApp, 
+let store = createStore(todoApp,
     applyMiddleware(thunkMiddleware, logger));
 render(
   <Provider store={store}>
