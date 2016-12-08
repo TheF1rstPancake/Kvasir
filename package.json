@@ -6,12 +6,13 @@
     "node": "6.0.0"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "npm run launch --production",
     "prestart": "npm run postinstall",
     "postinstall": "webpack --config ./webpack.prod.config.js",
     "bundle": "webpack --config ./webpack.prod.config.js --production",
     "test": "mocha --reporter spec",
-    "test:watch": "npm test -- --watch"
+    "test:watch": "npm test -- --watch",
+    "launch": "node server.js"
   },
   "repository": {
     "type": "git",

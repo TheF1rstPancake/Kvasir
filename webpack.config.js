@@ -16,12 +16,13 @@ module.exports = {
     new webpack.optimize.OccurrenceOrderPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.UglifyJsPlugin({
+    new webpack.PrefetchPlugin("react"),
+    /*new webpack.optimize.UglifyJsPlugin({
         minimize: true,
         compress: {
             warnings: false
         }
-    }),
+    }),*/
   ],
   module: {
     loaders: [
