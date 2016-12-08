@@ -39,7 +39,7 @@ var AccountBlock= React.createClass({
         console.log("Rollover!");
 
         $("#account_table .react-bs-table").attr({
-            "data-placement":   "top", 
+            "data-placement":   "top",
             "data-content":     row.action_reasons_0.toString()
         });
         console.log((<p>{row.action_reasons_0}</p>))
@@ -53,14 +53,14 @@ var AccountBlock= React.createClass({
      *
      * This will clear all objects that are linked to this table because we want to overwrite all of that info
      * This means that we need to clear withdrawals, checkouts, and the payer table (clearing withdrawals also takes care of reserves)
-     * 
+     *
      * After everything has been cleared, we fetch the 50 most recent checkouts tied to the account, and the 50 most recent withdrawals and reserve states
      */
     handleClick: function(row, isSelected) {
-        // set the account 
+        // set the account
         var account_id = row.account_id;
         this.props.dispatch(searchAccount(account_id));
-        
+
         // clear current widthdrawals and checkouts
         this.props.dispatch(clearWithdrawals());
         this.props.dispatch(clearCheckouts());
@@ -103,7 +103,7 @@ var AccountBlock= React.createClass({
             return (<div></div>);
         }
         else {
-            accounts = this.serialize(accounts); 
+            accounts = this.serialize(accounts);
             return (
                 <div id="account_table">
                     <h4> Account Details </h4>
@@ -116,8 +116,8 @@ var AccountBlock= React.createClass({
                         selectRow = {this.state.selectRowProp}
                         ref="account_data"
                     >
-                        <TableHeaderColumn 
-                            dataField="name" 
+                        <TableHeaderColumn
+                            dataField="name"
                             >
                             Account Name
                         </TableHeaderColumn>
@@ -133,14 +133,18 @@ var AccountBlock= React.createClass({
                         >
                             Create Time
                         </TableHeaderColumn>
-                        <TableHeaderColumn 
-                            dataField="balances_0_balance" 
+                        <TableHeaderColumn
+                          dataField="state"
+                        > State
+                        </TableHeaderColumn>
+                        <TableHeaderColumn
+                            dataField="balances_0_balance"
                             dataFormat={this.formatBalance}
                             >
                             Balance ({accounts[0] ? accounts[0].balances_0_currency : "Currency"})
                         </TableHeaderColumn>
-                        <TableHeaderColumn 
-                            dataField="balances_0_withdrawal_bank_name" 
+                        <TableHeaderColumn
+                            dataField="balances_0_withdrawal_bank_name"
                             >
                             Bank
                         </TableHeaderColumn>
@@ -157,7 +161,7 @@ var AccountBlock= React.createClass({
  *
  * accountInfo:         a list of dictionaries representing different accounts
  * isFetching:          true if the object is currently fetching account details
- * error:               errors raised by /actions/accounts and /reducers/accounts 
+ * error:               errors raised by /actions/accounts and /reducers/accounts
  */
 const mapStateToProps = (state) => {
     return {
