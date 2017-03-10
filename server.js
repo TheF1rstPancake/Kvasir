@@ -238,7 +238,7 @@ function getWePayData(res, wepay_endpoint, access_token, package) {
 
     try {
         wepay.call(wepay_endpoint, package, function(response) {
-            sendResponse(JSON.parse(response.toString()), res);
+            sendResponse(response, res);
         });
     }
     catch(error) {
