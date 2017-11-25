@@ -160,8 +160,8 @@ class KvasirBlueprint(Blueprint):
 
         TODO: make this timebased.  Payer must provide their email and the date that the charge occured.  We can search for +/- a day around the date they provide
         """
-        print("Checking checkouts with payer: {0}".format(data['email']))
-        checkouts = [v for k,v in self.database['Checkouts'].items() if v['payer_email'] == data['email']]
+        print("Checking checkouts with payer: {0}".format(data['payer_email']))
+        checkouts = [v for k,v in self.database['Checkouts'].items() if v['payer_email'] == data['payer_email']]
 
         print("Found checkouts: {0}".format(checkouts))
 

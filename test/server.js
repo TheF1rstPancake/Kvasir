@@ -124,7 +124,7 @@ describe("middleware", function(){
     /**
      * Check the payer endpoint
      */
-     xdescribe("payer endpoint", function() {
+     describe("payer endpoint", function() {
         /**
          * request should fail if the authorization header is not set correctly
          */
@@ -132,7 +132,7 @@ describe("middleware", function(){
             this.timeout(10000);
             request.post(
                 {
-                    uri: middleware_uri+"/user",
+                    uri: middleware_uri+"/payer",
                     json:{"payer_email":database.Checkouts[Object.keys(database.Checkouts)[0]].payer_email},
                     headers:{"Authorization":null, "Content-Type":"application/json"}
                 },
@@ -497,7 +497,7 @@ describe("server", function() {
             this.timeout(10000);
             request.post({
                     url: url+"/payer",
-                    json:{"email":"-1"},
+                    json:{"payer_email":"-1"},
                     headers:headers
                 },
                 function(error, response, body) {
@@ -515,7 +515,7 @@ describe("server", function() {
             this.timeout(15000);
             request.post({
                     url:url+"/payer",
-                    json:{"email":Object.keys(database.Payers)[0]},
+                    json:{"payer_email":Object.keys(database.Payers)[0]},
                     headers:headers
                 },
                 function(error, response, body) {
