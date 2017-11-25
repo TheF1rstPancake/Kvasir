@@ -35,7 +35,7 @@ describe("middleware", function(){
     var middleware_uri = kvasir_config.KVASIR_MIDDLEWARE_TEST_URI;
     var middleware_headers = {"Authorization":database.middleware_secret_key, "Content-Type":"application/json"}
     console.log(middleware_headers);
-    xdescribe("user endpoint", function() {
+    describe("user endpoint", function() {
         /*this test should fail because the authorization header is not right*/
         it("fails to get info due to bad Authorization header", function(done){
             this.timeout(10000);

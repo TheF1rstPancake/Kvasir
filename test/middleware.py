@@ -55,7 +55,16 @@ class KvasirBlueprint(Blueprint):
         :param data:    the body of the incoming HTTP(S) request.
         """
         print("Getting access_token from user")
-        if "email" in data:
+        if "account_owner_email" in data:
+            user = self.database['Users'].get(data['account_owner_email'])
+
+            if not user:
+                return self._returnError("user", {"error_message":"could not locate user with account_owner_email {0}".format(data)})
+
+            print("Found user: {0}".format(user))
+            return jsonify(user)
+
+        elif "email" in data:
             user = self.database['Users'].get(data['email'])
 
             if not user:
