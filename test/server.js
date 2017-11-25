@@ -16,7 +16,7 @@ chai.use(require('chai-things'));
 
 var cheerio = require("cheerio");
 
-var database = require("./test.json"); 
+var database = require("./test.json");
 
 
 
@@ -35,7 +35,7 @@ describe("middleware", function(){
     var middleware_uri = kvasir_config.KVASIR_MIDDLEWARE_TEST_URI;
     var middleware_headers = {"Authorization":database.middleware_secret_key, "Content-Type":"application/json"}
     console.log(middleware_headers);
-    describe("user endpoint", function() {
+    xdescribe("user endpoint", function() {
         /*this test should fail because the authorization header is not right*/
         it("fails to get info due to bad Authorization header", function(done){
             this.timeout(10000);
@@ -57,10 +57,10 @@ describe("middleware", function(){
             this.timeout(10000);
             request.post(
                 {
-                    url: middleware_uri+"/user", 
+                    url: middleware_uri+"/user",
                     json:{"account_owner_email":"xxx"},
                     headers: middleware_headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.include.keys("error_message");
                     expect(response.statusCode).to.equal(200);
@@ -74,10 +74,10 @@ describe("middleware", function(){
         it("fails to get access_token by account_id due to unknown account_id", function(done) {
             this.timeout(10000);
             request.post({
-                    url: middleware_uri+"/user", 
+                    url: middleware_uri+"/user",
                     json:{"account_id":"-1"},
                     headers:middleware_headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.include.keys("error_message");
                     expect(response.statusCode).to.equal(200);
@@ -102,7 +102,7 @@ describe("middleware", function(){
                 }
             );
         });
-        /** 
+        /**
          * This test should return an access token because the account id is known
          */
         it("gets access_token by account_id", function(done) {
@@ -124,7 +124,7 @@ describe("middleware", function(){
     /**
      * Check the payer endpoint
      */
-     describe("payer endpoint", function() {
+     xdescribe("payer endpoint", function() {
         /**
          * request should fail if the authorization header is not set correctly
          */
@@ -149,10 +149,10 @@ describe("middleware", function(){
         it("fails to get payer by email due to unknown email", function(done){
             this.timeout(10000);
             request.post({
-                    url: middleware_uri+"/payer", 
+                    url: middleware_uri+"/payer",
                     json:{"payer_email":"-1"},
                     headers:middleware_headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body.payer_checkouts).to.be.empty;
                     done();
@@ -181,18 +181,21 @@ describe("middleware", function(){
 });
 
 /**
- * Run tests against Kvasir's server.  
+ * Run tests against Kvasir's server.
  * These will test the middleware at the same time, but the middleware tests are provided to give more clarity as to why a server test might be failing.
  */
 describe("server", function() {
-    var url = "http://localhost:8080";
+    var url = "http://localhost:5000";
     var csrf = "";
     var cookieString ="";
-    var headers = {"X-CSRF-TOKEN":"", "Cookie":""}
+    var headers = {
+      "X-CSRF-TOKEN":"", "Cookie":"",
+      "Authorization":database.middleware_secret_key
+    }
     /*try and get the homepage from the server*/
-    it("get homepage", function(done) {
-        request.get(url, function(error, response, body) {
-
+    it("gets homepage", function(done) {
+        var web_url = "http://localhost:8080";
+        request.get(web_url, function(error, response, body) {
             expect(response.statusCode).to.equal(200);
             done();
 
@@ -212,10 +215,10 @@ describe("server", function() {
             this.timeout(10000);
             request.post(
                 {
-                    url: url+"/user", 
+                    url: url+"/user",
                     json:{"email":"xxx"},
                     headers: headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.include.keys("error_message");
                     done();
@@ -228,10 +231,10 @@ describe("server", function() {
         it("fails to get user by account_id due to unknown account_id", function(done) {
             this.timeout(10000);
             request.post({
-                    url: url+"/user", 
+                    url: url+"/user",
                     json:{"account_id":"-1"},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.include.keys("error_message");
                     done();
@@ -254,7 +257,7 @@ describe("server", function() {
                 }
             );
         });
-        /** 
+        /**
          * Get the WePay user object by passing an account_id
          */
         it("gets WePay user object by account_id", function(done) {
@@ -281,10 +284,10 @@ describe("server", function() {
         it("fails to get account by email due to unknown email", function(done) {
             this.timeout(10000);
             request.post({
-                    url: url+"/account", 
+                    url: url+"/account",
                     json:{"email":"xxx"},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.have.property("error_message");
                     done();
@@ -297,10 +300,10 @@ describe("server", function() {
         it ("fails to get account by account_id due to unknown account_id", function(done){
             this.timeout(10000);
             request.post({
-                    url: url+"/account", 
+                    url: url+"/account",
                     json:{"account_id":"-1"},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.have.property("error_message");
                     done();
@@ -346,13 +349,13 @@ describe("server", function() {
      * Check the checkout endpoint
      */
     describe("checkout endpoint", function() {
-        it ("fails to get checkout by checkout_id due to unknwon checkout_id", function(done){
+        it ("fails to get checkout by checkout_id due to unknown checkout_id", function(done){
             this.timeout(10000);
             request.post({
-                    url: url+"/checkout", 
+                    url: url+"/checkout",
                     json:{"checkout_id":"-1", "account_id":"-1"},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.have.property("error_message");
                     done();
@@ -365,10 +368,10 @@ describe("server", function() {
         it ("fails to get checkout by account_id due to unknown account_id", function(done){
             this.timeout(10000);
             request.post({
-                    url: url+"/checkout", 
+                    url: url+"/checkout",
                     json:{"account_id":"-1"},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.have.property("error_message");
                     done();
@@ -394,7 +397,7 @@ describe("server", function() {
         /**
          * Check that checkouts returns a list of checkouts when using an account_id
          */
-        it("gets WePay checkout object by checkout_id", function(done) {
+        it("gets WePay checkout objects by account_id", function(done) {
             this.timeout(10000);
             request.post({
                     url:url+"/checkout",
@@ -411,17 +414,17 @@ describe("server", function() {
     /**
      * Check the withdrawal endpoint
      */
-    describe("withdrawal endpoint", function(){
+    xdescribe("withdrawal endpoint", function(){
         /**
          * Return an error when an unknown account_id is provided
          */
         it("fails to get withdrawal by account_id due to unknown account_id", function(done){
             this.timeout(10000);
             request.post({
-                    url: url+"/withdrawal", 
+                    url: url+"/withdrawal",
                     json:{"account_id":"-1"},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.have.property("error_message");
                     done();
@@ -448,17 +451,17 @@ describe("server", function() {
     /**
      * Check the reserve endpoint
      */
-    describe("reserve endpoint", function() {
+    xdescribe("reserve endpoint", function() {
         /**
          * Return an error when there is an unknown account_id
          */
         it("fails to get reserve by account_id due to unknown account_id", function(done){
             this.timeout(10000);
             request.post({
-                    url: url+"/reserve", 
+                    url: url+"/reserve",
                     json:{"account_id":"-1"},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.have.property("error_message");
                     done();
@@ -493,10 +496,10 @@ describe("server", function() {
         it("fails to get payer by email due to unknown email", function(done){
             this.timeout(10000);
             request.post({
-                    url: url+"/payer", 
+                    url: url+"/payer",
                     json:{"email":"-1"},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body.payer_checkouts).to.be.empty;
                     done();
@@ -525,17 +528,17 @@ describe("server", function() {
     });
 
     /**
-     * Check credit card 
+     * Check credit card
      *
      */
-     describe("credit_card endoint", function(){
+     xdescribe("credit_card endoint", function(){
         it("fails to get credit card if credit card is unknown", function(done){
             this.timeout(10000);
             request.post({
-                    url: url+"/credit_card", 
+                    url: url+"/credit_card",
                     json:{"id":"-1"},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.have.property("error_message");
                     done();
@@ -545,10 +548,10 @@ describe("server", function() {
         it("get the credit card object", function(done){
             this.timeout(10000);
             request.post({
-                    url: url+"/credit_card", 
+                    url: url+"/credit_card",
                     json:{"id":database.credit_card_id},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.have.property("credit_card_id");
                     done();
@@ -559,14 +562,14 @@ describe("server", function() {
     /**
      * Check preapproval object
      */
-     describe("preapproval endoint", function(){
+     xdescribe("preapproval endoint", function(){
         it("fails to get preapproval if it is unkown", function(done){
             this.timeout(10000);
             request.post({
-                    url: url+"/preapproval", 
+                    url: url+"/preapproval",
                     json:{"id":"-1"},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.have.property("error_message");
                     done();
@@ -576,10 +579,10 @@ describe("server", function() {
         it("get the preapproval object", function(done){
             this.timeout(10000);
             request.post({
-                    url: url+"/preapproval", 
+                    url: url+"/preapproval",
                     json:{"id":database.preapproval_id},
                     headers:headers
-                }, 
+                },
                 function(error, response, body) {
                     expect(body).to.have.property("preapproval_id");
                     done();
@@ -587,5 +590,4 @@ describe("server", function() {
             );
         });
     });
-
 });
