@@ -46,7 +46,7 @@ class KvasirBlueprint(Blueprint):
             return account['username']
         return None
 
-    def _getAccessTokenFromUser(self, data):
+    def _getUser(self, data):
         """
         Given either an email address or an account_id, this function will fetch an associated access_token
 
@@ -57,7 +57,16 @@ class KvasirBlueprint(Blueprint):
         print("Getting access_token from user")
         if "account_owner_email" in data:
             user = self.database['Users'].get(data['account_owner_email'])
-            
+
+            if not user:
+                return self._returnError("user", {"error_message":"could not locate user with account_owner_email {0}".format(data)})
+
+            print("Found user: {0}".format(user))
+            return jsonify(user)
+
+        elif "email" in data:
+            user = self.database['Users'].get(data['email'])
+
             if not user:
                 return self._returnError("user", {"error_message":"could not locate user with email {0}".format(data)})
 
@@ -66,15 +75,83 @@ class KvasirBlueprint(Blueprint):
 
         elif "account_id" in data:
             account = self.database['Accounts'].get(data['account_id'])
-            
+
             if not account:
                 return self._returnError("user", {"error_message": "could not find account with id: {0}".format(data.get('account_id'))})
-            
+
             user = self.database['Users'].get(account['username'])
-            
+
             if user:
                 print("Found user: {0}".format(user))
                 return jsonify(user)
+        print("Could not find resource.  Returning error")
+        return self._returnError("user", {"error_message":"could not locate resource with {0}".format(data)})
+    def _getAccount(self, data):
+        """
+        Given either an email address or an account_id, this function will fetch an associated access_token
+
+        This function will either return a JSON response with the associated access_token or an error
+
+        :param data:    the body of the incoming HTTP(S) request.
+        """
+        print("Getting account")
+        if "account_id" in data:
+            account = self.database['Accounts'].get(data['account_id'])
+
+            if not account:
+                return self._returnError("account", {"error_message": "could not find account with id: {0}".format(data.get('account_id'))})
+
+            print("Found account: {0}".format(account))
+            return jsonify(account)
+        elif "email" in data:
+            user = self.database['Users'].get(data['email'])
+
+            if not user:
+                return self._returnError("user", {"error_message":"could not locate user with email {0}".format(data)})
+
+            accounts = []
+            user_id = user['user_id']
+            for key, value in self.database['Accounts'].items():
+                account_user_id = value['user_id']
+                if account_user_id == user_id:
+                    accounts.append(value)
+
+            print("Found user: {0}".format(user))
+            return json.dumps(accounts)
+        print("Could not find resource.  Returning error")
+        return self._returnError("user", {"error_message":"could not locate resource with {0}".format(data)})
+    def _getCheckout(self, data):
+        """
+        Given either an checkout_id or an account_id, this function will fetch an associated checkout
+
+        This function will either return a JSON response with the associated checkout or an error
+
+        :param data:    the body of the incoming HTTP(S) request.
+        """
+        print("Getting checkout")
+        if "checkout_id" in data:
+            checkout = self.database['Checkouts'].get(data['checkout_id'])
+
+            if not checkout:
+                return self._returnError("checkout", {"error_message": "could not find checkout with id: {0}".format(data.get('checkout_id'))})
+
+            print("Found checkout: {0}".format(checkout))
+            return jsonify(checkout)
+        elif "account_id" in data:
+            account = self.database['Accounts'].get(data['account_id'])
+
+            if not account:
+                return self._returnError("user", {"error_message":"could not locate account with account_id {0}".format(data)})
+
+            checkouts = []
+            account_id = account['account_id']
+            for key, value in self.database['Checkouts'].items():
+                checkout_account_id = value['account_id']
+                if checkout_account_id == account_id:
+                    checkouts.append(value)
+
+            print("Found account: {0}".format(account))
+            return json.dumps(checkouts)
         print("Could not find resource.  Returning error")
         return self._returnError("user", {"error_message":"could not locate resource with {0}".format(data)})
     def _getPayerCheckouts(self, data):
@@ -135,7 +212,11 @@ def KvasirMiddleware(resource):
     data = request.json
 
     if resource == "user":
-        return kvasir_middleware._getAccessTokenFromUser(data)
+        return kvasir_middleware._getUser(data)
+    elif resource == "account":
+        return kvasir_middleware._getAccount(data)
+    elif resource == "checkout":
+        return kvasir_middleware._getCheckout(data)
     elif resource == "payer":
         return kvasir_middleware._getPayerCheckouts(data)
     else:

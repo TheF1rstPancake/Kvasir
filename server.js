@@ -16,7 +16,7 @@ var fs = require("fs")
 // express library for defining routes
 var express = require("express");
 
-// try and load a .env file.  
+// try and load a .env file.
 // This will put out a warning if one does not exist but that's fine
 // if it doesn't exist, you should be setting the environment variables manually.
 require("dotenv").config();
@@ -62,7 +62,7 @@ if(process.env.NODE_ENV !== 'production') {
   var webpackHotMiddleware = require('webpack-hot-middleware');
   var webpack = require('webpack');
   var compiler = webpack(config);
-  
+
   app.use(webpackDevMiddleware(compiler, { noInfo: true, publicPath: config.output.publicPath }));
   app.use(webpackHotMiddleware(compiler));
 }
@@ -73,7 +73,7 @@ var cookieParser = require("cookie-parser")
 var csrf = require("csurf");
 var csrfProtection = csrf(
     {cookie:{
-            secure: app_config.http_override ? false : true, 
+            secure: app_config.http_override ? false : true,
             httpOnly: true
         }
     }
@@ -122,7 +122,7 @@ winston.add(winston.transports.Console, {
 
 // define our logger
 // the expressWinston.logger only logs the HTTP(s) requests and response
-// the expressWinston.errorLogger is at the bottom of the file.  It has be 
+// the expressWinston.errorLogger is at the bottom of the file.  It has be
 var expressTransports = [
         new winston.transports.Console({
             colorize: true,
@@ -194,9 +194,9 @@ function sendResponse(package, res) {
     res.setHeader('Content-Type', 'application/json');
     if (package.error_code) {
         var error_package = {
-            "error_code":500, 
-            "error_description":"wepay call died. Check server logs for more details.", 
-            "error_message":package.error_description, 
+            "error_code":500,
+            "error_description":"wepay call died. Check server logs for more details.",
+            "error_message":package.error_description,
             "original_error":package}
         winston.warn("Sending error!\t", error_package);
         return res.status(500).send(JSON.stringify(error_package));
@@ -216,7 +216,7 @@ function sendResponse(package, res) {
  * @param package           -   the package of data we want to send along with request.  This can be an empty object depending on the endpoint
  */
 function getWePayData(res, wepay_endpoint, access_token, package) {
-    
+
     var wepay_settings = {}
 
     if (access_token) {
@@ -263,13 +263,13 @@ function getDataFromMiddleware(resource, data, callback) {
     winston.info("Requesting data from middleware: ", uri, data);
     return request.post(
         {
-            url:    uri, 
+            url:    uri,
             json:   data,
             headers: {
                 "Authorization":app_config.middleware_secret
             }
 
-        }, 
+        },
         callback
     );
 }
@@ -317,20 +317,20 @@ function parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint
 app.post("/user", csrfProtection, function(req, res) {
     winston.info('Incoming user request: ', req.body);
     var package = {};
-    
+
     // get the email from the search
     var email = req.body.email;
     var account_id = req.body.account_id;
 
     // get the necessary data from our middleware function and then make the corresponding request to WePay
     getDataFromMiddleware(
-        "user", 
+        "user",
         {
             "account_owner_email":email,
             "account_id": account_id
-        }, 
+        },
         function(error, response, body) {
-            return parseMiddlewareResponse(req, res, error, response, body, "/user", {});
+          return parseMiddlewareResponse(req, res, error, response, body, "/user", {});
         }
     );
 })
@@ -355,8 +355,8 @@ app.post('/account', csrfProtection, function(req, res){
         package['account_id'] = req.body.account_id;
         wepay_endpoint = "/account";
         return getDataFromMiddleware(
-            "user", 
-            {"account_id":req.body.account_id}, 
+            "user",
+            {"account_id":req.body.account_id},
             function(error, response, body){
                 parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint, package)
         });
@@ -374,7 +374,7 @@ app.post('/account', csrfProtection, function(req, res){
  * This endpoint has two seperate actions depending on the parameters passed
  * If no checkout_id is given, then this will get the 50 most recent checkouts for the given account_id
  * If a checkout_id is given, then this will fetch information for that checkout specifically.
- * Passing the checkout_id is useful for updating a checkout's info after performing an action with the dashboard. 
+ * Passing the checkout_id is useful for updating a checkout's info after performing an action with the dashboard.
  */
 app.post("/checkout", csrfProtection, function(req, res) {
     // prep the package and wepay_endpoint we want to hit
@@ -395,7 +395,7 @@ app.post("/checkout", csrfProtection, function(req, res) {
 
     return getDataFromMiddleware("user", {"account_id":req.body.account_id}, function(error, response, body){
         parseMiddlewareResponse(req, res, error, response, body, wepay_endpoint, package);
-    });    
+    });
 })
 
 /**
@@ -412,8 +412,8 @@ app.post("/withdrawal", csrfProtection, function(req, res){
     winston.info("Received request for withdrawals");
     var package = {"account_id":req.body.account_id};
     return getDataFromMiddleware(
-        "user", 
-        {"account_id":req.body.account_id}, 
+        "user",
+        {"account_id":req.body.account_id},
         function(error, response, body) {
             parseMiddlewareResponse(req, res, error, response, body, "/withdrawal/find", package);
     });
@@ -421,7 +421,7 @@ app.post("/withdrawal", csrfProtection, function(req, res){
 
 /**
  * Perform a refund for a given checkout_id.
- * 
+ *
  * This endpoint expects the following fields in the body of the request:
  *  @param checkout_id     -   the checkout_id
  *  @param refund_reason   -   the reason that the checkout is being refunded
@@ -429,7 +429,7 @@ app.post("/withdrawal", csrfProtection, function(req, res){
  *  @param app_fee         -   (optional) initiates a partial refund for the specified app_fee amount
  * The amount field should be used to perform a partial refund.
  * When doing a partial refund, you can also pass a app_fee that specifies how much of the app_fee you want to refund
- * 
+ *
  * If no amount is passed, this will do a full refund
  */
 app.post("/refund", csrfProtection, function(req, res) {
@@ -445,8 +445,8 @@ app.post("/refund", csrfProtection, function(req, res) {
     }
 
     return getDataFromMiddleware(
-        "user", 
-        {"account_id":req.body.account_id}, 
+        "user",
+        {"account_id":req.body.account_id},
         function(error, response, body){
             return parseMiddlewareResponse(req, res, error, response, body, "/checkout/refund", package)
         }
@@ -472,14 +472,14 @@ app.post("/reserve", csrfProtection, function(req, res) {
 /**
  * Given a payer's unique identifying information (such as their email), get a list of all of their checkouts from the middleware
  */
-app.post("/payer", csrfProtection, function(req, res) {   
-    winston.info("Received request for payer"); 
+app.post("/payer", csrfProtection, function(req, res) {
+    winston.info("Received request for payer");
     // get the email from the search
     var email = req.body.email;
     // get the necessary data from our middleware function and then make the corresponding request to WePay
     return getDataFromMiddleware(
-        "payer", 
-        {"payer_email":email, "num_elements":50}, 
+        "payer",
+        {"payer_email":email, "num_elements":50},
         function(error, response, body) {
             return parseMiddlewareResponse(req, res, error, response, body, null, null);
         }
